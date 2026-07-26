@@ -19,4 +19,6 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 ---
 
-服务端实现目录。完整目标架构与数据模型见 `docs/technical-architecture.md`。产品级设计（跨端）在上一级 `../docs/` 目录，不在这里维护。
+服务端实现目录。**目标设计与 tool 调用路径见 `docs/target-workflow.md`**（业务流程图 + 内核/接缝划分 + 完整 tool 清单）；
+数据模型以 `prisma/schema.prisma` 为准；各变更的决策记录见 `openspec/changes/*/design.md`。
+产品级设计（跨端）在上一级 `../docs/` 目录，不在这里维护。

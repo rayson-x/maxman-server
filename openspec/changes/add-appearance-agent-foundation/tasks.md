@@ -55,8 +55,6 @@
 
 ## 10. Follow-up (not done in this change)
 - [x] 10.1 ~~Update `add-mvp1-core-flow`'s Open Questions~~ — **已由取代方案承接**：`add-mvp1-core-flow` 已归档为 superseded，供应商实测结论记在 `archive/2026-07-26-superseded-add-mvp1-core-flow/SUPERSEDED.md` 与新提案 `add-mvp1-backend-flow/design.md` 的实测数据汇总表
-- [~] 10.2 Enable `wanx2.1-imageedit` in the DashScope console (user action) — 需用户在控制台操作，agent 无法完成
-- [~] 10.3 Regenerate a valid Tencent Hunyuan API key (user action) — note this does NOT make Hunyuan viable for clothing-swap regardless — 需用户在控制台操作，agent 无法完成
 - [x] 10.4 taskLedger 迁 Postgres — 抽出 `TaskLedger` 接口 + 文件版/Postgres 版双实现，经 `setActiveTaskLedger` 由组装根注入。**两套实现跑同一套 10 项断言全部通过**（行为一致才能保证「测试用文件版、生产用 PG 版」不出偏差）；实质收益是跨进程可见——API 提交的任务 worker 能查到
 - [x] 10.5 限流分层 — 队列层（Redis backed，跨进程，权威）负责任务级并发=1；进程内限流器保留为**不经队列的调用路径**（测试/运维脚本）的兜底，可用 `VOLC_SKIP_INPROCESS_RATE_LIMIT=1` 在 worker 内关闭避免双重节流
 - [x] 10.6 `CandidateTaskCatalog` 扩展到非风格领域 — 24 条入库（21 可推荐 + 3 显式排除），覆盖面部仪容/护肤/体态/健身/气味/口腔/其他 7 个领域。`applicableStageRange` 按**时间尺度**填并验证落位正确（阶段0=当天仪容清理，阶段3=力量训练与牙齿矫正）。**3 条明确排除项保留而非删除**（Mewing / 下颌线训练器 / 面部瑜伽）并写明原因——防止后续 LLM 或新同事把它们重新「发明」回推荐列表；已断言它们不会出现在任何用户方案里。12/12 集成断言通过，含「7 条 general_best_practice 任务全部为 optional」

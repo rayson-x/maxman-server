@@ -1,16 +1,23 @@
 import type { AppContainer } from "./container.js";
+import { photoModerationWhere } from "../lib/photoModerationGate.js";
+import { env } from "../config/env.js";
 import type { PrismaClient } from "../generated/prisma/client.js";
 import { createAnalysisJobRepository } from "../repositories/analysisJobRepository.js";
 import { createTargetImageService } from "../services/targetImageService.js";
 import { createPlanRevisionService } from "../services/planRevisionService.js";
 import { moderateInputStep } from "../steps/moderateInput.js";
 import { analyzeVisionStep } from "../steps/analyzeVision.js";
-import { recommendStep, type ScoredCandidate } from "../steps/recommend.js";
+import { recommendStep } from "../steps/recommend.js";
+import { createRecommendationApplication } from "../services/recommendationApplication.js";
 import { renderPreviewsStep, renderOutfitPreviewsStep } from "../steps/renderPreviews.js";
 import { materializePlanStep, type MaterializeTaskSpec } from "../steps/materializePlan.js";
 import { runWithSingleRetry, type StepContext, type StepDeps } from "../steps/types.js";
 import { isCatalogDomain, isStyleDomain } from "../features/appearance-agent/data/domains.js";
 import { deriveTaskDimensions } from "../features/appearance-agent/data/taskDimensions.js";
+import { buildSelectedStyleTaskSpecs } from "../services/selectedStyleTaskService.js";
+import { verifyProgressStep } from "../steps/verifyProgress.js";
+import { DEFAULT_COMPATIBILITY_THRESHOLD } from "../features/appearance-agent/data/styleProfile.js";
+import { createPhotoAccessService } from "../services/photoAccessService.js";
 
 /**
  * jobType → step 管道的编排层。
@@ -32,9 +39,15 @@ export type JobPayload = {
   userId: string;
   planId?: string;
   stageId?: string;
+  /** progress_recheck 用：调用方已完成归属校验的进度照对象键 */
+  progressPhotoStorageKey?: string;
   /** progress_recheck 用：视觉分析认为实际未发生的变化描述 */
   unverifiedDescriptions?: string[];
   imageType?: "face_hair" | "full_body_outfit";
+  /** 内部编排用；HTTP/worker payload 不应由客户端直接指定。 */
+  generationTrigger?: "stage_unlock" | "user_regeneration" | "progress_recheck";
+  /** 只有独立“换一批”入口可设置，普通重复分析必须复用首次推荐。 */
+  forceRecommendationRefresh?: boolean;
 };
 
 export type OrchestratorResult = { status: string; detail?: Record<string, unknown> };
@@ -44,6 +57,7 @@ export function createJobOrchestrator(container: AppContainer) {
   const jobs = createAnalysisJobRepository(prisma);
   const targetImages = createTargetImageService(prisma, container.providers);
   const planRevision = createPlanRevisionService(prisma);
+  const photoAccess = createPhotoAccessService(prisma);
   const deps: StepDeps = { prisma, providers: container.providers };
 
   /**
@@ -56,13 +70,28 @@ export function createJobOrchestrator(container: AppContainer) {
     if (!r.ok) console.warn(`[orchestrator] job ${jobId} 跃迁到 ${next} 被拒: ${r.reason}`);
   }
 
+  /**
+   * 审核门槛统一走 `photoModerationWhere()`（见 lib/photoModerationGate.ts）。
+   * 此前这个判定硬编码在 6 处，改一处漏一处，表现为「路由放行、某个 step 说找不到照片」。
+   */
+
   async function loadPhotos(userId: string) {
     const front = await prisma.userPhoto.findFirst({
-      where: { userId, photoType: "front", deletionStatus: "active" },
+      where: {
+        userId,
+        photoType: "front",
+        deletionStatus: "active",
+        ...photoModerationWhere(),
+      },
       orderBy: { uploadedAt: "desc" },
     });
     const fullBody = await prisma.userPhoto.findFirst({
-      where: { userId, photoType: "full_body", deletionStatus: "active" },
+      where: {
+        userId,
+        photoType: "full_body",
+        deletionStatus: "active",
+        ...photoModerationWhere(),
+      },
       orderBy: { uploadedAt: "desc" },
     });
     return { front, fullBody };
@@ -111,27 +140,6 @@ export function createJobOrchestrator(container: AppContainer) {
           })),
         },
       },
-    });
-  }
-
-  /** 把候选补上生成指令。指令用目录里的 nameZh/description，不让 LLM 现编。 */
-  async function withChangeInstructions(
-    candidates: ScoredCandidate[],
-    kind: "hairstyle" | "outfit",
-  ): Promise<(ScoredCandidate & { changeInstruction: string })[]> {
-    const entries = await prisma.styleProfileEntry.findMany({
-      where: { id: { in: candidates.map((c) => c.entryId) } },
-    });
-    const byId = new Map(entries.map((e) => [e.id, e]));
-    return candidates.map((c) => {
-      const e = byId.get(c.entryId);
-      const desc = e?.description?.trim();
-      return {
-        ...c,
-        changeInstruction: kind === "hairstyle"
-          ? `把发型改成${c.nameZh}${desc ? `（${desc}）` : ""}`
-          : `换成这套穿搭：${c.nameZh}${desc ? `（${desc}）` : ""}`,
-      };
     });
   }
 
@@ -186,7 +194,12 @@ export function createJobOrchestrator(container: AppContainer) {
         return { status: "failed" };
       }
       await jobs.mergePartialResult(p.jobId, {
-        vision: { geometry: s2.data.geometry, hairSignals: s2.data.hairSignals, hasFullBody: s2.data.hasFullBody },
+        vision: {
+          geometry: s2.data.geometry,
+          hairSignals: s2.data.hairSignals,
+          structuredSemantic: s2.data.structuredSemantic,
+          hasFullBody: s2.data.hasFullBody,
+        },
       });
 
       // ── 建方案（S3 要读 femaleAppealWeight，所以必须先于 S3）──
@@ -200,8 +213,11 @@ export function createJobOrchestrator(container: AppContainer) {
         recommendStep,
         {
           vision: s2.data,
+          // 照片授权交给应用模块：签发与访问记录在那里统一处理
+          frontPhotoStorageKey: front.storageKey,
           userPreferenceText: profile?.stylePreferenceText ?? undefined,
           userPreferenceStyleTag: profile?.stylePreferenceStyleTag ?? null,
+          changeWillingness: profile?.changeWillingness ?? null,
         },
         planCtx,
         deps,
@@ -210,32 +226,28 @@ export function createJobOrchestrator(container: AppContainer) {
         await jobs.fail(p.jobId, `S3 失败: ${s3.error}`);
         return { status: "failed" };
       }
-      // 文字推荐先落地——客户端此刻已有内容可读
-      await jobs.mergePartialResult(p.jobId, {
-        planId: plan.id,
-        recommendation: {
-          hairConstraint: s3.data.hairConstraint,
-          filterTrace: s3.data.filterTrace,
-          candidates: s3.data.hairstyleCandidates,
-          userPreferenceAssessment: s3.data.userPreferenceAssessment,
-          dataReady: s3.data.dataReady,
-        },
-      });
-      // ⚠ 刻意不在这里写「待生成数」：`renderPreviewsStep` 自己维护
-      // `hairstylePreviewsPending` 并逐张递减。这里再写一个 `pendingPreviews`
-      // 就是同一件事两个计数器，而这一个永远不会被递减——实测过一次，
-      // 客户端会一直以为还有 3 张在路上。计数由真正推进它的那一方独占。
+      const recommendation = {
+        setId: s3.data.setId,
+        candidates: s3.data.candidates,
+        capabilityStatus: s3.data.capabilityStatus,
+        reused: s3.data.reused,
+      };
 
-      if (s3.data.hairstyleCandidates.length === 0) {
-        // 风格数据未就绪时如实收尾，不假装成功也不报 failed——
-        // 用户的输入没问题，是我们的数据没到位（决策：completed_partial 是一等公民）
+      if (s3.data.candidates.length === 0) {
+        await jobs.mergePartialResult(p.jobId, { planId: plan.id, recommendation });
         await jobs.complete(p.jobId, {
-          missing: s3.status === "completed_partial"
-            ? [{ item: "发型候选", reason: "风格数据（StyleProfileEntry）尚未就绪" }]
-            : [{ item: "发型候选", reason: "确定性过滤后无合适候选" }],
+          missing: [{
+            item: "发型候选",
+            reason: s3.data.inProgress
+              ? "另一个请求正在生成候选，请稍后重试"
+              : "provider 未产出通过校验的候选，未放宽约束",
+          }],
         });
         return { status: "completed_partial", detail: { candidates: 0 } };
       }
+
+      // 文字候选先落地，客户端此刻已有内容可读；图片随后逐张追加（决策 12）
+      await jobs.mergePartialResult(p.jobId, { planId: plan.id, recommendation });
 
       // ── S4 发型预览（串行，顺序=匹配度降序）──
       await step(p.jobId, "rendering");
@@ -243,7 +255,13 @@ export function createJobOrchestrator(container: AppContainer) {
         renderPreviewsStep,
         {
           baselinePhotoStorageKey: front.storageKey,
-          candidates: await withChangeInstructions(s3.data.hairstyleCandidates, "hairstyle"),
+          // renderInstruction 已含身份保持后缀，这里不再拼指令
+          candidates: s3.data.candidates.map((c) => ({
+            candidateId: c.candidateId,
+            nameZh: c.nameZh,
+            renderInstruction: c.renderInstruction,
+            modelRationale: c.modelRationale,
+          })),
           kind: "hairstyle",
         },
         planCtx,
@@ -252,11 +270,22 @@ export function createJobOrchestrator(container: AppContainer) {
       if (s4.status === "failed") {
         // 图片没出来但文字推荐已经推给用户了，收成部分成功而非 failed——
         // 报 failed 会让客户端把已读到的推荐也丢掉
-        await jobs.complete(p.jobId, { missing: [{ item: "发型效果图", reason: s4.error }] });
+        await jobs.complete(p.jobId, {
+          missing: [
+            { item: "发型效果图", reason: s4.error },
+          ],
+        });
         return { status: "completed_partial", detail: { reason: s4.error } };
       }
-      await jobs.complete(p.jobId, { missing: s4.status === "completed_partial" ? s4.missing : undefined });
-      return { status: s4.status, detail: { previews: s4.data.previews.length } };
+      const missing = [
+        ...(s3.status === "completed_partial" ? s3.missing : []),
+        ...(s4.status === "completed_partial" ? s4.missing : []),
+      ];
+      await jobs.complete(p.jobId, { missing: missing.length > 0 ? missing : undefined });
+      return {
+        status: missing.length > 0 ? "completed_partial" : "completed",
+        detail: { previews: s4.data.previews.length },
+      };
     },
 
     /** S4′ 穿搭预览。无全身照时降级为文字+示意图（决策 11），不造全身照。 */
@@ -279,38 +308,65 @@ export function createJobOrchestrator(container: AppContainer) {
       const outfits = await prisma.styleProfileEntry.findMany({
         where: { kind: "outfit_combo", isRecommended: true },
       });
-      // 协调性由风格向量确定性计算（决策 2），不问 LLM
-      const compatible = hairstyle
-        ? outfits.filter(
-            (o) =>
-              Math.abs(o.formality - hairstyle.formality) <= 3 &&
-              Math.abs(o.maturity - hairstyle.maturity) <= 3 &&
-              Math.abs(o.boldness - hairstyle.boldness) <= 3 &&
-              Math.abs(o.upkeep - hairstyle.upkeep) <= 3,
-          )
-        : outfits;
+      const coordinationAvailable = Boolean(
+        hairstyle &&
+          hairstyle.formality !== null &&
+          hairstyle.maturity !== null &&
+          hairstyle.boldness !== null &&
+          hairstyle.upkeep !== null,
+      );
+      // 穿搭候选改由应用模块产出：不再从 StyleProfileEntry 按双审美评分筛选
+      // （那份数据为空，会导致零候选并卡住 /materialize）
+      const profileForOutfit = await prisma.appearanceProfile.findUnique({ where: { userId: p.userId } });
+      const eventForOutfit = await prisma.event.findUnique({ where: { userId: p.userId } });
+      const outfitApp = createRecommendationApplication({
+        prisma,
+        hairstyleProvider: container.providers.hairstyleRecommendation,
+        outfitProvider: container.providers.outfitRecommendation,
+      });
+      const outfitView = await outfitApp.recommendOutfits({
+        userId: p.userId,
+        planId: p.planId,
+        requestedCount: 3,
+        selectedHairstyleCandidateId: plan.selectedHairstyleId!,
+        body: {
+          heightCm: profileForOutfit?.heightCm ?? null,
+          weightKg: profileForOutfit?.weightKg ?? null,
+          bodyFatPercent: profileForOutfit?.bodyFatPercent ?? null,
+          shoulderWidthCm: profileForOutfit?.shoulderWidthCm ?? null,
+          chestCm: profileForOutfit?.chestCm ?? null,
+          waistCm: profileForOutfit?.waistCm ?? null,
+          thighCm: profileForOutfit?.thighCm ?? null,
+          exercisesRegularly: profileForOutfit?.exercisesRegularly ?? null,
+        },
+        scene: {
+          track: plan.track,
+          eventType: eventForOutfit?.eventType ?? (plan.track === "long_term" ? "日常" : null),
+          eventDate: eventForOutfit?.eventDate ?? null,
+        },
+        budgetTier: profileForOutfit?.budgetTier ?? null,
+        // 有全身照才传，纯文字路径不签发照片地址
+        fullBodyPhotoStorageKey: fullBody?.storageKey,
+      });
 
-      const weight = plan.femaleAppealWeight;
-      const candidates: ScoredCandidate[] = compatible
-        .map((o) => ({
-          entryId: o.id,
-          nameZh: o.nameZh,
-          femaleAppealScore: o.femaleAppealScore,
-          maleSelfAppealScore: o.maleSelfAppealScore,
-          appealGap: o.femaleAppealScore - o.maleSelfAppealScore,
-          gapWorthDisclosing: Math.abs(o.femaleAppealScore - o.maleSelfAppealScore) >= 3,
-          weightedScore: o.femaleAppealScore * weight + o.maleSelfAppealScore * (1 - weight),
-          rationale: o.femaleAppealRationale,
-        }))
-        .sort((a, b) => b.weightedScore - a.weightedScore)
-        .slice(0, 3);
+      if (outfitView.candidates.length === 0) {
+        await jobs.complete(p.jobId, {
+          missing: [{ item: "穿搭候选", reason: "provider 未产出通过校验的候选" }],
+        });
+        return { status: "completed_partial", detail: { candidates: 0 } };
+      }
 
       await step(p.jobId, "rendering");
       const s4b = await runWithSingleRetry(
         renderOutfitPreviewsStep,
         {
           fullBodyPhotoStorageKey: fullBody?.storageKey,
-          candidates: await withChangeInstructions(candidates, "outfit"),
+          candidates: outfitView.candidates.map((c) => ({
+            candidateId: c.candidateId,
+            nameZh: c.nameZh,
+            renderInstruction: c.renderInstruction,
+            modelRationale: c.modelRationale,
+          })),
         },
         ctx,
         deps,
@@ -320,7 +376,17 @@ export function createJobOrchestrator(container: AppContainer) {
         return { status: "failed" };
       }
       await jobs.mergePartialResult(p.jobId, {
-        outfit: { mode: s4b.data.mode, previews: s4b.data.previews, degradedNotice: s4b.data.degradedNotice },
+        outfit: {
+          mode: s4b.data.mode,
+          previews: s4b.data.previews,
+          degradedNotice: s4b.data.degradedNotice,
+          coordination: coordinationAvailable
+            ? { available: true, method: "catalog_style_vector_threshold" }
+            : {
+                available: false,
+                reason: "选定发型来自 vision-LLM，没有可信风格向量；本次穿搭未做协调过滤",
+              },
+        },
       });
       await jobs.complete(p.jobId, { missing: s4b.status === "completed_partial" ? s4b.missing : undefined });
       return { status: s4b.status, detail: { mode: s4b.data.mode } };
@@ -337,6 +403,43 @@ export function createJobOrchestrator(container: AppContainer) {
       }
       const ctx: StepContext = { jobId: p.jobId, userId: p.userId, planId: p.planId };
       const profile = await prisma.appearanceProfile.findUnique({ where: { userId: p.userId } });
+      const plan = await prisma.appearancePlan.findUnique({
+        where: { id: p.planId },
+        select: { selectedHairstyleId: true, selectedOutfitId: true },
+      });
+      if (!plan?.selectedHairstyleId || !plan.selectedOutfitId) {
+        await jobs.fail(
+          p.jobId,
+          "方案物化前必须同时选定发型和穿搭",
+        );
+        return { status: "failed" };
+      }
+      // 选定项现在是 RecommendationCandidate，不再是 StyleProfileEntry。
+      // 候选可能来自 Agent 而无目录引用，所以按候选 id 取。
+      const [selectedHairstyle, selectedOutfit] = await Promise.all([
+        prisma.recommendationCandidate.findUnique({
+          where: { id: plan.selectedHairstyleId },
+          include: { set: true },
+        }),
+        prisma.recommendationCandidate.findUnique({
+          where: { id: plan.selectedOutfitId },
+          include: { set: true },
+        }),
+      ]);
+      let selectedStyleSpecs: MaterializeTaskSpec[];
+      try {
+        selectedStyleSpecs = buildSelectedStyleTaskSpecs({
+          hairstyle: selectedHairstyle
+            ? { kind: selectedHairstyle.set.kind, nameZh: selectedHairstyle.nameZh, description: selectedHairstyle.description }
+            : null,
+          outfit: selectedOutfit
+            ? { kind: selectedOutfit.set.kind, nameZh: selectedOutfit.nameZh, description: selectedOutfit.description }
+            : null,
+        });
+      } catch (error) {
+        await jobs.fail(p.jobId, error instanceof Error ? error.message : String(error));
+        return { status: "failed" };
+      }
       const allSelected = profile?.domainSelections ?? [];
       // 只拿**目录驱动**的领域来过滤方法目录。发型/穿搭由 StyleProfileEntry 经
       // S3/S4 处理，不在目录里；混进来只会永远匹配不到（见 data/domains.ts）
@@ -346,7 +449,7 @@ export function createJobOrchestrator(container: AppContainer) {
       const styleSelected = allSelected.filter(isStyleDomain);
 
       const catalog = await prisma.candidateTaskCatalog.findMany({ where: { isRecommended: true } });
-      const specs: MaterializeTaskSpec[] = catalog
+      const catalogSpecs: MaterializeTaskSpec[] = catalog
         // 用户没选的领域不进方案——选择本身是产品承诺的一部分，不能替他扩张
         .filter((c) => catalogSelected.size === 0 || catalogSelected.has(c.domain))
         .map((c) => ({
@@ -363,6 +466,10 @@ export function createJobOrchestrator(container: AppContainer) {
           // 分阶段推进整体失效。实测踩过这个坑。
           dimensions: deriveTaskDimensions(c, profile?.domainAcceptance),
         }));
+      const specs: MaterializeTaskSpec[] = [
+        ...catalogSpecs,
+        ...selectedStyleSpecs,
+      ];
 
       await step(p.jobId, "materializing");
       const s5 = await runWithSingleRetry(materializePlanStep, { planId: p.planId, tasks: specs }, ctx, deps);
@@ -402,6 +509,7 @@ export function createJobOrchestrator(container: AppContainer) {
         planId: p.planId,
         stageId: p.stageId,
         imageType: p.imageType ?? "face_hair",
+        trigger: p.generationTrigger ?? "stage_unlock",
       });
       await step(p.jobId, "quality_checking");
       if (!r.ok) {
@@ -416,43 +524,131 @@ export function createJobOrchestrator(container: AppContainer) {
 
     /** 用户主动重生成。与 stage_unlock 同一条生成路径，区别只在触发者与限流。 */
     async user_regeneration(p: JobPayload): Promise<OrchestratorResult> {
-      return handlers.stage_unlock_generation(p);
+      return handlers.stage_unlock_generation({
+        ...p,
+        generationTrigger: "user_regeneration",
+      });
     },
 
     /** 进度复核：用视觉判断校准自报账本（决策 13）。 */
     async progress_recheck(p: JobPayload): Promise<OrchestratorResult> {
-      if (!p.planId) {
-        await jobs.fail(p.jobId, "缺少 planId");
+      if (!p.planId || !p.progressPhotoStorageKey) {
+        await jobs.fail(p.jobId, "缺少 planId 或 progressPhotoStorageKey");
         return { status: "failed" };
       }
       await step(p.jobId, "analyzing");
-      const { front } = await loadPhotos(p.userId);
-      const progressPhoto = await prisma.userPhoto.findFirst({
-        where: { userId: p.userId, photoType: "progress", deletionStatus: "active" },
-        orderBy: { uploadedAt: "desc" },
+      const entries = await prisma.changeManifestEntry.findMany({
+        where: { planId: p.planId, verificationStatus: "unverified" },
+        select: { id: true, changeDescription: true },
       });
-      const photo = progressPhoto ?? front;
-      if (!photo) {
-        await jobs.fail(p.jobId, "缺少进度照片");
-        return { status: "failed" };
+      if (entries.length === 0) {
+        const plan = await prisma.appearancePlan.findUniqueOrThrow({ where: { id: p.planId } });
+        const detail = { rolledBack: 0, verified: 0, uncertain: 0, planVersion: plan.planVersion };
+        await jobs.mergePartialResult(p.jobId, { recheck: detail });
+        await jobs.complete(p.jobId);
+        return { status: "completed", detail };
       }
 
-      const s2 = await runWithSingleRetry(
-        analyzeVisionStep,
-        { frontPhotoStorageKey: photo.storageKey },
+      const verification = await runWithSingleRetry(
+        verifyProgressStep,
+        {
+          progressPhotoStorageKey: p.progressPhotoStorageKey,
+          entries: entries.map((entry) => ({
+            entryId: entry.id,
+            changeDescription: entry.changeDescription,
+          })),
+        },
         { jobId: p.jobId, userId: p.userId, planId: p.planId },
         deps,
       );
 
-      // 未发生的变化描述：优先用调用方传入的判断；没传则从视觉语义里推断不出来，
-      // 那就当作「无法判定」交给 reconcile 保持 unverified，而不是瞎猜成 rolled_back
-      const unverified = p.unverifiedDescriptions ?? [];
-      const r = await planRevision.reconcileManifest({ planId: p.planId, unverifiedDescriptions: unverified });
-      await jobs.mergePartialResult(p.jobId, {
-        recheck: { ...r, visionAvailable: s2.status !== "failed" },
+      if (verification.status === "failed") {
+        const reason = `逐项进度核验失败，账本保持未验证：${verification.error}`;
+        await jobs.mergePartialResult(p.jobId, { recheck: { verified: 0, rolledBack: 0, uncertain: entries.length } });
+        await jobs.complete(p.jobId, { missing: [{ item: "逐项进度核验", reason }] });
+        return { status: "completed_partial", detail: { reason } };
+      }
+
+      const r = await planRevision.reconcileManifest({
+        planId: p.planId,
+        verificationEvidence: verification.data.verdicts,
       });
-      await jobs.complete(p.jobId);
-      return { status: "completed", detail: r as unknown as Record<string, unknown> };
+      const uncertain = verification.data.verdicts.filter((verdict) => verdict.status === "uncertain").length;
+      await jobs.mergePartialResult(p.jobId, {
+        recheck: {
+          ...r,
+          uncertain,
+          provider: verification.data.provider,
+          verdicts: verification.data.verdicts,
+        },
+      });
+
+      const missing: { item: string; reason: string }[] = [];
+      if (uncertain > 0) {
+        missing.push({
+          item: "逐项进度核验",
+          reason: `${uncertain} 条变化无法从当前照片可靠判断，已保持未验证`,
+        });
+      }
+
+      let regeneratedTarget: Record<string, unknown> = { attempted: false };
+      if (r.rolledBack > 0) {
+        const activeStage = await prisma.stage.findFirst({
+          where: { planId: p.planId, status: "active", stageIndex: { gt: 0 } },
+          orderBy: { stageIndex: "desc" },
+        });
+        if (activeStage) {
+          const latestTarget = await prisma.targetImage.findFirst({
+            where: { planId: p.planId, stageId: activeStage.id },
+            orderBy: { createdAt: "desc" },
+            select: { imageType: true },
+          });
+          const imageType =
+            latestTarget?.imageType === "full_body_outfit"
+              ? "full_body_outfit"
+              : "face_hair";
+
+          await step(p.jobId, "rendering");
+          const target = await targetImages.generateForStage({
+            jobId: p.jobId,
+            planId: p.planId,
+            stageId: activeStage.id,
+            imageType,
+            trigger: "progress_recheck",
+          });
+          await step(p.jobId, "quality_checking");
+          regeneratedTarget = target.ok
+            ? {
+                attempted: true,
+                generated: true,
+                targetImageId: target.targetImageId,
+                readUrl: target.readUrl,
+              }
+            : {
+                attempted: true,
+                generated: false,
+                reason: target.reason,
+                stageStillUnlocked: true,
+              };
+          if (!target.ok) {
+            missing.push({ item: "校准后的目标图", reason: target.reason });
+          }
+        } else {
+          regeneratedTarget = {
+            attempted: false,
+            reason: "当前处于阶段 0 或没有已激活的目标图阶段，无需重生成",
+          };
+        }
+      }
+
+      await jobs.mergePartialResult(p.jobId, {
+        recheckTargetImage: regeneratedTarget,
+      });
+      await jobs.complete(p.jobId, { missing: missing.length > 0 ? missing : undefined });
+      return {
+        status: missing.length > 0 ? "completed_partial" : "completed",
+        detail: { ...r, uncertain, targetImage: regeneratedTarget },
+      };
     },
   };
 

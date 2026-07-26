@@ -40,8 +40,8 @@ BetterMeet（内部代号，最终消费者品牌名待定，见 `../../docs/pro
 ### 页面变更与后端同步纪律
 产品/UI 讨论中确认的改动，必须区分两类，并且**确认后立刻同步进 schema/spec，不能只停留在对话记录里**：
 - **纯 UI 重排**（合并页面、砍掉过渡页、简化视觉效果、去掉某个环节的展示）：不改变已收集的数据或可执行的动作，通常不需要动 schema/API。
-- **引入新决策或新数据形状**（如新增一个需要用户选择的交互、新增一种任务分支）：必须同步更新 `docs/technical-architecture.md` 的 schema、对应 `openspec` capability 的 requirement/scenario、以及 `tasks.md` 的实现项，跑一次 `openspec validate --strict` 确认。判断标准：这个改动是否让"用户能做的事"或"系统要记录的数据"发生了变化，是则必须同步。
-- 完整目标架构见 `../docs/technical-architecture.md`（本仓库内）；MVP1 与完整架构的差异对照见 `../../docs/mvp-plan.md`
+- **引入新决策或新数据形状**（如新增一个需要用户选择的交互、新增一种任务分支）：必须同步更新 `prisma/schema.prisma`、`docs/target-workflow.md` 的流程与 tool 清单、对应 `openspec` capability 的 requirement/scenario、以及 `tasks.md` 的实现项，跑一次 `openspec validate --strict` 确认。判断标准：这个改动是否让"用户能做的事"或"系统要记录的数据"发生了变化，是则必须同步。
+- 目标设计与 tool 调用路径见 `../docs/target-workflow.md`（本仓库内）；MVP1 与完整架构的差异对照见 `../../docs/mvp-plan.md`
 
 ### Testing Strategy
 - 待实现阶段补充（当前为规划阶段）

@@ -1,8 +1,11 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../plugins/session.js";
+import { createRecommendationApplication } from "../services/recommendationApplication.js";
 import { createStageProgressionService } from "../services/stageProgressionService.js";
-import { createPresignedReadUrl } from "../lib/ossUpload.js";
+import { createPhotoAccessService } from "../services/photoAccessService.js";
+import { QUEUE_NAMES } from "../lib/queues.js";
+import { enqueueCreatedAnalysisJob } from "../services/analysisJobEnqueueService.js";
 
 const statusUpdateSchema = z.object({
   status: z.enum(["pending", "done", "skipped", "blocked", "replaced"]),
@@ -10,12 +13,56 @@ const statusUpdateSchema = z.object({
 
 const selectSchema = z.object({ styleTag: z.string().min(1) });
 
+type StyleSelectionEvidenceInput = {
+  entryExists: boolean;
+  kindMatches: boolean;
+  isRecommended: boolean;
+  source?: string | null;
+  generatedForPlanId?: string | null;
+  expectedPlanId?: string;
+  offeredIds: string[];
+  requestedEntryId: string;
+};
+
+export function evaluateStyleSelectionEvidence(
+  input: StyleSelectionEvidenceInput,
+):
+  | { ok: true }
+  | {
+      ok: false;
+      error:
+        | "style_not_found"
+        | "style_not_recommended"
+        | "candidate_evidence_unavailable"
+        | "not_in_candidates";
+    } {
+  if (!input.entryExists || !input.kindMatches) {
+    return { ok: false, error: "style_not_found" };
+  }
+  const ownedGenerated =
+    input.source === "vision_llm_generated" &&
+    input.requestedEntryId.startsWith("llm-") &&
+    Boolean(input.expectedPlanId) &&
+    input.generatedForPlanId === input.expectedPlanId;
+  if (!input.isRecommended && !ownedGenerated) {
+    return { ok: false, error: "style_not_recommended" };
+  }
+  if (input.offeredIds.length === 0) {
+    return { ok: false, error: "candidate_evidence_unavailable" };
+  }
+  if (!input.offeredIds.includes(input.requestedEntryId)) {
+    return { ok: false, error: "not_in_candidates" };
+  }
+  return { ok: true };
+}
+
 /**
  * 方案读取与阶段推进路由（tasks 8.1-8.4, 8.9）。
  */
 export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
   const { prisma } = app.container;
   const progression = createStageProgressionService(prisma);
+  const photoAccess = createPhotoAccessService(prisma);
 
   /**
    * tasks 8.1：一次返回全部四阶段任务。
@@ -28,7 +75,10 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
       include: {
         stages: {
           orderBy: { stageIndex: "asc" },
-          include: { tasks: { orderBy: { sortOrder: "asc" } }, targetImages: true },
+          include: {
+            tasks: { orderBy: { sortOrder: "asc" } },
+            targetImages: { orderBy: { createdAt: "desc" } },
+          },
         },
       },
     });
@@ -45,6 +95,10 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
       stages: await Promise.all(
         plan.stages.map(async (stage) => {
           const { coreTotal, coreDone, allCoreDone } = await progression.evaluateStageUnlock(stage.id);
+          const latestTargetImages = stage.targetImages.filter(
+            (image, index, images) =>
+              images.findIndex((candidate) => candidate.imageType === image.imageType) === index,
+          );
           return {
             stageIndex: stage.stageIndex,
             windowLabel: stage.windowLabel,
@@ -52,13 +106,25 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
             completionPct: stage.completionPct,
             // 解锁进度实时算出，不读缓存字段
             coreProgress: { done: coreDone, total: coreTotal, allDone: allCoreDone },
-            targetImages: stage.targetImages.map((img) => ({
-              imageType: img.imageType,
-              readUrl: img.storageKey ? createPresignedReadUrl(img.storageKey, { expiresSeconds: 3600 }) : null,
-              qualityCheckStatus: img.qualityCheckStatus,
-              // tasks 8.9：目标图必须带这条标注（决策 13）
-              disclosure: "本图基于你勾选的完成情况生成，为模拟效果",
-            })),
+            targetImages: await Promise.all(
+              latestTargetImages.map(async (img) => ({
+                imageType: img.imageType,
+                readUrl: img.storageKey
+                  ? (
+                      await photoAccess.issueReadUrl({
+                        storageKey: img.storageKey,
+                        accessorType: "user",
+                        accessorId: userId,
+                        purpose: "用户查看阶段目标图",
+                        expiresSeconds: 3600,
+                      })
+                    ).url
+                  : null,
+                qualityCheckStatus: img.qualityCheckStatus,
+                // tasks 8.9：目标图必须带这条标注（决策 13）
+                disclosure: "本图基于你勾选的完成情况生成，为模拟效果",
+              })),
+            ),
             tasks: stage.tasks.map((t) => ({
               taskId: t.id,
               domain: t.domain,
@@ -116,67 +182,37 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
    * 若客户端能提交任意 id，过滤引擎就被绕过了，用户可能选到一个我们明确判断
    * 会暴露发际线问题的发型。候选集以最近一次分析 job 的审计轨迹为准。
    */
+  /**
+   * 用户从候选集里选定发型或穿搭（两步约束选择的落点）。
+   *
+   * 归属与状态校验都在 `RecommendationApplication.selectCandidate` 里：
+   * 候选必须属于当前用户、且所属集合为 `ready`。
+   * 旧实现按 `StyleProfileEntry.id` 加上翻 job 的 `partialResult` 找候选集——
+   * 现在候选有稳定的 `candidateId`，不需要那套间接查找。
+   */
   app.post("/plans/:planId/select-style", async (req, reply) => {
     const user = requireUser(req);
     const { planId } = req.params as { planId: string };
-    const { entryId, kind } = req.body as { entryId?: string; kind?: string };
+    const { candidateId } = req.body as { candidateId?: string };
+    if (!candidateId) return reply.code(400).send({ error: "需要 candidateId" });
 
-    if (!entryId || (kind !== "hairstyle" && kind !== "outfit")) {
-      return reply.code(400).send({ error: "需要 entryId 与 kind（hairstyle|outfit）" });
+    const app2 = createRecommendationApplication({
+      prisma,
+      hairstyleProvider: app.container.providers.hairstyleRecommendation,
+      outfitProvider: app.container.providers.outfitRecommendation,
+    });
+    const result = await app2.selectCandidate({ userId: user.id, planId, candidateId });
+
+    if (!result.ok) {
+      const code = result.reason === "not_found" ? 404 : 422;
+      const message = {
+        not_found: "候选不存在",
+        not_owned: "该候选不属于你的方案",
+        set_not_ready: "候选集尚未就绪或已被新一轮推荐取代",
+      }[result.reason];
+      return reply.code(code).send({ error: result.reason, message });
     }
-
-    const plan = await prisma.appearancePlan.findFirst({ where: { id: planId, userId: user.id } });
-    if (!plan) return reply.code(404).send({ error: "方案不存在" });
-
-    const entry = await prisma.styleProfileEntry.findUnique({ where: { id: entryId } });
-    const expectedKind = kind === "hairstyle" ? "hairstyle" : "outfit_combo";
-    if (!entry || entry.kind !== expectedKind) {
-      return reply.code(422).send({ error: "style_not_found", message: `未找到该${kind === "hairstyle" ? "发型" : "穿搭"}条目` });
-    }
-
-    // 校验它确实是我们推荐过的候选之一
-    const job = await prisma.analysisJob.findFirst({
-      where: {
-        userId: user.id,
-        planId,
-        jobType: kind === "hairstyle" ? "initial_analysis" : "outfit_preview_generation",
-        status: { in: ["completed", "completed_partial"] },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-    const pr = (job?.partialResult ?? {}) as {
-      recommendation?: { candidates?: { entryId: string }[] };
-      outfit?: { previews?: { entryId: string }[] };
-    };
-    const offered = new Set(
-      kind === "hairstyle"
-        ? (pr.recommendation?.candidates ?? []).map((c) => c.entryId)
-        : (pr.outfit?.previews ?? []).map((c) => c.entryId),
-    );
-    if (offered.size > 0 && !offered.has(entryId)) {
-      return reply.code(422).send({
-        error: "not_in_candidates",
-        message: "该选项不在为你筛选出的候选中。候选经过脸型与发量适配过滤，直接指定会绕过这层判断。",
-        offered: [...offered],
-      });
-    }
-
-    const updated = await prisma.appearancePlan.update({
-      where: { id: planId },
-      data: kind === "hairstyle" ? { selectedHairstyleId: entryId } : { selectedOutfitId: entryId },
-    });
-
-    // 决策 0.6：只存结构化决策，不存对话原文
-    await prisma.conversationDecision.create({
-      data: { planId, decisionKind: "style_selected", payload: { kind, entryId, nameZh: entry.nameZh } },
-    });
-
-    return reply.send({
-      ok: true,
-      selectedHairstyleId: updated.selectedHairstyleId,
-      selectedOutfitId: updated.selectedOutfitId,
-      nameZh: entry.nameZh,
-    });
+    return reply.send({ ok: true, candidateId: result.candidateId, nameZh: result.nameZh });
   });
 
   /** tasks 8.2/8.3：任务状态更新，完成时自动写账本 */
@@ -196,18 +232,77 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
       });
     }
 
-    // 阶段解锁时触发目标图生成（tasks 7.6）——注意目标图**不阻塞**解锁，
-    // 解锁已经在上面完成了，这里只是追加一个生成任务
+    // 阶段解锁时触发目标图生成（tasks 7.6）。AnalysisJob row 是最小 outbox：
+    // 如果 Queue.add 失败，done 请求重放会找到原 created job 并用稳定 BullMQ
+    // jobId 重投，而不是因为 task 已经是 done 就永远漏掉目标图。
+    let generationJob: {
+      id: string;
+      stageId: string | null;
+      errorReason: string | null;
+    } | null = null;
+    let generationRequeued = false;
     if (result.stageUnlocked && result.unlockedStageIndex !== undefined) {
       const nextStage = await prisma.stage.findFirst({
         where: { planId, stageIndex: result.unlockedStageIndex },
       });
       if (nextStage) {
-        const job = await prisma.analysisJob.create({
-          data: { userId: user.id, planId, stageId: nextStage.id, jobType: "stage_unlock_generation" },
-        });
-        await app.container.queues.queues["image-generation"].add("stage_unlock_generation", {
-          jobId: job.id, userId: user.id, planId, stageId: nextStage.id,
+        generationJob =
+          await prisma.analysisJob.findFirst({
+            where: {
+              userId: user.id,
+              planId,
+              stageId: nextStage.id,
+              jobType: "stage_unlock_generation",
+              status: "created",
+            },
+            orderBy: { createdAt: "desc" },
+          }) ??
+          await prisma.analysisJob.create({
+            data: {
+              userId: user.id,
+              planId,
+              stageId: nextStage.id,
+              jobType: "stage_unlock_generation",
+            },
+          });
+      }
+    } else if (input.status === "done") {
+      // updateTaskStatus 的同状态重放是成功 no-op，因此 stageUnlocked=false。
+      // 只恢复明确记录过入队失败的 created job；正常已投递 job 不做多余 add。
+      generationJob = await prisma.analysisJob.findFirst({
+        where: {
+          userId: user.id,
+          planId,
+          jobType: "stage_unlock_generation",
+          status: "created",
+          errorReason: { startsWith: "queue_enqueue_failed:" },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      generationRequeued = Boolean(generationJob);
+    }
+
+    if (generationJob?.stageId) {
+      const enqueued = await enqueueCreatedAnalysisJob({
+        prisma,
+        queue: app.container.queues.queues[QUEUE_NAMES.imageGeneration],
+        jobName: "stage_unlock_generation",
+        job: generationJob,
+        payload: {
+          userId: user.id,
+          planId,
+          stageId: generationJob.stageId,
+        },
+      });
+      if (!enqueued.ok) {
+        return reply.code(503).send({
+          error: "queue_unavailable",
+          message: "阶段已解锁，但目标图任务暂时无法投递；请重试本次状态请求",
+          retryable: true,
+          taskStatus: result.status,
+          stageUnlocked: result.stageUnlocked,
+          unlockedStageIndex: result.unlockedStageIndex,
+          generationJobId: generationJob.id,
         });
       }
     }
@@ -218,6 +313,8 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
       manifestEntryCreated: result.manifestEntryCreated,
       stageUnlocked: result.stageUnlocked,
       unlockedStageIndex: result.unlockedStageIndex,
+      generationJobId: generationJob?.id,
+      generationRequeued,
     });
   });
 

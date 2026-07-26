@@ -29,10 +29,58 @@ async function writeLedger(data: LedgerFile): Promise<void> {
 
 export function createFileTaskLedger(): TaskLedger {
   return {
+    async recordPrepared(params) {
+      const ledger = await readLedger();
+      const now = new Date().toISOString();
+      // 文件版以 providerRequestKey 为键存 prepared：此时还没有 callId
+      ledger[params.providerRequestKey] = {
+        providerRequestKey: params.providerRequestKey,
+        provider: params.provider,
+        reqKey: params.reqKey,
+        purpose: params.purpose,
+        status: "prepared",
+        createdAt: now,
+        updatedAt: now,
+        requestSummary: params.requestBody ? redactRequestBody(params.requestBody) : undefined,
+      };
+      await writeLedger(ledger);
+    },
+
+    async sweepStale(olderThanMs) {
+      const ledger = await readLedger();
+      const cutoff = Date.now() - olderThanMs;
+      let count = 0;
+      for (const entry of Object.values(ledger)) {
+        if (!["prepared", "submitted", "polling"].includes(entry.status)) continue;
+        if (new Date(entry.updatedAt).getTime() >= cutoff) continue;
+        entry.status = "unknown";
+        entry.error = "状态不可知：超过期限未收到结果，需人工对账";
+        entry.updatedAt = new Date().toISOString();
+        count += 1;
+      }
+      if (count > 0) await writeLedger(ledger);
+      return count;
+    },
+
     async recordSubmitted(params) {
       const ledger = await readLedger();
       const now = new Date().toISOString();
+      // 有 prepared 记录时把它迁到 callId 键下，避免一次调用留两条账
+      if (params.providerRequestKey && ledger[params.providerRequestKey]) {
+        const prepared = ledger[params.providerRequestKey]!;
+        delete ledger[params.providerRequestKey];
+        ledger[params.callId] = {
+          ...prepared,
+          callId: params.callId,
+          status: "submitted",
+          purpose: params.purpose ?? prepared.purpose,
+          updatedAt: now,
+        };
+        await writeLedger(ledger);
+        return;
+      }
       ledger[params.callId] = {
+        providerRequestKey: params.providerRequestKey,
         callId: params.callId,
         provider: params.provider,
         reqKey: params.reqKey,

@@ -16,11 +16,45 @@ import {
 } from "../services/intakeService.js";
 import { reviewFreeInput, normalizeToStyleTag, BLOCKED_MESSAGES } from "../features/appearance-agent/data/domainLexicon.js";
 import { getInputReviewProvider } from "../features/appearance-agent/composition.js";
-import { buildStorageKey, createPresignedUploadUrl, isOSSConfigured, putBuffer } from "../lib/ossUpload.js";
+import { isAdultEligible } from "../lib/ageEligibility.js";
+import {
+  buildStorageKey,
+  createPresignedUploadUrl,
+  isOSSConfigured,
+  isUserRawStorageKey,
+  putBuffer,
+} from "../lib/ossUpload.js";
 
 /** tasks 3.3-3.8：问卷、同意、照片、脸型确认、发型意向 */
 export async function registerIntakeRoutes(app: FastifyInstance): Promise<void> {
   const { prisma } = app.container;
+
+  async function photoProcessingDenial(userId: string) {
+    const [user, faceConsent] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { ageConfirmed18Plus: true, birthDate: true },
+      }),
+      prisma.consentRecord.findFirst({
+        where: { userId, consentType: "face_processing", revokedAt: null },
+        select: { id: true },
+      }),
+    ]);
+
+    if (!user || !isAdultEligible(user)) {
+      return {
+        error: "age_eligibility_required",
+        message: "本服务仅面向已满 18 岁且已明确确认年龄的用户",
+      };
+    }
+    if (!faceConsent) {
+      return {
+        error: "face_processing_consent_required",
+        message: "上传照片前需要先明确同意人脸信息处理",
+      };
+    }
+    return null;
+  }
 
   app.post("/questionnaire/basic", async (req, reply) => {
     const user = requireUser(req);
@@ -58,6 +92,8 @@ export async function registerIntakeRoutes(app: FastifyInstance): Promise<void> 
    */
   app.post("/photos/upload-url", async (req, reply) => {
     const user = requireUser(req);
+    const denial = await photoProcessingDenial(user.id);
+    if (denial) return reply.code(403).send(denial);
     const { photoType, contentType } = req.body as { photoType?: string; contentType?: string };
     if (!photoType) return reply.code(400).send({ error: "缺少 photoType" });
     if (!isOSSConfigured()) return reply.code(503).send({ error: "对象存储未配置" });
@@ -79,6 +115,8 @@ export async function registerIntakeRoutes(app: FastifyInstance): Promise<void> 
     { bodyLimit: 15 * 1024 * 1024 },
     async (req, reply) => {
       const user = requireUser(req);
+      const denial = await photoProcessingDenial(user.id);
+      if (denial) return reply.code(403).send(denial);
       const { photoType, contentType } = req.query as { photoType?: string; contentType?: string };
       if (!photoType) return reply.code(400).send({ error: "缺少 photoType" });
       if (!isOSSConfigured()) return reply.code(503).send({ error: "对象存储未配置" });
@@ -101,7 +139,15 @@ export async function registerIntakeRoutes(app: FastifyInstance): Promise<void> 
    */
   app.post("/photos", async (req, reply) => {
     const user = requireUser(req);
+    const denial = await photoProcessingDenial(user.id);
+    if (denial) return reply.code(403).send(denial);
     const input = photoRegistrationSchema.parse(req.body);
+    if (!isUserRawStorageKey(input.storageKey, user.id)) {
+      return reply.code(403).send({
+        error: "storage_key_not_owned",
+        message: "只能登记当前用户上传流程签发的照片对象",
+      });
+    }
     const photo = await prisma.userPhoto.create({
       data: {
         userId: user.id,

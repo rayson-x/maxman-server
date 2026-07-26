@@ -38,6 +38,7 @@ try {
 
   const userCount = await container.prisma.user.count({ where: { deviceSessionId: sessionId } });
   check(userCount === 1, "库中只有一条 User（幂等的实质验证）", `count=${userCount}`);
+  const currentUser = await container.prisma.user.findUniqueOrThrow({ where: { deviceSessionId: sessionId } });
 
   // --- 问卷 ---
   const basic = await app.inject({ method: "POST", url: "/questionnaire/basic", headers: { cookie }, payload: { track: "short_term", ageConfirmed18Plus: true } });
@@ -53,7 +54,7 @@ try {
   const issues = contradictory.json().contradictions as { field: string }[];
   check(contradictory.statusCode === 200 && issues.length >= 2, "结构性矛盾被检出但不阻断保存", `检出 ${issues.length} 项: ${issues.map((i) => i.field).join(", ")}`);
 
-  const saved = await container.prisma.appearanceProfile.findUnique({ where: { userId: s1.json().deviceSessionId ? (await container.prisma.user.findUnique({ where: { deviceSessionId: sessionId } }))!.id : "" } });
+  const saved = await container.prisma.appearanceProfile.findUnique({ where: { userId: currentUser.id } });
   check(saved?.hairLossConcern === true && saved?.selfReportedHairVolume === "thick", "自报发量与脱发困扰已落库（决策 6 的交叉验证输入）");
 
   // --- 同意 ---
@@ -64,7 +65,7 @@ try {
   const reg = await app.inject({
     method: "POST", url: "/photos", headers: { cookie },
     payload: {
-      photoType: "front", storageKey: "raw/test/front.jpg",
+      photoType: "front", storageKey: `raw/${currentUser.id}/front.jpg`,
       faceMetrics: { schemaVersion: 1, classification: { faceShape: { value: "oblong", confidence: "high", evidence: { lengthWidthRatio: 1.32 } } } },
     },
   });

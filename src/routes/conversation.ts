@@ -55,6 +55,18 @@ function inferIntent(text: string): z.infer<typeof messageSchema>["intent"] {
   return "express_preference";
 }
 
+export function buildPreferenceDecisionPayload(input: {
+  normalizedStyleTag: string | null;
+}): {
+  normalizedStyleTag: string | null;
+  userSpecified: boolean;
+} {
+  return {
+    normalizedStyleTag: input.normalizedStyleTag,
+    userSpecified: input.normalizedStyleTag === null,
+  };
+}
+
 export async function registerConversationRoutes(app: FastifyInstance): Promise<void> {
   const { prisma, queues } = app.container;
   const conversation = createConversationService(prisma);
@@ -121,7 +133,11 @@ export async function registerConversationRoutes(app: FastifyInstance): Promise<
       }
 
       const styleTag = normalizeToStyleTag(input.text);
-      await conversation.record(input.planId, "preference_expressed", { text: input.text, normalizedStyleTag: styleTag });
+      await conversation.record(
+        input.planId,
+        "preference_expressed",
+        buildPreferenceDecisionPayload({ normalizedStyleTag: styleTag }),
+      );
 
       return reply.send({
         accepted: true,
@@ -235,8 +251,19 @@ export async function registerConversationRoutes(app: FastifyInstance): Promise<
     const currentStyle = plan.selectedHairstyleId
       ? await prisma.styleProfileEntry.findUnique({ where: { id: plan.selectedHairstyleId } })
       : null;
-    const completedVectors = currentStyle && completed.length > 0
-      ? [{ formality: currentStyle.formality, maturity: currentStyle.maturity, boldness: currentStyle.boldness, upkeep: currentStyle.upkeep }]
+    const currentVectorAvailable =
+      currentStyle?.formality !== null &&
+      currentStyle?.formality !== undefined &&
+      currentStyle.maturity !== null &&
+      currentStyle.boldness !== null &&
+      currentStyle.upkeep !== null;
+    const completedVectors = currentStyle && completed.length > 0 && currentVectorAvailable
+      ? [{
+          formality: currentStyle.formality!,
+          maturity: currentStyle.maturity!,
+          boldness: currentStyle.boldness!,
+          upkeep: currentStyle.upkeep!,
+        }]
       : [];
 
     const rejectedIds = new Set(
@@ -248,11 +275,23 @@ export async function registerConversationRoutes(app: FastifyInstance): Promise<
     const assessment = revision.assessStyleChange({
       // 已否决的方向不再出现在候选里
       candidates: candidates
-        .filter((c) => !rejectedIds.has(c.id))
+        .filter(
+          (c) =>
+            !rejectedIds.has(c.id) &&
+            c.formality !== null &&
+            c.maturity !== null &&
+            c.boldness !== null &&
+            c.upkeep !== null,
+        )
         .map((c) => ({
           entryId: c.id,
           nameZh: c.nameZh,
-          styleVector: { formality: c.formality, maturity: c.maturity, boldness: c.boldness, upkeep: c.upkeep },
+          styleVector: {
+            formality: c.formality!,
+            maturity: c.maturity!,
+            boldness: c.boldness!,
+            upkeep: c.upkeep!,
+          },
         })),
       completedVectors,
     });

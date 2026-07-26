@@ -2,6 +2,8 @@ import "dotenv/config";
 import { createContainer } from "./app/container.js";
 import { createQueueWorker, createRedisConnection, QUEUE_NAMES, QUEUE_CONFIG, type Job } from "./lib/queues.js";
 import { createJobOrchestrator, type JobPayload } from "./app/jobOrchestrator.js";
+import { createWorkerJobProcessor } from "./app/workerProcessor.js";
+import { createDataDeletionService } from "./services/dataDeletionService.js";
 
 /**
  * Worker 进程入口（tasks 1.7）。与 API 进程分离，独立扩容。
@@ -39,6 +41,7 @@ for (const name of requested) {
  * 状态机全都实现了，唯独没人把它们接起来，于是 HTTP 全链路一直是断的。
  */
 const orchestrator = createJobOrchestrator(container);
+const deletion = createDataDeletionService(container.prisma);
 
 /** job.name 即 jobType（路由投递时以 jobType 命名，见 routes/analysisJobs.ts） */
 async function dispatch(job: Job): Promise<unknown> {
@@ -55,10 +58,15 @@ async function dispatch(job: Job): Promise<unknown> {
   return result;
 }
 
+const processJob = createWorkerJobProcessor({
+  runOrchestratedJob: dispatch,
+  executeDeletion: deletion.executeDeletion,
+});
+
 const processors: Record<string, (job: Job) => Promise<unknown>> = {
-  [QUEUE_NAMES.moderation]: dispatch,
-  [QUEUE_NAMES.textAnalysis]: dispatch,
-  [QUEUE_NAMES.imageGeneration]: dispatch,
+  [QUEUE_NAMES.moderation]: processJob,
+  [QUEUE_NAMES.textAnalysis]: processJob,
+  [QUEUE_NAMES.imageGeneration]: processJob,
 };
 
 const workers = requested.map((name) => {

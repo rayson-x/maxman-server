@@ -39,13 +39,34 @@ export type TransitionResult =
 
 export function createAnalysisJobRepository(prisma: PrismaClient) {
   return {
-    async create(params: { userId: string; jobType: JobType; planId?: string; stageId?: string }) {
+    async create(params: { userId: string; jobType: JobType; planId?: string; stageId?: string; idempotencyKey?: string }) {
+      if (params.idempotencyKey) {
+        return prisma.analysisJob.upsert({
+          where: {
+            userId_jobType_idempotencyKey: {
+              userId: params.userId,
+              jobType: params.jobType,
+              idempotencyKey: params.idempotencyKey,
+            },
+          },
+          create: {
+            userId: params.userId,
+            jobType: params.jobType,
+            planId: params.planId,
+            stageId: params.stageId,
+            idempotencyKey: params.idempotencyKey,
+            status: "created",
+          },
+          update: {},
+        });
+      }
       return prisma.analysisJob.create({
         data: {
           userId: params.userId,
           jobType: params.jobType,
           planId: params.planId,
           stageId: params.stageId,
+          idempotencyKey: params.idempotencyKey,
           status: "created",
         },
       });

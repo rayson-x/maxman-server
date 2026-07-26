@@ -1,6 +1,12 @@
-import type { Step } from "./types.js";
-import { createPresignedReadUrl } from "../lib/ossUpload.js";
+import { recordWorkflowRun, type Step } from "./types.js";
+import { photoModerationWhere } from "../lib/photoModerationGate.js";
 import type { HairSignals, HairlineSignal, VolumeSignal } from "../features/appearance-agent/rules/hairConstraints.js";
+import { createPhotoAccessService } from "../services/photoAccessService.js";
+import {
+  applySemanticHairlineVisibility,
+  parseSemanticAnalysis,
+  type StructuredSemanticAnalysis,
+} from "../features/appearance-agent/analysis/semanticAnalysis.js";
 
 /**
  * S2 视觉分析（tasks 5.2）。
@@ -21,6 +27,8 @@ export type AnalyzeVisionInput = {
 export type AnalyzeVisionOutput = {
   /** 云端语义分析原文（结构化 JSON 字符串或自由文本，取决于 provider） */
   semanticAnalysis: string;
+  /** 经过字段白名单、长度限制和枚举校验的语义结果，供后续确定性逻辑使用。 */
+  structuredSemantic: StructuredSemanticAnalysis;
   provider: string;
   /** 从客户端 faceMetrics 读出的几何结论（不是云端判断的） */
   geometry: {
@@ -77,15 +85,25 @@ export const analyzeVisionStep: Step<AnalyzeVisionInput, AnalyzeVisionOutput> = 
   name: "S2_analyze_vision",
   async run(input, ctx, deps) {
     const photo = await deps.prisma.userPhoto.findFirst({
-      where: { userId: ctx.userId, storageKey: input.frontPhotoStorageKey, deletionStatus: "active" },
+      where: {
+        userId: ctx.userId,
+        storageKey: input.frontPhotoStorageKey,
+        deletionStatus: "active",
+        ...photoModerationWhere(),
+      },
     });
-    if (!photo) return { status: "failed", error: `找不到正面照记录: ${input.frontPhotoStorageKey}` };
+    if (!photo) {
+      return {
+        status: "failed",
+        error: `找不到已通过审核的正面照记录: ${input.frontPhotoStorageKey}`,
+      };
+    }
 
     const { geometry, hairline, volume } = extractFromFaceMetrics(photo.faceMetrics);
 
     const profile = await deps.prisma.appearanceProfile.findUnique({ where: { userId: ctx.userId } });
 
-    const hairSignals: HairSignals = {
+    let hairSignals: HairSignals = {
       hairline,
       volume,
       selfReportedHairLossConcern: profile?.hairLossConcern ?? false,
@@ -94,7 +112,13 @@ export const analyzeVisionStep: Step<AnalyzeVisionInput, AnalyzeVisionOutput> = 
 
     // 给供应商的是**短时预签名 URL**，不是永久公开链接（tasks 1.5）。
     // 有效期只需覆盖单次调用。
-    const imageUrl = createPresignedReadUrl(input.frontPhotoStorageKey, { expiresSeconds: 600 });
+    const { url: imageUrl } = await createPhotoAccessService(deps.prisma).issueReadUrl({
+      storageKey: input.frontPhotoStorageKey,
+      photoId: photo.id,
+      accessorType: "system_provider",
+      purpose: "视觉外观语义分析",
+      expiresSeconds: 600,
+    });
 
     let semanticAnalysis: string;
     let provider: string;
@@ -102,6 +126,15 @@ export const analyzeVisionStep: Step<AnalyzeVisionInput, AnalyzeVisionOutput> = 
       const result = await deps.providers.vision.analyze({ imageUrl, prompt: SEMANTIC_PROMPT });
       semanticAnalysis = result.rawText;
       provider = result.provider;
+      await recordWorkflowRun(deps.prisma, {
+        jobId: ctx.jobId,
+        planId: ctx.planId,
+        stepName: "S2_analyze_vision_provider",
+        finalStatus: "completed",
+        latencyMs: result.latencyMs,
+        provider: result.provider,
+        modelVersion: result.model,
+      });
     } catch (err) {
       // 语义分析失败不该让整步归零——几何数据来自客户端，本来就已经拿到了。
       // 降级为部分成功，下游仍可用几何 + 自报数据做过滤。
@@ -109,6 +142,7 @@ export const analyzeVisionStep: Step<AnalyzeVisionInput, AnalyzeVisionOutput> = 
         status: "completed_partial",
         data: {
           semanticAnalysis: "",
+          structuredSemantic: {},
           provider: "unavailable",
           geometry,
           hairSignals,
@@ -117,6 +151,9 @@ export const analyzeVisionStep: Step<AnalyzeVisionInput, AnalyzeVisionOutput> = 
         missing: [{ item: "云端语义分析", reason: err instanceof Error ? err.message : String(err) }],
       };
     }
+
+    const structuredSemantic = parseSemanticAnalysis(semanticAnalysis);
+    hairSignals = applySemanticHairlineVisibility(hairSignals, structuredSemantic);
 
     // 用户确认过的脸型优先于计算值（决策 5）
     if (profile?.confirmedFaceShape) {
@@ -128,6 +165,7 @@ export const analyzeVisionStep: Step<AnalyzeVisionInput, AnalyzeVisionOutput> = 
       status: "completed",
       data: {
         semanticAnalysis,
+        structuredSemantic,
         provider,
         geometry,
         hairSignals,

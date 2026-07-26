@@ -45,9 +45,7 @@ export function createAppearanceAgent(deps: AppearanceAgentDeps): Agent {
       "生成换装效果图时调用 swap-outfit 工具。" +
       "如果只是需要展示一个风格/发型/服装概念的示意图（不基于用户本人照片，不是个性化效果图），才调用 generate-reference-image 工具，" +
       "并且必须明确告知用户这只是风格示意图、不是他本人的效果图。" +
-      "如果需要分析用户在发型(hair)或穿搭(outfit_accessory)方向上适合/可以发展的具体方法，调用 recommend-appearance-directions 工具——" +
-      "这个工具只会从人工审核过的方法目录里返回候选项和各维度评分，你不能自己凭空发明目录之外的改造方法，也不要自己把这些评分加权排出最终优先级，" +
-      "那是后端固定公式的职责，你只负责基于这些评分和理由生成给用户看的解释文案。" +
+      "审美与风格判断由固定管道中的推荐 provider 负责；当前对话 agent 没有生产级推荐工具，不得自行发明审美规则或评分。" +
       "如果用户明确要求更大胆/更全面的建议（不只是目录内的保守方案），调用 suggest-unconstrained-directions 获取不受限制的建议，" +
       "但这些建议未经验证，绝对不能直接展示给用户——必须紧接着调用 adversarial-review-recommendations，把这两组结果一起传进去做对抗式审查，" +
       "只有 verdict=accept 的自由建议才可以呈现给用户，reject 的要说明被否决的原因，needs_professional_review 的要建议用户咨询专业人士。" +

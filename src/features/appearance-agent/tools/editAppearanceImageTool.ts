@@ -5,7 +5,7 @@ import type { ImageEditProvider } from "../providers/imageEdit/types.js";
 /**
  * Tool 2/4 — img2img for hairstyle/grooming/skin changes on the ORIGINAL
  * baseline photo (never chained onto a previously generated image — see
- * technical-architecture.md TargetImage.baseline_photo_id note, and
+ * TargetImage.baselinePhotoId（见 prisma/schema.prisma 上的注释），and
  * design.md decision 5).
  */
 export function createEditAppearanceImageTool(provider: ImageEditProvider) {

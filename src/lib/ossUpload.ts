@@ -59,6 +59,24 @@ export function buildStorageKey(prefix: StoragePrefix, userId: string, filename:
 }
 
 /**
+ * 照片登记只能绑定服务端为当前用户签发的 raw key 形状。
+ * 文件名不允许再带路径段，避免 `../`、反斜杠或嵌套前缀绕过租户边界。
+ */
+export function isUserRawStorageKey(storageKey: string, userId: string): boolean {
+  const prefix = `${PREFIXES.raw}${userId}/`;
+  if (!storageKey.startsWith(prefix)) return false;
+  const filename = storageKey.slice(prefix.length);
+  return (
+    filename.length > 0 &&
+    !filename.includes("/") &&
+    !filename.includes("\\") &&
+    filename !== "." &&
+    filename !== ".." &&
+    !/[\u0000-\u001F\u007F]/u.test(filename)
+  );
+}
+
+/**
  * 签发上传用的预签名 PUT URL，客户端拿它直传对象存储。
  * 服务端在收到「上传完成」回调后才登记 UserPhoto 记录并触发内容安全审核。
  */

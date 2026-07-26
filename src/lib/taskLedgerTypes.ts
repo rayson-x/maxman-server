@@ -13,10 +13,22 @@
  * 依赖，默认落文件、应用装配时注入 Postgres 版，两边都自然。
  */
 
-export type TaskStatus = "submitted" | "polling" | "done" | "failed";
+/**
+ * `prepared` 在提交供应商**之前**写入；`unknown` 是终态。
+ *
+ * 为什么需要 `unknown`：存在无法消除的崩溃窗口——写完 prepared、HTTP 已被供应商接受、
+ * 记录结果之前进程崩溃。恢复时库里是 prepared，而供应商可能已经计费。
+ * 火山的 CVSync2AsyncSubmitTask 不接受客户端幂等键、也没有按客户端键查询的接口，
+ * 所以只能承认不可知：过期的 prepared 转 unknown，**不自动重提**，走人工对账。
+ * 把它记成 failed 会让恢复流程重复提交，那才是真的重复付费。
+ */
+export type TaskStatus = "prepared" | "submitted" | "polling" | "done" | "failed" | "unknown";
 
 export interface TaskLedgerEntry {
-  callId: string;
+  /** prepared 阶段为空——供应商 task_id 要提交成功才知道 */
+  callId?: string;
+  /** 我们提交前生成的请求键，prepared 记录靠它定位 */
+  providerRequestKey?: string;
   provider: string;
   reqKey: string;
   purpose?: string;
@@ -29,7 +41,20 @@ export interface TaskLedgerEntry {
 }
 
 export interface TaskLedger {
+  /** 提交供应商**之前**调用。返回的请求键用于随后关联 callId */
+  recordPrepared(params: {
+    providerRequestKey: string;
+    provider: string;
+    reqKey: string;
+    purpose?: string;
+    requestBody?: Record<string, unknown>;
+    costEstimate?: number;
+  }): Promise<void>;
+  /** 把过期的 prepared/submitted 转为 unknown 终态。返回受影响条数 */
+  sweepStale(olderThanMs: number): Promise<number>;
   recordSubmitted(params: {
+    /** 有值时关联到既有的 prepared 记录 */
+    providerRequestKey?: string;
     callId: string;
     provider: string;
     reqKey: string;

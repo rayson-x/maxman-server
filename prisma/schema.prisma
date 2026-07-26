@@ -23,20 +23,21 @@ datasource db {
 /// MVP1 用匿名 device_session_id 识别身份，不做鉴权（无 JWT/短信登录）。
 /// phone 预留可空，为下一轮「匿名账号绑定手机号」的升级路径留位。
 model User {
-  id                  String   @id @default(cuid())
-  deviceSessionId     String   @unique
-  phone               String?  @unique
-  birthDate           DateTime?
-  ageConfirmed18Plus  Boolean  @default(false)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                 String    @id @default(cuid())
+  deviceSessionId    String    @unique
+  phone              String?   @unique
+  birthDate          DateTime?
+  ageConfirmed18Plus Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  consents            ConsentRecord[]
-  profile             AppearanceProfile?
-  event               Event?
-  photos              UserPhoto[]
-  plans               AppearancePlan[]
-  analysisJobs        AnalysisJob[]
+  consents        ConsentRecord[]
+  profile         AppearanceProfile?
+  event           Event?
+  photos          UserPhoto[]
+  plans           AppearancePlan[]
+  analysisJobs    AnalysisJob[]
+  generatedAssets GeneratedAsset[]
 
   @@index([deviceSessionId])
 }
@@ -49,16 +50,16 @@ enum ConsentType {
 
 /// 三类同意互相独立、可单独撤回。存同意文本快照引用以便存证。
 model ConsentRecord {
-  id                String      @id @default(cuid())
-  userId            String
-  consentType       ConsentType
-  version           String
-  grantedAt         DateTime    @default(now())
-  revokedAt         DateTime?
-  sourceIp          String?
-  snapshotTextRef   String?
+  id              String      @id @default(cuid())
+  userId          String
+  consentType     ConsentType
+  version         String
+  grantedAt       DateTime    @default(now())
+  revokedAt       DateTime?
+  sourceIp        String?
+  snapshotTextRef String?
 
-  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, consentType])
 }
@@ -78,6 +79,14 @@ enum BudgetTier {
   high
 }
 
+/// 改变意愿强度。取值对应 satisfaction 页的四个选项
+enum ChangeWillingness {
+  satisfied
+  average
+  unsatisfied
+  distressed
+}
+
 enum SelfReportedHairVolume {
   thin
   medium
@@ -87,58 +96,62 @@ enum SelfReportedHairVolume {
 /// 决策 11：身体数据是**推荐引擎输入**，不是图像生成输入。
 /// 实测证明给 img2img 加体型描述词会导致连脸一起重新生成（身份漂移加剧）。
 model AppearanceProfile {
-  id                  String      @id @default(cuid())
-  userId              String      @unique
+  id     String @id @default(cuid())
+  userId String @unique
 
-  heightCm            Int?
-  weightKg            Float?
+  heightCm           Int?
+  weightKg           Float?
   /// 以下为可选细项，填了能让穿搭推荐更准（决策 11）
-  shoulderWidthCm     Float?
-  chestCm             Float?
-  waistCm             Float?
-  thighCm             Float?
-  bodyFatPercent      Float?
-  exercisesRegularly  Boolean?
+  shoulderWidthCm    Float?
+  chestCm            Float?
+  waistCm            Float?
+  thighCm            Float?
+  bodyFatPercent     Float?
+  exercisesRegularly Boolean?
 
-  occupation          String?
-  wearsGlasses        Boolean?
-  hasBeard            Boolean?
+  occupation   String?
+  wearsGlasses Boolean?
+  hasBeard     Boolean?
   /// 用户明确提供的省/市，仅用于城市级天气查询；不保存精确坐标或 IP 定位结果。
-  province             String?
-  city                 String?
+  province     String?
+  city         String?
 
   /// 决策 6：发量自报。云端视觉判断发量实测不可靠（两家一致率 2/10，
   /// Zhipu 对 10 张全答 dense），自报在此用途上够用且本身即决策依据。
   selfReportedHairVolume SelfReportedHairVolume?
   /// 决策 6：与视觉信号交叉验证，evidence_basis=self_reported
-  hairLossConcern     Boolean     @default(false)
+  hairLossConcern        Boolean                 @default(false)
 
-  domainSelections    String[]
-  domainAcceptance    Json?
-  budgetTier          BudgetTier?
+  domainSelections String[]
+  domainAcceptance Json?
+  budgetTier       BudgetTier?
 
   /// 决策 5：用户对客户端几何测量出的脸型的确认/修正。
   /// 用户修正值优先于计算值用于所有下游过滤。
-  confirmedFaceShape  String?
+  confirmedFaceShape String?
+
+  /// 现状满意度四档（来自首屏 satisfaction 页）。用途是**方案节奏**：
+  /// 意愿强则把见效快的动作排前。与 track 正交——track 表示有无具体场合。
+  changeWillingness ChangeWillingness?
 
   /// 短期/长期赛道。在 basic 问卷就采集，但 AppearancePlan 此时还不存在
   /// （方案在 initial_analysis 编排里创建），所以先存在 profile 上，建方案时拷过去。
   /// 原先 schema 接收了这个字段却没有任何地方持久化，导致编排器无从得知赛道。
-  track               Track?
+  track Track?
 
   /// 决策 3：过完两层审核的发型意向。**必须持久化**——审核发生在同步请求里，
   /// 而消费它的 S3 在 worker 里异步执行，不落库就等于「用户有中意发型」这条
   /// 分支永久失效（实测过：hair-intent 只把结果返回给客户端，worker 读不到）。
-  stylePreferenceText      String?
+  stylePreferenceText          String?
   /// 归一化命中的目录 tag；null 表示未命中
-  stylePreferenceStyleTag  String?
+  stylePreferenceStyleTag      String?
   /// 未命中目录时为 true，下游须标注为「用户指定方向」而非我们的推荐
   stylePreferenceUserSpecified Boolean @default(false)
 
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 /// 仅短期 track 有值
@@ -153,8 +166,8 @@ model Event {
   desiredImpression String?
   formalityLevel    Int?
 
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plans             AppearancePlan[]
+  user  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plans AppearancePlan[]
 }
 
 // ---------------------------------------------------------------------------
@@ -184,19 +197,19 @@ enum DeletionStatus {
 /// + confidence + 支撑比值），是脸型的**权威来源**——云端 vision 只做语义判断。
 /// 决策 11：full_body 可选，缺失时穿搭效果图降级而非阻塞流程。
 model UserPhoto {
-  id                String            @id @default(cuid())
+  id                String           @id @default(cuid())
   userId            String
   photoType         PhotoType
   storageKey        String
   faceMetrics       Json?
-  moderationStatus  ModerationStatus  @default(pending)
+  moderationStatus  ModerationStatus @default(pending)
   moderationReason  String?
-  deletionStatus    DeletionStatus    @default(active)
+  deletionStatus    DeletionStatus   @default(active)
   trainingConsentId String?
-  uploadedAt        DateTime          @default(now())
+  uploadedAt        DateTime         @default(now())
 
-  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  baselineForImages TargetImage[]     @relation("BaselinePhoto")
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  baselineForImages TargetImage[] @relation("BaselinePhoto")
 
   @@index([userId, photoType])
 }
@@ -211,55 +224,68 @@ enum HairVolumeRequirement {
   high
 }
 
+enum StyleEntrySource {
+  catalog
+  vision_llm_generated
+}
+
 /// 决策 2：协调性编码在数据里，由风格向量确定性计算，**不交给 LLM 判断审美**。
 /// 决策 22：两套独立审美评分——两者背离本身就是产品要呈现的核心信息差。
 /// 数据由调研任务产出（docs/style-data-research-plan.md）。
 model StyleProfileEntry {
-  id            String   @id
-  kind          String   /// "hairstyle" | "outfit_combo"
-  nameZh        String
-  aliases       String[]
-  description   String?
+  id          String   @id
+  kind        String /// "hairstyle" | "outfit_combo"
+  nameZh      String
+  aliases     String[]
+  description String?
 
   /// 风格向量四轴，各 1-10。协调判定 = 各轴差值 ≤ 阈值（默认 3）
-  formality     Int
-  maturity      Int
-  boldness      Int
-  upkeep        Int
+  formality Int?
+  maturity  Int?
+  boldness  Int?
+  upkeep    Int?
 
   /// 决策 22：双审美评分。必须带 source/confidence——这是从调研整理出的
   /// 有偏先验而非客观真理，对用户表述须用参考性口气。
-  femaleAppealScore       Int
-  femaleAppealSource      String
-  femaleAppealConfidence  String
-  femaleAppealRationale   String
-  maleSelfAppealScore     Int
-  maleSelfAppealSource    String
+  femaleAppealScore        Int?
+  femaleAppealSource       String
+  femaleAppealConfidence   String
+  femaleAppealRationale    String
+  maleSelfAppealScore      Int?
+  maleSelfAppealSource     String
   maleSelfAppealConfidence String
-  maleSelfAppealRationale String
+  maleSelfAppealRationale  String
 
   /// 决策 6：发型专属硬过滤属性。发际线/发量信号按组合规则驱动这两个字段的过滤。
-  requiresHairVolume  HairVolumeRequirement?
-  coversForehead      Boolean?
+  requiresHairVolume HairVolumeRequirement?
+  coversForehead     Boolean?
 
-  suitableFaceShapes    String[]
-  unsuitableFaceShapes  Json?
-  suitableBodyTypes     String[]
-  suitableScenes        String[]
+  suitableFaceShapes   String[]
+  unsuitableFaceShapes Json?
+  suitableBodyTypes    String[]
+  suitableScenes       String[]
 
   /// 穿搭条目的品类组合（不是具体可购买单品——可执行性由品类描述承载）
-  items         Json?
+  items Json?
 
-  estCostRange  String?
-  estTime       String?
-  notes         String?
-  isRecommended Boolean  @default(true)
+  estCostRange    String?
+  estTime         String?
+  notes           String?
+  isRecommended   Boolean @default(true)
   exclusionReason String?
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  /// 推荐条目的来源。目录数据默认 catalog；vision-LLM 生成项必须显式区分，
+  /// 否则 UI 会把模型建议误表述为“按数据匹配”。
+  source             StyleEntrySource @default(catalog)
+  /// 个性化生成项绑定方案；方案已绑定用户，避免两份 owner 字段发生矛盾。
+  generatedForPlanId String?
+  generatedForPlan   AppearancePlan?  @relation("GeneratedStyleEntryPlan", fields: [generatedForPlanId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([kind, isRecommended])
+  @@index([generatedForPlanId])
 }
 
 /// 单个发型 style_tag → 打理教程。referenceUrl 必须是真实访问过的链接，
@@ -297,26 +323,26 @@ enum RiskLevel {
 /// 风格相关的发型/穿搭由 StyleProfileEntry 接管。
 /// 决策 7：applicableStageRange 决定阶段落位（时间尺度），打分只定 core/optional。
 model CandidateTaskCatalog {
-  id                  String        @id @default(cuid())
-  domain              String
-  methodName          String
-  description         String
-  evidenceBasis       EvidenceBasis
-  estTime             String?
-  estCostRange        String?
-  reversibility       Reversibility
-  riskLevel           RiskLevel
-  riskNote            String?
+  id                   String        @id @default(cuid())
+  domain               String
+  methodName           String
+  description          String
+  evidenceBasis        EvidenceBasis
+  estTime              String?
+  estCostRange         String?
+  reversibility        Reversibility
+  riskLevel            RiskLevel
+  riskNote             String?
   /// 决策 7：阶段落位依据，如 ["stage0","stage1"]
   applicableStageRange String[]
-  visualBenefitLevel  String?
+  visualBenefitLevel   String?
   /// 调研标注「不建议纳入」的方法（如 Mewing、下颌线训练器）设 false，
   /// 规则引擎永不选取，仅保留记录与原因
-  isRecommended       Boolean       @default(true)
-  exclusionReason     String?
+  isRecommended        Boolean       @default(true)
+  exclusionReason      String?
 
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([domain, isRecommended])
 }
@@ -334,13 +360,13 @@ enum PlanStatus {
 /// 每用户仅一条活跃记录，plan_version 原地递增不产生历史行；
 /// 历史演变靠 WorkflowRun 审计追溯。
 model AppearancePlan {
-  id            String     @id @default(cuid())
-  userId        String
-  eventId       String?
-  track         Track
-  currentStage  Int        @default(0)
-  status        PlanStatus @default(active)
-  planVersion   Int        @default(1)
+  id           String     @id @default(cuid())
+  userId       String
+  eventId      String?
+  track        Track
+  currentStage Int        @default(0)
+  status       PlanStatus @default(active)
+  planVersion  Int        @default(1)
 
   /// 决策 4：per-user 固定生成 seed。实测同一 manifest 用 seed=-1 重复生成
   /// 结果不同，四阶段图像会不连贯，看起来像四个不同造型而非同一人的递进。
@@ -352,18 +378,21 @@ model AppearancePlan {
   /// 决策 22：双审美加权中女性视角的权重（0-1），按用户目标设定，显式存储以便向用户解释
   femaleAppealWeight  Float   @default(0.5)
 
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  event         Event?     @relation(fields: [eventId], references: [id])
-  stages        Stage[]
-  manifestEntries ChangeManifestEntry[]
-  targetImages  TargetImage[]
-  analysisJobs  AnalysisJob[]
-  workflowRuns  WorkflowRun[]
-  decisions     ConversationDecision[]
-  feedback      Feedback[]
+  user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event                 Event?                 @relation(fields: [eventId], references: [id])
+  stages                Stage[]
+  manifestEntries       ChangeManifestEntry[]
+  targetImages          TargetImage[]
+  analysisJobs          AnalysisJob[]
+  workflowRuns          WorkflowRun[]
+  decisions             ConversationDecision[]
+  feedback              Feedback[]
+  generatedStyleEntries StyleProfileEntry[]    @relation("GeneratedStyleEntryPlan")
+  recommendationSets    RecommendationSet[]
+  generatedAssets       GeneratedAsset[]
 
   @@index([userId, status])
 }
@@ -384,9 +413,9 @@ model Stage {
   /// 仅用于 UI 进度条展示，不作为解锁判定依据（解锁实时查询 StageTask）
   completionPct Int         @default(0)
 
-  plan          AppearancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
-  tasks         StageTask[]
-  targetImages  TargetImage[]
+  plan            AppearancePlan        @relation(fields: [planId], references: [id], onDelete: Cascade)
+  tasks           StageTask[]
+  targetImages    TargetImage[]
   manifestEntries ChangeManifestEntry[]
 
   @@unique([planId, stageIndex])
@@ -420,39 +449,39 @@ enum TaskStatus {
 /// 决策 8：四个阶段的任务清单在 S5 一次性全生成（数据驱动落位后，
 /// 懒生成要调 4 次 LLM，反而贵约 4 倍）。
 model StageTask {
-  id                String          @id @default(cuid())
-  stageId           String
-  domain            String
-  priority          TaskPriority
+  id              String          @id @default(cuid())
+  stageId         String
+  domain          String
+  priority        TaskPriority
   /// 硬性前置门槛，不参与打分：general_best_practice 永远只能是 optional
-  evidenceBasis     EvidenceBasis
-  taskType          TaskType        @default(simple)
-  selectionStatus   SelectionStatus @default(not_applicable)
+  evidenceBasis   EvidenceBasis
+  taskType        TaskType        @default(simple)
+  selectionStatus SelectionStatus @default(not_applicable)
 
   /// 决策 11（plan-materialization）：guided_selection 的候选**每个都带自己的
   /// change_description**，不是裸 tag 数组——选中后要直接落为本阶段计划变化。
   /// 形状：[{ styleTag, changeDescription }]
-  candidateOptions  Json?
+  candidateOptions Json?
   /// 用户从候选中确认选定的那一个
-  styleTag          String?
+  styleTag         String?
 
-  title             String
-  estTime           String?
-  estCost           String?
-  rationale         String?
+  title              String
+  estTime            String?
+  estCost            String?
+  rationale          String?
   completionCriteria String?
-  alternative       String?
-  expectedImpact    String?
-  status            TaskStatus      @default(pending)
-  sortOrder         Int             @default(0)
+  alternative        String?
+  expectedImpact     String?
+  status             TaskStatus @default(pending)
+  sortOrder          Int        @default(0)
   /// 任务生成时预写，完成时原样写入 ChangeManifestEntry，不再调 LLM
-  changeDescription String?
+  changeDescription  String?
 
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  stage             Stage           @relation(fields: [stageId], references: [id], onDelete: Cascade)
-  manifestEntries   ChangeManifestEntry[]
+  stage           Stage                 @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  manifestEntries ChangeManifestEntry[]
 
   @@index([stageId, priority, status])
 }
@@ -470,7 +499,8 @@ model ChangeManifestEntry {
   id                 String             @id @default(cuid())
   planId             String
   stageId            String
-  sourceTaskId       String?
+  /// 同一任务最多产生一条事实账本；可空保留人工/迁移写入的非任务来源记录。
+  sourceTaskId       String?            @unique
   domain             String
   changeDescription  String
   methodSummary      String?
@@ -478,9 +508,9 @@ model ChangeManifestEntry {
   verifiedAt         DateTime?
   createdAt          DateTime           @default(now())
 
-  plan               AppearancePlan     @relation(fields: [planId], references: [id], onDelete: Cascade)
-  stage              Stage              @relation(fields: [stageId], references: [id], onDelete: Cascade)
-  sourceTask         StageTask?         @relation(fields: [sourceTaskId], references: [id], onDelete: SetNull)
+  plan       AppearancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  stage      Stage          @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  sourceTask StageTask?     @relation(fields: [sourceTaskId], references: [id], onDelete: SetNull)
 
   @@index([planId, stageId])
 }
@@ -500,34 +530,34 @@ enum QualityCheckStatus {
 /// 只有 core 进图（core 集合同时定义解锁条件与图内容，两者一致）。
 /// baselinePhotoId 恒指向最初的基准照片，禁止用上一阶段生成图作为输入（防身份漂移）。
 model TargetImage {
-  id                    String             @id @default(cuid())
-  planId                String
-  stageId               String
-  imageType             TargetImageType
-  baselinePhotoId       String
+  id                     String             @id @default(cuid())
+  planId                 String
+  stageId                String
+  imageType              TargetImageType
+  baselinePhotoId        String
   /// 生成时的已完成账本快照
-  manifestSnapshot      Json
+  manifestSnapshot       Json
   /// 生成时的本阶段 core 计划变化快照（决策 4 新增，前一份 spec 没有这个）
   plannedChangesSnapshot Json
-  storageKey            String?
-  changeExplanation     Json?
-  qualityCheckStatus    QualityCheckStatus @default(pending)
-  retryCount            Int                @default(0)
-  isFreeFirstGeneration Boolean            @default(true)
+  storageKey             String?
+  changeExplanation      Json?
+  qualityCheckStatus     QualityCheckStatus @default(pending)
+  retryCount             Int                @default(0)
+  isFreeFirstGeneration  Boolean            @default(true)
   /// 决策 15：MVP1 不设计费 gate，但**正确记账**——支付上线时开关一打即生效，
   /// 且这批数据用于校准定价
-  consumedWeeklyQuota   Boolean            @default(false)
-  modelVersion          String?
-  provider              String?
+  consumedWeeklyQuota    Boolean            @default(false)
+  modelVersion           String?
+  provider               String?
   /// 供应商 task_id，用于断线恢复与计费追溯
-  providerCallId        String?
-  createdAt             DateTime           @default(now())
+  providerCallId         String?
+  createdAt              DateTime           @default(now())
 
-  plan                  AppearancePlan     @relation(fields: [planId], references: [id], onDelete: Cascade)
-  stage                 Stage              @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  plan          AppearancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  stage         Stage          @relation(fields: [stageId], references: [id], onDelete: Cascade)
   /// onDelete: Cascade 是合规要求而非便利选择——「分级数据删除」要求删除原图时
   /// 必须级联清理派生数据。若用默认的 restrict，用户的删号请求会被外键卡住而失败。
-  baselinePhoto         UserPhoto          @relation("BaselinePhoto", fields: [baselinePhotoId], references: [id], onDelete: Cascade)
+  baselinePhoto UserPhoto      @relation("BaselinePhoto", fields: [baselinePhotoId], references: [id], onDelete: Cascade)
 
   @@index([planId, stageId, imageType])
 }
@@ -565,23 +595,25 @@ enum JobStatus {
 }
 
 model AnalysisJob {
-  id            String     @id @default(cuid())
-  userId        String
-  planId        String?
-  stageId       String?
-  jobType       JobType
-  status        JobStatus  @default(created)
-  errorReason   String?
+  id             String    @id @default(cuid())
+  userId         String
+  planId         String?
+  stageId        String?
+  jobType        JobType
+  status         JobStatus @default(created)
+  errorReason    String?
+  idempotencyKey String?
   /// 决策 12/16：渐进式可读的部分结果（文字推荐先到、图片逐张到）
-  partialResult Json?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  completedAt   DateTime?
+  partialResult  Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  completedAt    DateTime?
 
-  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan          AppearancePlan? @relation(fields: [planId], references: [id], onDelete: Cascade)
-  workflowRuns  WorkflowRun[]
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan         AppearancePlan? @relation(fields: [planId], references: [id], onDelete: Cascade)
+  workflowRuns WorkflowRun[]
 
+  @@unique([userId, jobType, idempotencyKey])
   @@index([userId, status])
   @@index([planId, jobType])
 }
@@ -604,36 +636,160 @@ model WorkflowRun {
   finalStatus     String
   createdAt       DateTime @default(now())
 
-  job             AnalysisJob     @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  plan            AppearancePlan? @relation(fields: [planId], references: [id], onDelete: Cascade)
+  job  AnalysisJob     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  plan AppearancePlan? @relation(fields: [planId], references: [id], onDelete: Cascade)
 
   @@index([jobId])
 }
 
+// ---------------------------------------------------------------------------
+// 推荐（可替换 provider + 候选集）
+// ---------------------------------------------------------------------------
+
+enum RecommendationKind {
+  hairstyle
+  outfit
+}
+
+enum RecommendationSetStatus {
+  preparing
+  ready
+  failed
+  superseded
+}
+
+/// 候选的验证等级。决定面向用户的措辞：agent_estimated 只能说「AI 的估计」，
+/// catalog_verified 才可以说「已通过目录属性规则检查」。
+enum CandidateVerificationStatus {
+  agent_estimated
+  catalog_verified
+  not_checked
+}
+
+enum GeneratedAssetKind {
+  hairstyle_preview
+  outfit_preview
+  target_image
+}
+
+/// 一次推荐的候选集。
+/// **抢占发生在付费调用之前**：`computationKey` 的唯一约束让并发请求收敛到同一个集合，
+/// 只有创建者调用 provider。若改成「先调 provider 再落库」，两个并发请求会同时
+/// 查不到就绪集合、同时调用付费 provider，最后才竞争唯一键——库里只留一个集合而钱花了两次。
+model RecommendationSet {
+  id               String                  @id @default(cuid())
+  planId           String
+  kind             RecommendationKind
+  status           RecommendationSetStatus @default(preparing)
+  /// 业务去重键 = planId + kind + generation + inputFingerprint。
+  /// generation 首版恒为 1，现在就纳入以免将来加「换一批」时键定义变更导致存量数据失效。
+  computationKey   String                  @unique
+  inputFingerprint String
+  generation       Int                     @default(1)
+  /// multimodal_agent | catalog_matching | hybrid
+  source           String
+  /// 知识来源与各项验证等级，随结果返回供上游据实表述
+  capabilityStatus Json
+  /// 注入的天气与场景上下文快照，使推荐事后可解释
+  injectedContext  Json?
+  failureReason    String?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  plan       AppearancePlan            @relation(fields: [planId], references: [id], onDelete: Cascade)
+  candidates RecommendationCandidate[]
+
+  @@index([planId, kind, status])
+}
+
+/// 候选是本次推荐的事实：用户选择与出图都引用它的 id。
+/// `catalogVariantId` 可空——目录为空的阶段由 Agent 直接产出候选，
+/// 下游不因此失去稳定引用。
+model RecommendationCandidate {
+  id                   String                      @id @default(cuid())
+  setId                String
+  catalogVariantId     String?
+  /// provider 侧的候选标识，用于去重校验
+  providerCandidateKey String
+  nameZh               String
+  description          String
+  modelRationale       String
+  rank                 Int
+  /// provider 返回的**受限造型描述**，不是最终图生图指令
+  visualDirection      String
+  /// 由应用模块用固定模板构建，已含身份保持与禁止修改项。
+  /// provider 不产出它，否则可替换 adapter 就获得了改动身份与体型的通道。
+  renderInstruction    String
+  /// Agent 估计的造型客观属性（coversForehead / requiresHairVolume）
+  estimatedAttributes  Json?
+  verificationStatus   CandidateVerificationStatus @default(not_checked)
+  createdAt            DateTime                    @default(now())
+
+  set    RecommendationSet @relation(fields: [setId], references: [id], onDelete: Cascade)
+  assets GeneratedAsset[]
+
+  @@unique([setId, rank])
+  @@unique([setId, providerCandidateKey])
+}
+
+/// 所有生成图片先建这条记录，再对用户签发读取 URL。
+///
+/// 存在的理由是删除链路：预览图此前只把 storageKey 写在 job 的 `partialResult` JSON 里，
+/// 而删除服务的 all_generated_images 与 account 只枚举 `TargetImage`，
+/// 导致删除全部生成图或删号时，预览图的 OSS 对象删不掉。
+model GeneratedAsset {
+  id             String             @id @default(cuid())
+  userId         String
+  planId         String?
+  candidateId    String?
+  kind           GeneratedAssetKind
+  storageKey     String
+  provider       String
+  providerCallId String?
+  /// AI 生成内容的显式标识文案（隐式标识写在图片元数据里）
+  disclosure     String
+  createdAt      DateTime           @default(now())
+
+  user      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan      AppearancePlan?          @relation(fields: [planId], references: [id], onDelete: Cascade)
+  candidate RecommendationCandidate? @relation(fields: [candidateId], references: [id], onDelete: SetNull)
+
+  @@index([userId, kind])
+  @@index([planId])
+}
+
 enum ProviderCallStatus {
+  /// 提交给供应商**之前**写入。崩溃恢复时凭它判断是否可能已计费
+  prepared
   submitted
   polling
   done
   failed
+  /// 供应商超时或崩溃窗口内状态不可知。**终态，不自动重提**——
+  /// 火山不接受客户端幂等键也无法按客户端键查询，重提等于可能重复付费
+  unknown
 }
 
 /// 决策 12：把 add-appearance-agent-foundation 的文件版 taskLedger 迁到 Postgres。
 /// 目的不变：供应商异步调用在**提交后立刻落盘**，这样即使调用方崩溃/断线，
 /// 也能凭 callId 恢复轮询而不是重新提交（避免重复计费）。
 model ProviderCallLog {
-  id             String             @id @default(cuid())
-  /// 供应商返回的 task_id
-  callId         String             @unique
-  provider       String
-  reqKey         String
-  purpose        String?
-  status         ProviderCallStatus @default(submitted)
-  requestSummary Json?
-  resultUrls     String[]
-  error          String?
-  costEstimate   Float?
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
+  id                 String             @id @default(cuid())
+  /// 我们在**提交之前**生成的请求键。`prepared` 记录靠它定位——
+  /// 供应商的 task_id 要等提交成功才知道，而崩溃窗口恰好在那之前。
+  providerRequestKey String?            @unique
+  /// 供应商返回的 task_id。`prepared` 阶段为空
+  callId             String?            @unique
+  provider           String
+  reqKey             String
+  purpose            String?
+  status             ProviderCallStatus @default(submitted)
+  requestSummary     Json?
+  resultUrls         String[]
+  error              String?
+  costEstimate       Float?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
 
   @@index([status, provider])
 }
@@ -654,21 +810,21 @@ model ConversationDecision {
   payload      Json
   createdAt    DateTime @default(now())
 
-  plan         AppearancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  plan AppearancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
 
   @@index([planId, decisionKind])
 }
 
 model Feedback {
-  id                String   @id @default(cuid())
-  planId            String
-  helpfulScore      Int?
-  confidenceChange  Int?
-  completedActions  Json?
-  comments          String?
-  createdAt         DateTime @default(now())
+  id               String   @id @default(cuid())
+  planId           String
+  helpfulScore     Int?
+  confidenceChange Int?
+  completedActions Json?
+  comments         String?
+  createdAt        DateTime @default(now())
 
-  plan              AppearancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  plan AppearancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
 }
 
 /// 敏感照片访问日志（tasks 10.4）。
@@ -676,18 +832,18 @@ model Feedback {
 /// 记录**预签名 URL 的签发**而非 HTTP 读取——我们无法拦截对象存储的直接读取，
 /// 但签发是必经之路，签发即等于授予了访问权，这是真正可控的记录点。
 model PhotoAccessLog {
-  id           String   @id @default(cuid())
+  id               String   @id @default(cuid())
   /// 被访问的照片。照片删除后日志保留（脱敏），用于审计
-  photoId      String?
-  storageKey   String
+  photoId          String?
+  storageKey       String
   /// 谁签发的：用户自己 / 后台人工审核 / 系统（给 AI 供应商抓图）
-  accessorType String
-  accessorId   String?
-  purpose      String
+  accessorType     String
+  accessorId       String?
+  purpose          String
   /// 签发的预签名 URL 有效期，用于评估暴露窗口
   expiresInSeconds Int
-  sourceIp     String?
-  createdAt    DateTime @default(now())
+  sourceIp         String?
+  createdAt        DateTime @default(now())
 
   @@index([photoId, createdAt])
   @@index([accessorType, createdAt])

@@ -16,7 +16,7 @@ export function createVolcengineImageEditProvider(): ImageEditProvider {
       const body: Record<string, unknown> = {
         prompt: input.instruction,
         negative_prompt: "",
-        seed: -1,
+        seed: input.seed ?? -1,
         scale: 0.5,
         return_url: true,
       };

@@ -1,5 +1,5 @@
 /**
- * Human-curated seed data (technical-architecture.md CandidateTaskCatalog,
+ * Human-curated seed data (CandidateTaskCatalog（见 prisma/schema.prisma），
  * design.md decision 15) — TextPlanningProvider selects and scores ONLY from
  * entries here (filtered to isRecommended=true before the model ever sees
  * them); it must never invent a method outside this list. Starter coverage:

@@ -99,4 +99,3 @@ test-fixtures/    长期保留的测试素材（10 张中国男性测试脸等�
   `source=test_fixture_not_research`）。真实数据待调研交付，当前推荐结果不具备产品意义。
 - `taskDimensions.ts` 的档位数值是初始校准，影响 core/optional 切分，待真实完成率数据校准。
 - 内容安全供应商未接（本地 MVP 阶段搁置），S1 只跑确定性红线规则并如实标记缺口。
-- OSS bucket 仍是公共读，上线前须在控制台改为私有。

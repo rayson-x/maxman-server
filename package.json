@@ -8,6 +8,7 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "start:worker": "node dist/worker.js",
+    "test": "npm run build && node scripts/run-tests.mjs",
     "test:providers": "tsx src/scripts/test-providers.ts",
     "test:weather": "npm run build && node --test dist/features/appearance-agent/weather/*.test.js dist/schemas/intake.test.js",
     "dev:worker": "tsx watch src/worker.ts",

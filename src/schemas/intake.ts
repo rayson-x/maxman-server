@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ALL_DOMAINS } from "../features/appearance-agent/data/domains.js";
+import { isAtLeast18 } from "../lib/ageEligibility.js";
 
 /**
  * 采集请求校验（tasks 3.3）。
@@ -20,8 +21,30 @@ const locationTextSchema = z
 export const basicQuestionnaireSchema = z
   .object({
     track: z.enum(["short_term", "long_term"]),
-    birthDate: z.string().datetime().optional(),
-    ageConfirmed18Plus: z.boolean(),
+    birthDate: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "birthDate 必须是 YYYY-MM-DD 的公历日期")
+      .refine((value) => !Number.isNaN(Date.parse(`${value}T00:00:00.000Z`)), {
+        message: "birthDate 不是有效日期",
+      })
+      .refine((value) => isAtLeast18(new Date(`${value}T00:00:00.000Z`)), {
+        message: "本服务仅面向已满 18 岁的用户",
+      })
+      .optional(),
+    ageConfirmed18Plus: z.literal(true, {
+      error: "必须明确确认已满 18 岁",
+    }),
+    /**
+     * 首屏场景意图题的答案（`client/app/onboarding/scenario`）。
+     * 它一题两用：情感化措辞同时完成 track 分流。
+     * 短期分支带细分场景与日期；长期分支场景隐含为「日常」。
+     * 用途是**正式度目标值 + 阶段时间窗口**——替代了不再采集的职业。
+     */
+    eventType: z.string().max(40).optional(),
+    eventDate: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "eventDate 必须是 YYYY-MM-DD")
+      .optional(),
     /** 天气查询只接受省/市文本；坐标与 IP 定位不在首版契约内。 */
     province: locationTextSchema.optional(),
     city: locationTextSchema.optional(),
@@ -47,9 +70,11 @@ export const fullQuestionnaireSchema = z.object({
   bodyFatPercent: z.number().min(3).max(60).optional(),
   exercisesRegularly: z.boolean().optional(),
 
-  occupation: z.string().max(50).optional(),
   wearsGlasses: z.boolean().optional(),
   hasBeard: z.boolean().optional(),
+
+  /** 现状满意度四档（首屏 satisfaction 页）。驱动方案节奏，不采集职业 */
+  changeWillingness: z.enum(["satisfied", "average", "unsatisfied", "distressed"]).optional(),
 
   /** 决策 6：发量自报。云端视觉判断发量实测不可靠，自报在此用途上够用 */
   selfReportedHairVolume: z.enum(["thin", "medium", "thick"]).optional(),

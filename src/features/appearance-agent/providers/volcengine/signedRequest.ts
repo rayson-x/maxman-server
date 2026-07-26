@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { Signer } from "@volcengine/openapi";
 import { env, required } from "../../../../config/env.js";
 import { getActiveTaskLedger } from "../../../../lib/taskLedger.js";
@@ -105,12 +106,26 @@ export async function submitVolcVisualTask(
   body: Record<string, unknown>,
   opts: { purpose?: string } = {},
 ) {
+  // 提交**之前**落 prepared。此后若在拿到 task_id 前崩溃，恢复流程能看到
+  // 「我们打算调用过」，而不是完全无记录——那时无从判断是否已计费。
+  // 火山不接受客户端幂等键也无法按客户端键查询，所以这条记录的作用是
+  // 让过期后能转 unknown 进对账，而不是用来自动重提。
+  const providerRequestKey = `volc-${reqKey}-${randomUUID()}`;
+  await getActiveTaskLedger().recordPrepared({
+    providerRequestKey,
+    provider: "volcengine",
+    reqKey,
+    purpose: opts.purpose,
+    requestBody: body,
+  });
+
   const result = await callVolcVisualAPI<{ code: number; data?: { task_id: string }; message?: string }>(
     { Action: "CVSync2AsyncSubmitTask", Version: "2022-08-31" },
     { req_key: reqKey, ...body },
   );
   if (result.data?.task_id) {
     await getActiveTaskLedger().recordSubmitted({
+      providerRequestKey,
       callId: result.data.task_id,
       provider: "volcengine",
       reqKey,

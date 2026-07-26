@@ -1,8 +1,10 @@
 import type { PrismaClient } from "../generated/prisma/client.js";
 import type { AppContainer } from "../app/container.js";
-import { createPresignedReadUrl, putBuffer, buildStorageKey } from "../lib/ossUpload.js";
 import { createStageProgressionService } from "./stageProgressionService.js";
 import { recordWorkflowRun } from "../steps/types.js";
+import { persistGeneratedImage } from "../lib/generatedImagePersistence.js";
+import { createGeneratedAssetService } from "./generatedAssetService.js";
+import { createPhotoAccessService } from "./photoAccessService.js";
 
 /**
  * 目标图生成与质量检查（tasks 8.6-8.8, 7.9）。
@@ -64,11 +66,28 @@ export async function checkGeneratedImageQuality(
 }
 
 export type GenerateTargetImageResult =
-  | { ok: true; targetImageId: string; storageKey: string; readUrl: string; attempts: number }
+  | { ok: true; targetImageId: string; storageKey: string; readUrl: string | null; attempts: number }
   | { ok: false; reason: string; attempts: number; stageStillUnlocked: true };
+
+export type TargetImageGenerationTrigger =
+  | "stage_unlock"
+  | "user_regeneration"
+  | "progress_recheck";
+
+export function targetImageAccounting(
+  trigger: TargetImageGenerationTrigger,
+  succeeded: boolean,
+): { isFreeFirstGeneration: boolean; consumedWeeklyQuota: boolean } {
+  const isUserRegeneration = trigger === "user_regeneration";
+  return {
+    isFreeFirstGeneration: !isUserRegeneration,
+    consumedWeeklyQuota: isUserRegeneration && succeeded,
+  };
+}
 
 export function createTargetImageService(prisma: PrismaClient, providers: AppContainer["providers"]) {
   const progression = createStageProgressionService(prisma);
+  const photoAccess = createPhotoAccessService(prisma);
 
   return {
     /**
@@ -80,8 +99,10 @@ export function createTargetImageService(prisma: PrismaClient, providers: AppCon
       planId: string;
       stageId: string;
       imageType: "face_hair" | "full_body_outfit";
+      trigger?: TargetImageGenerationTrigger;
     }): Promise<GenerateTargetImageResult> {
       const t0 = Date.now();
+      const trigger = params.trigger ?? "stage_unlock";
       const input = await progression.buildTargetImageInput(params.planId, params.stageId);
       if (!input) {
         await recordWorkflowRun(prisma, {
@@ -92,7 +113,16 @@ export function createTargetImageService(prisma: PrismaClient, providers: AppCon
       }
 
       const plan = await prisma.appearancePlan.findUnique({ where: { id: params.planId } });
-      const baselineUrl = createPresignedReadUrl(input.baselineStorageKey, { expiresSeconds: 900 });
+      if (!plan) {
+        return { ok: false, reason: "方案不存在", attempts: 0, stageStillUnlocked: true };
+      }
+      const { url: baselineUrl } = await photoAccess.issueReadUrl({
+        storageKey: input.baselineStorageKey,
+        photoId: input.baselinePhotoId,
+        accessorType: "system_provider",
+        purpose: `阶段目标图生成（${trigger}）`,
+        expiresSeconds: 900,
+      });
       const instruction = `${input.instruction} ${IDENTITY_PRESERVATION_SUFFIX}`;
 
       let attempts = 0;
@@ -104,24 +134,29 @@ export function createTargetImageService(prisma: PrismaClient, providers: AppCon
       while (attempts < 2) {
         attempts += 1;
         try {
-          const result = await providers.imageEdit.edit({ imageUrl: baselineUrl, instruction });
-          if (!result.imageUrl) {
-            lastError = "供应商未返回图片 URL";
-            continue;
-          }
+          const result = await providers.imageEdit.edit({
+            imageUrl: baselineUrl,
+            instruction,
+            seed: input.seed,
+          });
+          const persisted = await persistGeneratedImage({
+            result,
+            userId: plan.userId,
+            filenameBase: `stage${input.stageIndex}-${params.imageType}-${Date.now()}`,
+            planId: params.planId,
+          });
+          // 目标图同样先落资产台账（基于自报完成情况生成，标识文案里要体现）
+          await createGeneratedAssetService(prisma).record({
+            userId: plan.userId,
+            planId: params.planId,
+            kind: "target_image",
+            storageKey: persisted.storageKey,
+            provider: result.provider,
+            providerCallId: result.callId,
+            basedOnSelfReported: true,
+          });
 
-          const res = await fetch(result.imageUrl);
-          const buf = Buffer.from(await res.arrayBuffer());
-
-          const quality = await checkGeneratedImageQuality(buf);
-          if (!quality.passed) {
-            lastQualityIssues = quality.issues;
-            lastError = `质量检查未通过：${quality.issues.join("; ")}`;
-            continue;
-          }
-
-          const storageKey = buildStorageKey("generated", plan!.userId, `stage${input.stageIndex}-${params.imageType}-${Date.now()}.png`);
-          await putBuffer(storageKey, buf);
+          const accounting = targetImageAccounting(trigger, true);
 
           const targetImage = await prisma.targetImage.create({
             data: {
@@ -131,14 +166,12 @@ export function createTargetImageService(prisma: PrismaClient, providers: AppCon
               baselinePhotoId: input.baselinePhotoId,
               manifestSnapshot: input.completedChanges as never,
               plannedChangesSnapshot: input.plannedChanges as never,
-              storageKey,
+              storageKey: persisted.storageKey,
               qualityCheckStatus: "passed",
               retryCount: attempts - 1,
               provider: result.provider,
               providerCallId: result.callId,
-              // 阶段解锁的首次生成不消耗额度（决策 15）
-              isFreeFirstGeneration: true,
-              consumedWeeklyQuota: false,
+              ...accounting,
             },
           });
 
@@ -155,15 +188,35 @@ export function createTargetImageService(prisma: PrismaClient, providers: AppCon
             qualityResult: { passed: true },
           });
 
+          let readUrl: string | null = null;
+          try {
+            readUrl = (
+              await photoAccess.issueReadUrl({
+                storageKey: persisted.storageKey,
+                accessorType: "user",
+                accessorId: plan.userId,
+                purpose: "用户查看阶段目标图",
+                expiresSeconds: 3600,
+              })
+            ).url;
+          } catch (error) {
+            // 图片已经生成并落库，不能因为“即时展示 URL”签发失败就再次调用计费供应商。
+            // 客户端稍后 GET /plans/:id 会重新走带审计的签发路径。
+            console.error(
+              `[target-image] 已生成 ${targetImage.id}，但即时读取授权失败:`,
+              error instanceof Error ? error.message : String(error),
+            );
+          }
           return {
             ok: true,
             targetImageId: targetImage.id,
-            storageKey,
-            readUrl: createPresignedReadUrl(storageKey, { expiresSeconds: 3600 }),
+            storageKey: persisted.storageKey,
+            readUrl,
             attempts,
           };
         } catch (err) {
           lastError = err instanceof Error ? err.message : String(err);
+          lastQualityIssues = [lastError];
         }
       }
 
@@ -178,8 +231,7 @@ export function createTargetImageService(prisma: PrismaClient, providers: AppCon
           plannedChangesSnapshot: input.plannedChanges as never,
           qualityCheckStatus: "failed",
           retryCount: attempts - 1,
-          isFreeFirstGeneration: true,
-          consumedWeeklyQuota: false,
+          ...targetImageAccounting(trigger, false),
         },
       });
 

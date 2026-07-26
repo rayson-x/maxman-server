@@ -151,9 +151,12 @@ export function computeHairConstraint(signals: HairSignals): HairConstraint {
   return NO_CONSTRAINT;
 }
 
+/** 发型所需的发量档位。与 Prisma 的 `HairVolumeRequirement` 枚举同值 */
+export type HairVolumeRequirement = "low" | "medium" | "high";
+
 export type FilterableHairstyle = {
   id: string;
-  requiresHairVolume: "low" | "medium" | "high";
+  requiresHairVolume: HairVolumeRequirement;
   coversForehead: boolean;
 };
 

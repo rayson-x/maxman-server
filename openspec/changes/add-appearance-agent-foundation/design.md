@@ -78,7 +78,7 @@ The fix applied in all three `textPlanning`/`freeRecommendation`/`adversarialRev
 
 ### 5. CandidateTaskCatalog: human-curated, isRecommended filter applied before the model ever sees it
 
-Per `add-mvp1-core-flow` design.md decision 15, `TextPlanningProvider` must never invent methods outside a human-curated catalog. `data/candidateTaskCatalog.ts` seeds a starter catalog (hair + outfit_accessory domains only, ~9 entries) matching the `CandidateTaskCatalog` Prisma model fields from `technical-architecture.md` §4.1 (domain, method_name→methodName, evidence_basis→evidenceBasis, is_recommended→isRecommended, exclusion_reason→exclusionReason, etc. — camelCase in code, snake_case in the eventual DB column names). `getRecommendedCatalogEntries(domain)` filters to `isRecommended=true` **before** any candidate ever reaches the LLM prompt — this is stronger than instructing the model not to select excluded entries; excluded entries (e.g. `hair-05`, "下颌线训练器", mirroring the exact example called out in design.md decision 15) are structurally invisible to the model, not just discouraged.
+Per `add-mvp1-core-flow` design.md decision 15, `TextPlanningProvider` must never invent methods outside a human-curated catalog. `data/candidateTaskCatalog.ts` seeds a starter catalog (hair + outfit_accessory domains only, ~9 entries) matching the `CandidateTaskCatalog` Prisma model fields from `prisma/schema.prisma` §4.1 (domain, method_name→methodName, evidence_basis→evidenceBasis, is_recommended→isRecommended, exclusion_reason→exclusionReason, etc. — camelCase in code, snake_case in the eventual DB column names). `getRecommendedCatalogEntries(domain)` filters to `isRecommended=true` **before** any candidate ever reaches the LLM prompt — this is stronger than instructing the model not to select excluded entries; excluded entries (e.g. `hair-05`, "下颌线训练器", mirroring the exact example called out in design.md decision 15) are structurally invisible to the model, not just discouraged.
 
 The full 26-method / 8-domain catalog (`add-mvp1-core-flow` tasks.md 7.5a) is separate content-authoring work, not required to validate this mechanism.
 
@@ -141,7 +141,7 @@ Model: DeepSeek (`deepseek-v4-flash`), chosen purely for reasoning/tool-calling 
 
 ## Relationship to `add-mvp1-core-flow`
 
-This change's output — `getAppearanceAgent()` from `composition.ts` — is what the future Fastify `workflows/` layer (per `add-mvp1-core-flow` tasks.md section 7, "Appearance Analysis Orchestration") will call inside the Mastra workflow steps described in `technical-architecture.md` §7.1:
+This change's output — `getAppearanceAgent()` from `composition.ts` — is what the future Fastify `workflows/` layer (per `add-mvp1-core-flow` tasks.md section 7, "Appearance Analysis Orchestration") will call inside the Mastra workflow steps described in `prisma/schema.prisma` §7.1:
 - Step 2 (视觉结构化分析) ↔ tool 1
 - Step 4 (并行方案分支, 发型/穿搭) ↔ tools 5/6/7 (this change covers hair + outfit_accessory only; skincare/fitness domains are not yet built)
 - Step 7 (目标图生成) ↔ tools 2/3

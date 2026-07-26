@@ -145,6 +145,18 @@ export function createDataDeletionService(prisma: PrismaClient) {
         select: { storageKey: true },
       });
       storageKeys.push(...images.map((t) => t.storageKey).filter((k): k is string => Boolean(k)));
+
+      // 预览图不在 TargetImage 里——它们经 GeneratedAsset 台账枚举。
+      // 此前只查 TargetImage，导致删除全部生成图或删号时预览图的 OSS 对象删不掉：
+      // 预览图的 storageKey 只写在 job 的 partialResult JSON 里，从删除路径看是孤儿。
+      const assets = await prisma.generatedAsset.findMany({
+        where:
+          scope.kind === "single_target_image"
+            ? { userId, kind: "target_image", planId: { not: null } }
+            : { userId },
+        select: { storageKey: true },
+      });
+      storageKeys.push(...assets.map((a) => a.storageKey));
     }
 
     // 先删对象存储

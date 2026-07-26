@@ -34,6 +34,49 @@ export type StyleChangeAssessment = {
   emptySetMessage?: string;
 };
 
+export type ManifestVerificationStatus = "rolled_back" | "verified" | "unverified";
+export type ManifestVerificationEvidence = {
+  entryId: string;
+  status: "completed" | "not_completed" | "uncertain";
+  reason: string;
+};
+
+/**
+ * 将视觉服务返回的“仍未完成变化”清单映射到账本条目。
+ *
+ * `undefined`/空数组不代表“全部完成”，而是代表没有逐项证据。此时必须保持
+ * `unverified`，否则一次视觉模型降级就会把整份账本误标为已验证。
+ */
+export function classifyManifestVerification(
+  changeDescription: string,
+  undoneDescriptions?: string[],
+): ManifestVerificationStatus {
+  if (!undoneDescriptions || undoneDescriptions.length === 0) return "unverified";
+
+  const normalize = (value: string) =>
+    value
+      .normalize("NFKC")
+      .replace(/[，。！？、；：,.!?;:\s]/g, "")
+      .replace(/(?:仍然|依然|尚未|并未|还没|没有|仍|尚|未|没)/g, "")
+      .toLowerCase();
+
+  const expected = normalize(changeDescription);
+  const looksUndone = undoneDescriptions.some((description) => {
+    const actual = normalize(description);
+    return Boolean(expected && actual) && (expected.includes(actual) || actual.includes(expected));
+  });
+  return looksUndone ? "rolled_back" : "verified";
+}
+
+export function classifyManifestEvidence(
+  entryId: string,
+  evidence?: ManifestVerificationEvidence[],
+): ManifestVerificationStatus {
+  const verdict = evidence?.find((item) => item.entryId === entryId);
+  if (!verdict || verdict.status === "uncertain") return "unverified";
+  return verdict.status === "completed" ? "verified" : "rolled_back";
+}
+
 export function createPlanRevisionService(prisma: PrismaClient) {
   return {
     /**
@@ -208,46 +251,57 @@ export function createPlanRevisionService(prisma: PrismaClient) {
     async reconcileManifest(params: {
       planId: string;
       /** 视觉分析认为**实际未发生**的变化描述 */
-      unverifiedDescriptions: string[];
+      unverifiedDescriptions?: string[];
+      /** 专用进度复检 step 返回的逐账本条目证据；优先于旧描述清单。 */
+      verificationEvidence?: ManifestVerificationEvidence[];
     }): Promise<{ rolledBack: number; verified: number; planVersion: number }> {
-      const entries = await prisma.changeManifestEntry.findMany({
-        where: { planId: params.planId, verificationStatus: "unverified" },
-      });
-
-      let rolledBack = 0;
-      let verified = 0;
-      for (const e of entries) {
-        const looksUndone = params.unverifiedDescriptions.some(
-          (d) => e.changeDescription.includes(d) || d.includes(e.changeDescription),
-        );
-        await prisma.changeManifestEntry.update({
-          where: { id: e.id },
-          data: {
-            verificationStatus: looksUndone ? "rolled_back" : "verified",
-            verifiedAt: new Date(),
-          },
+      return prisma.$transaction(async (tx) => {
+        const plan = await tx.appearancePlan.findUniqueOrThrow({ where: { id: params.planId } });
+        const entries = await tx.changeManifestEntry.findMany({
+          where: { planId: params.planId, verificationStatus: "unverified" },
         });
-        looksUndone ? rolledBack++ : verified++;
-      }
 
-      // 回退的条目对应的任务也要退回 pending——否则任务显示已完成但账本说没做，两边矛盾
-      if (rolledBack > 0) {
-        const rolledBackEntries = await prisma.changeManifestEntry.findMany({
-          where: { planId: params.planId, verificationStatus: "rolled_back" },
-          select: { sourceTaskId: true },
-        });
-        const taskIds = rolledBackEntries.map((e) => e.sourceTaskId).filter((id): id is string => Boolean(id));
-        if (taskIds.length > 0) {
-          await prisma.stageTask.updateMany({ where: { id: { in: taskIds } }, data: { status: "pending" } });
+        let rolledBack = 0;
+        let verified = 0;
+        const rolledBackTaskIds: string[] = [];
+        const verifiedAt = new Date();
+
+        for (const entry of entries) {
+          const status = params.verificationEvidence
+            ? classifyManifestEvidence(entry.id, params.verificationEvidence)
+            : classifyManifestVerification(entry.changeDescription, params.unverifiedDescriptions);
+          if (status === "unverified") continue;
+
+          await tx.changeManifestEntry.update({
+            where: { id: entry.id },
+            data: { verificationStatus: status, verifiedAt },
+          });
+          if (status === "rolled_back") {
+            rolledBack++;
+            if (entry.sourceTaskId) rolledBackTaskIds.push(entry.sourceTaskId);
+          } else {
+            verified++;
+          }
         }
-      }
 
-      const updated = await prisma.appearancePlan.update({
-        where: { id: params.planId },
-        data: { planVersion: { increment: 1 } },
+        // 回退的条目对应的任务也要退回 pending——否则任务显示已完成但账本说没做，两边矛盾
+        const taskIds = [...new Set(rolledBackTaskIds)];
+        if (taskIds.length > 0) {
+          await tx.stageTask.updateMany({ where: { id: { in: taskIds } }, data: { status: "pending" } });
+        }
+
+        // 没有逐项证据或没有待校准条目时，不制造一个没有事实变化的新 plan version。
+        if (rolledBack === 0 && verified === 0) {
+          return { rolledBack, verified, planVersion: plan.planVersion };
+        }
+
+        const updated = await tx.appearancePlan.update({
+          where: { id: params.planId },
+          data: { planVersion: { increment: 1 } },
+        });
+
+        return { rolledBack, verified, planVersion: updated.planVersion };
       });
-
-      return { rolledBack, verified, planVersion: updated.planVersion };
     },
   };
 }

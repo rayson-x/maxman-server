@@ -58,10 +58,29 @@ export async function saveBasicQuestionnaire(
   await prisma.user.update({
     where: { id: userId },
     data: {
-      birthDate: input.birthDate ? new Date(input.birthDate) : undefined,
+      birthDate: input.birthDate
+        ? new Date(`${input.birthDate}T00:00:00.000Z`)
+        : undefined,
       ageConfirmed18Plus: input.ageConfirmed18Plus,
     },
   });
+
+  // 场景落库。此前服务端只收到 track 一个枚举值，细分场景与日期全丢，
+  // 导致 Event 表零写入、正式度没有直接信号、时间窗口无从计算。
+  if (input.eventType || input.eventDate) {
+    await prisma.event.upsert({
+      where: { userId },
+      create: {
+        userId,
+        eventType: input.eventType,
+        eventDate: input.eventDate ? new Date(`${input.eventDate}T00:00:00.000Z`) : undefined,
+      },
+      update: {
+        eventType: input.eventType,
+        eventDate: input.eventDate ? new Date(`${input.eventDate}T00:00:00.000Z`) : undefined,
+      },
+    });
+  }
 
   // track 必须落库：它是 AppearancePlan 的必填字段，而方案在 worker 的
   // initial_analysis 编排里才创建，那时拿不到本次请求体。
@@ -99,7 +118,7 @@ export async function saveFullQuestionnaire(
     thighCm: input.thighCm,
     bodyFatPercent: input.bodyFatPercent,
     exercisesRegularly: input.exercisesRegularly,
-    occupation: input.occupation,
+    changeWillingness: input.changeWillingness,
     wearsGlasses: input.wearsGlasses,
     hasBeard: input.hasBeard,
     selfReportedHairVolume: input.selfReportedHairVolume,

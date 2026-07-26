@@ -1,4 +1,5 @@
 import type { Step } from "./types.js";
+import { computeRuleBasedCompositeScore } from "../features/appearance-agent/providers/planMaterialization/ruleBasedPlanMaterialization.js";
 
 /**
  * S5 方案落地（tasks 5.8）。
@@ -44,15 +45,7 @@ export function computeCompositeScore(
   dims: { visualBenefit: number; credibility: number; acceptance: number; reversibility: number; timeCost: number; moneyCost: number; risk: number },
   w: ScoringWeights = DEFAULT_WEIGHTS,
 ): number {
-  return (
-    w.visualBenefit * dims.visualBenefit +
-    w.credibility * dims.credibility +
-    w.acceptance * dims.acceptance +
-    w.reversibility * dims.reversibility -
-    w.timeCost * dims.timeCost -
-    w.moneyCost * dims.moneyCost -
-    w.risk * dims.risk
-  );
+  return computeRuleBasedCompositeScore(dims, w);
 }
 
 export type MaterializeTaskSpec = {
@@ -65,6 +58,8 @@ export type MaterializeTaskSpec = {
   estTime?: string;
   estCost?: string;
   rationale?: string;
+  /** 已经由用户选定的风格目录 ID；用于任务与选择结果之间的可追溯关联。 */
+  styleTag?: string;
   /** 打分维度。缺省时该任务不参与 core 竞争，直接 optional */
   dimensions?: { visualBenefit: number; credibility: number; acceptance: number; reversibility: number; timeCost: number; moneyCost: number; risk: number };
   /** guided_selection 任务的候选，每个候选带自己的 changeDescription（决策 11） */
@@ -104,6 +99,16 @@ export const materializePlanStep: Step<MaterializePlanInput, MaterializePlanOutp
 
     const weights = input.weights ?? DEFAULT_WEIGHTS;
     const maxCore = input.maxCorePerStage ?? 3;
+    const taskKeys = new Map(
+      input.tasks.map((task, index) => [task, String(index)]),
+    );
+    const scoring = await deps.providers.planMaterialization.scoreTasks({
+      tasks: input.tasks.map((task, index) => ({
+        key: String(index),
+        dimensions: task.dimensions,
+      })),
+      weights,
+    });
 
     /**
      * 幂等性：先清掉待办任务，再重建。
@@ -147,7 +152,9 @@ export const materializePlanStep: Step<MaterializePlanInput, MaterializePlanOutp
       const scored = specs
         .map((s) => ({
           spec: s,
-          score: s.dimensions ? computeCompositeScore(s.dimensions, weights) : Number.NEGATIVE_INFINITY,
+          score:
+            scoring.scores[taskKeys.get(s)!] ??
+            Number.NEGATIVE_INFINITY,
         }))
         .sort((a, b) => b.score - a.score);
 
@@ -178,6 +185,7 @@ export const materializePlanStep: Step<MaterializePlanInput, MaterializePlanOutp
             taskType: isGuided ? "guided_selection" : "simple",
             selectionStatus: isGuided ? "pending_selection" : "not_applicable",
             candidateOptions: (spec.candidateOptions ?? undefined) as never,
+            styleTag: spec.styleTag,
             title: spec.title,
             estTime: spec.estTime,
             estCost: spec.estCost,

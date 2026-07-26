@@ -24,11 +24,11 @@ SID=$(curl -s -b "$J" -c "$J" -X POST "$B/auth/device-session" | jqf deviceSessi
 [ -n "$SID" ] && ok "签发 device session" || bad "签发 device session"
 
 R=$(curl -s -b "$J" -c "$J" -X POST "$B/questionnaire/basic" -H 'content-type: application/json' \
-  -d '{"track":"short_term","ageConfirmed18Plus":true,"birthDate":"2002-05-01T00:00:00Z"}')
+  -d '{"track":"short_term","ageConfirmed18Plus":true,"birthDate":"2002-05-01","eventType":"第一次约会","eventDate":"2026-08-20"}')
 [ "$(echo "$R" | jqf ok)" = "true" ] && ok "basic 问卷" || bad "basic 问卷" "$R"
 
 R=$(curl -s -b "$J" -X POST "$B/questionnaire/full" -H 'content-type: application/json' \
-  -d '{"heightCm":175,"weightKg":68,"exercisesRegularly":true,"occupation":"学生","wearsGlasses":true,"hasBeard":false,"selfReportedHairVolume":"medium","hairLossConcern":false,"domainSelections":["hairstyle","outfit","face_grooming","skincare","posture"],"budgetTier":"medium"}')
+  -d '{"heightCm":175,"weightKg":68,"exercisesRegularly":true,"occupation":"学生","wearsGlasses":true,"hasBeard":false,"selfReportedHairVolume":"medium","hairLossConcern":false,"domainSelections":["hairstyle","outfit","face_grooming","skincare","posture"],"budgetTier":"medium","changeWillingness":"distressed"}')
 [ "$(echo "$R" | jqf ok)" = "true" ] && ok "full 问卷（矛盾校验 $(echo "$R" | jqf contradictions)）" || bad "full 问卷" "$R"
 
 for c in terms face_processing; do
@@ -71,7 +71,7 @@ R=$(curl -s -b "$J" -X POST "$B/intake/hair-intent" -H 'content-type: applicatio
 curl -s -b "$J" -X POST "$B/intake/hair-intent" -H 'content-type: application/json' -d '{"hasPreference":true,"preferenceText":"想剪个碎盖，显得精神一点"}' -o /dev/null
 
 printf "\n=== 4. 异步分析（HTTP → 队列 → worker → 编排器 → step）===\n"
-R=$(curl -s -b "$J" -X POST "$B/analysis-jobs")
+R=$(curl -s -b "$J" -X POST "$B/analysis-jobs" -H "Idempotency-Key: smoke-analysis-$(date +%s)")
 JID=$(echo "$R" | jqf jobId)
 [ -n "$JID" ] && ok "创建 initial_analysis job" || { bad "创建 job" "$R"; printf "\n%s 通过 / %s 失败\n" "$pass" "$fail"; exit 1; }
 
@@ -96,8 +96,9 @@ CAND=$(echo "$FINAL" | jqf partialResult.recommendation.candidates)
 NCAND=$(node -e "try{const a=JSON.parse(process.argv[1]);console.log(Array.isArray(a)?a.length:0)}catch(e){console.log(0)}" "$CAND")
 [ "$NCAND" -gt 0 ] && ok "S3 产出 $NCAND 个发型候选（含双审美评分）" || bad "S3 无候选" "$CAND"
 
-TRACE=$(echo "$FINAL" | jqf partialResult.recommendation.filterTrace)
-[ -n "$TRACE" ] && ok "确定性过滤审计轨迹：$TRACE" || bad "缺 filterTrace"
+CAPS=$(echo "$FINAL" | jqf partialResult.recommendation.capabilityStatus)
+[ -n "$CAPS" ] && ok "能力状态随结果返回：$CAPS" || bad "缺 capabilityStatus"
+case "$CAPS" in *multimodal_agent*) ok "知识来源标为多模态 Agent（不冒充数据匹配）";; *) bad "知识来源标注缺失" "$CAPS";; esac
 
 # key 由 renderPreviewsStep 按 kind 拼出：hairstylePreviews / outfitPreviews
 PREV=$(echo "$FINAL" | jqf partialResult.hairstylePreviews)
@@ -116,20 +117,18 @@ if [ -n "$PLANID" ]; then
 
   printf "\n=== 6. 两步约束选择（决策 3）===\n"
   # 先证明过滤引擎不能被绕过：提交一个未出现在候选里的条目
-  R=$(curl -s -b "$J" -X POST "$B/plans/$PLANID/select-style" -H 'content-type: application/json' -d '{"kind":"hairstyle","entryId":"test-hair-cuntou"}')
-  if [ "$(echo "$R" | jqf error)" = "not_in_candidates" ]; then
-    ok "非候选发型被拒（确定性过滤不可绕过）"
-  else
-    # 寸头也可能本就在候选里，那这条不成立，跳过而非误报
-    printf "⚠️  跳过：test-hair-cuntou 恰在候选内，无法用它验证绕过防护\n"
-  fi
+  R=$(curl -s -b "$J" -X POST "$B/plans/$PLANID/select-style" -H 'content-type: application/json' -d '{"candidateId":"not-a-real-candidate"}')
+  case "$(echo "$R" | jqf error)" in
+    not_found|not_owned) ok "伪造 candidateId 被拒（归属校验生效）";;
+    *) bad "伪造 candidateId 未被拒" "$R";;
+  esac
 
-  PICK=$(echo "$CAND" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(JSON.parse(s)[0].entryId)}catch(e){console.log('')}})")
-  R=$(curl -s -b "$J" -X POST "$B/plans/$PLANID/select-style" -H 'content-type: application/json' -d "{\"kind\":\"hairstyle\",\"entryId\":\"$PICK\"}")
+  PICK=$(echo "$CAND" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(JSON.parse(s)[0].candidateId)}catch(e){console.log('')}})")
+  R=$(curl -s -b "$J" -X POST "$B/plans/$PLANID/select-style" -H 'content-type: application/json' -d "{\"candidateId\":\"$PICK\"}")
   [ "$(echo "$R" | jqf ok)" = "true" ] && ok "选定发型：$(echo "$R" | jqf nameZh)" || bad "选定发型失败" "$R"
 
   printf "\n=== 7. 穿搭预览（无全身照 → 降级，零生成成本）===\n"
-  R=$(curl -s -b "$J" -X POST "$B/plans/$PLANID/outfit-previews")
+  R=$(curl -s -b "$J" -X POST "$B/plans/$PLANID/outfit-previews" -H "Idempotency-Key: smoke-outfit-$(date +%s)")
   OJID=$(echo "$R" | jqf jobId)
   [ -n "$OJID" ] && ok "创建 outfit_preview_generation job" || bad "创建穿搭 job" "$R"
   for i in $(seq 1 40); do
@@ -142,9 +141,17 @@ if [ -n "$PLANID" ]; then
   [ "$MODE" = "text_and_reference_only" ] && ok "无全身照正确降级（mode=${MODE}，不伪造全身照）" || bad "降级模式异常：$MODE" "$(echo "$OF" | jqf errorReason)"
   NOTICE=$(echo "$OF" | jqf partialResult.outfit.degradedNotice)
   [ -n "$NOTICE" ] && ok "降级已明确告知用户原因" || bad "降级缺少告知文案"
+  OPREV=$(echo "$OF" | jqf partialResult.outfit.previews)
+  OPICK=$(echo "$OPREV" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(JSON.parse(s)[0].candidateId)}catch(e){console.log('')}})")
+  if [ -n "$OPICK" ]; then
+    R=$(curl -s -b "$J" -X POST "$B/plans/$PLANID/select-style" -H 'content-type: application/json' -d "{\"candidateId\":\"$OPICK\"}")
+    [ "$(echo "$R" | jqf ok)" = "true" ] && ok "从降级文字候选选定穿搭：$(echo "$R" | jqf nameZh)" || bad "选定穿搭失败" "$R"
+  else
+    bad "穿搭降级未返回可选择的文字候选" "$OF"
+  fi
 
   printf "\n=== 8. 方案落地 S5（零生成成本）===\n"
-  R=$(curl -s -b "$J" -X POST "$B/plans/$PLANID/materialize")
+  R=$(curl -s -b "$J" -X POST "$B/plans/$PLANID/materialize" -H "Idempotency-Key: smoke-mat-$(date +%s)")
   MJID=$(echo "$R" | jqf jobId)
   [ -n "$MJID" ] && ok "创建 plan_materialization job" || bad "创建落地 job" "$R"
   for i in $(seq 1 40); do

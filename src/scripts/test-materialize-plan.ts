@@ -92,11 +92,23 @@ try {
   check(high > low, "收益项加、成本项减", `高收益低成本=${high} > 低收益高成本=${low}`);
 
   console.log("\n=== S4' 无全身照降级 ===");
-  const degraded = await renderOutfitPreviewsStep.run({ candidates: [] }, ctx, deps);
+  const degraded = await renderOutfitPreviewsStep.run({
+    candidates: [{
+      candidateId: "outfit-reference",
+      nameZh: "素色 T 恤 + 直筒裤",
+      modelRationale: "颜色克制、版型利落",
+      renderInstruction: "换成素色 T 恤和直筒裤",
+    }],
+  }, ctx, deps);
   const dd = degraded.status === "completed" ? degraded.data : null;
   check(degraded.status === "completed" && dd?.mode === "text_and_reference_only",
     "无全身照 → 不造全身照，降级为文字+示意图（决策 11）", dd?.mode);
-  check(dd!.previews.length === 0, "降级模式不产生任何本人效果图（不消耗生成配额）");
+  check(
+    dd!.previews.length === 1 &&
+      dd!.previews[0].referenceOnly === true &&
+      dd!.previews[0].storageKey === null,
+    "降级模式保留可选择的文字候选，但不产生任何本人效果图（不消耗生成配额）",
+  );
   check(Boolean(dd?.degradedNotice?.includes("全身照")), "明确告知原因与解锁方式，而不是静默少给内容");
   console.log(`     提示文案：${dd?.degradedNotice}`);
 

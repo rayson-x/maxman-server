@@ -11,6 +11,10 @@ import {
   getTextPlanningProvider,
   getFreeRecommendationProvider,
   getAdversarialReviewProvider,
+  getStyleRecommendationProvider,
+  getHairstyleRecommendationProvider,
+  getOutfitRecommendationProvider,
+  getPlanMaterializationProvider,
 } from "../features/appearance-agent/composition.js";
 import type { VisionAnalysisProvider } from "../features/appearance-agent/providers/vision/types.js";
 import type { ImageEditProvider } from "../features/appearance-agent/providers/imageEdit/types.js";
@@ -19,6 +23,8 @@ import type { TextToImageProvider } from "../features/appearance-agent/providers
 import type { TextPlanningProvider } from "../features/appearance-agent/providers/textPlanning/types.js";
 import type { FreeRecommendationProvider } from "../features/appearance-agent/providers/freeRecommendation/types.js";
 import type { AdversarialReviewProvider } from "../features/appearance-agent/providers/adversarialReview/types.js";
+import type { StyleRecommendationProvider } from "../features/appearance-agent/providers/styleRecommendation/types.js";
+import type { PlanMaterializationProvider } from "../features/appearance-agent/providers/planMaterialization/types.js";
 
 /**
  * 应用级组装根（tasks 1.6）。
@@ -43,6 +49,10 @@ export type AppContainer = {
     textPlanning: TextPlanningProvider;
     freeRecommendation: FreeRecommendationProvider;
     adversarialReview: AdversarialReviewProvider;
+    styleRecommendation: StyleRecommendationProvider;
+    hairstyleRecommendation: ReturnType<typeof getHairstyleRecommendationProvider>;
+    outfitRecommendation: ReturnType<typeof getOutfitRecommendationProvider>;
+    planMaterialization: PlanMaterializationProvider;
   };
   shutdown: () => Promise<void>;
 };
@@ -79,6 +89,10 @@ export function createContainer(opts: ContainerOptions = {}): AppContainer {
         textPlanning: getTextPlanningProvider(),
         freeRecommendation: getFreeRecommendationProvider(),
         adversarialReview: getAdversarialReviewProvider(),
+        styleRecommendation: getStyleRecommendationProvider(),
+        hairstyleRecommendation: getHairstyleRecommendationProvider(),
+        outfitRecommendation: getOutfitRecommendationProvider(),
+        planMaterialization: getPlanMaterializationProvider(),
       }
     : ({} as AppContainer["providers"]);
 

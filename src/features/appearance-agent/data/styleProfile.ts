@@ -33,7 +33,14 @@ export const STYLE_VECTOR_DIMENSIONS = ["formality", "maturity", "boldness", "up
  * 协调阈值：各维度差值 ≤ 此值才算兼容。
  * 未经真实数据校准，需上线后用用户实际选择行为回归调优（design.md Risks）。
  */
-export const DEFAULT_COMPATIBILITY_THRESHOLD = 3;
+export function parseCompatibilityThreshold(value: string | undefined): number {
+  const parsed = Number(value ?? "3");
+  return Number.isInteger(parsed) && parsed >= 0 && parsed <= 9 ? parsed : 3;
+}
+
+export const DEFAULT_COMPATIBILITY_THRESHOLD = parseCompatibilityThreshold(
+  process.env.STYLE_COMPATIBILITY_THRESHOLD,
+);
 
 /** 各维度差值均在阈值内即兼容。返回不兼容的维度便于解释与调参。 */
 export function checkCompatibility(

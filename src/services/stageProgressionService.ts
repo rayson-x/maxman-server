@@ -1,4 +1,5 @@
 import type { PrismaClient } from "../generated/prisma/client.js";
+import { photoModerationWhere } from "../lib/photoModerationGate.js";
 import type { TaskStatus } from "../generated/prisma/enums.js";
 
 /**
@@ -14,6 +15,16 @@ import type { TaskStatus } from "../generated/prisma/enums.js";
 export type StatusUpdateResult =
   | { ok: true; status: TaskStatus; manifestEntryCreated: boolean; stageUnlocked: boolean; unlockedStageIndex?: number }
   | { ok: false; reason: string; code: "core_not_skippable" | "task_not_found" | "invalid_transition" | "selection_required" };
+
+const ALLOWED_TASK_TRANSITIONS: Record<TaskStatus, readonly TaskStatus[]> = {
+  pending: ["done", "skipped", "blocked", "replaced"],
+  // blocked 表示当前有外部阻碍；阻碍解除后可以直接完成或换成等价任务，
+  // 但不能退回 pending 伪装成从未阻塞过。
+  blocked: ["done", "replaced"],
+  done: [],
+  skipped: [],
+  replaced: [],
+};
 
 export function createStageProgressionService(prisma: PrismaClient) {
   /**
@@ -40,95 +51,140 @@ export function createStageProgressionService(prisma: PrismaClient) {
       planId: string;
       nextStatus: TaskStatus;
     }): Promise<StatusUpdateResult> {
-      const task = await prisma.stageTask.findFirst({
-        where: { id: params.taskId, stage: { planId: params.planId } },
-        include: { stage: true },
-      });
-      if (!task) return { ok: false, reason: "任务不存在或不属于该方案", code: "task_not_found" };
+      return prisma.$transaction(async (tx): Promise<StatusUpdateResult> => {
+        // 先定位 stage，再锁 stage 行。锁 stage 而非只锁 task：同一阶段最后两个
+        // core task 可能由不同请求并发完成，只有共享的 stage 行能把两次解锁判定串行化。
+        const locator = await tx.stageTask.findFirst({
+          where: { id: params.taskId, stage: { planId: params.planId } },
+          select: { stageId: true },
+        });
+        if (!locator) return { ok: false, reason: "任务不存在或不属于该方案", code: "task_not_found" };
 
-      // 决策 14：核心任务不可跳过，只可替换。
-      // 理由不是"规则如此"——目标图是按 core 任务的计划变化生成的，
-      // 跳过一个 core 就让目标图与实际计划脱节了。
-      if (task.priority === "core" && params.nextStatus === "skipped") {
-        return {
-          ok: false,
-          reason: "核心任务不能跳过，只能替换成等价的其他方案",
-          code: "core_not_skippable",
-        };
-      }
+        await tx.$queryRaw`SELECT "id" FROM "Stage" WHERE "id" = ${locator.stageId} FOR UPDATE`;
 
-      // guided_selection 任务未选定就标完成是没有意义的——不知道他到底做了哪个方案，
-      // 也就写不出正确的 ChangeManifestEntry
-      if (task.taskType === "guided_selection" && params.nextStatus === "done" && task.selectionStatus !== "selected") {
-        return {
-          ok: false,
-          reason: "这个任务需要先选定具体方向，再标记完成",
-          code: "selection_required",
-        };
-      }
+        // 拿锁后重读，不能使用锁前快照做幂等/状态判断。
+        const task = await tx.stageTask.findFirst({
+          where: { id: params.taskId, stage: { planId: params.planId } },
+          include: { stage: true },
+        });
+        if (!task) return { ok: false, reason: "任务不存在或不属于该方案", code: "task_not_found" };
 
-      await prisma.stageTask.update({ where: { id: task.id }, data: { status: params.nextStatus } });
-
-      // tasks 8.3：完成即写账本，**无 LLM 调用**。
-      // change_description 在任务生成时（S5）就预写好了，这里原样复制。
-      let manifestEntryCreated = false;
-      if (params.nextStatus === "done" && task.changeDescription) {
-        // guided_selection 任务用**选中候选**的 changeDescription，而不是任务级的占位描述
-        let description = task.changeDescription;
-        if (task.taskType === "guided_selection" && task.styleTag) {
-          const opts = (task.candidateOptions ?? []) as { styleTag: string; changeDescription: string }[];
-          const chosen = opts.find((o) => o.styleTag === task.styleTag);
-          if (chosen) description = chosen.changeDescription;
+        // 相同状态重放是成功的 no-op。移动端弱网重试、双击和 HTTP 超时重放都不应
+        // 再写一条账本或再触发一次阶段解锁。
+        if (task.status === params.nextStatus) {
+          return {
+            ok: true,
+            status: task.status,
+            manifestEntryCreated: false,
+            stageUnlocked: false,
+          };
         }
 
-        await prisma.changeManifestEntry.create({
-          data: {
-            planId: params.planId,
-            stageId: task.stageId,
-            sourceTaskId: task.id,
-            domain: task.domain,
-            changeDescription: description,
-            // 决策 13：自报完成默认 unverified，等 progress_recheck 校准
-            verificationStatus: "unverified",
-          },
-        });
-        manifestEntryCreated = true;
-      }
+        if (!ALLOWED_TASK_TRANSITIONS[task.status].includes(params.nextStatus)) {
+          return {
+            ok: false,
+            reason: `不允许从 ${task.status} 跃迁到 ${params.nextStatus}`,
+            code: "invalid_transition",
+          };
+        }
 
-      // 更新进度条百分比（仅 UI 用，不参与解锁判定）
-      const allTasks = await prisma.stageTask.count({ where: { stageId: task.stageId } });
-      const doneTasks = await prisma.stageTask.count({ where: { stageId: task.stageId, status: "done" } });
-      await prisma.stage.update({
-        where: { id: task.stageId },
-        data: { completionPct: allTasks > 0 ? Math.round((doneTasks / allTasks) * 100) : 0 },
-      });
+        // 决策 14：核心任务不可跳过，只可替换。
+        // 理由不是"规则如此"——目标图是按 core 任务的计划变化生成的，
+        // 跳过一个 core 就让目标图与实际计划脱节了。
+        if (task.priority === "core" && params.nextStatus === "skipped") {
+          return {
+            ok: false,
+            reason: "核心任务不能跳过，只能替换成等价的其他方案",
+            code: "core_not_skippable",
+          };
+        }
 
-      // tasks 8.5：解锁判定
-      let stageUnlocked = false;
-      let unlockedStageIndex: number | undefined;
-      if (params.nextStatus === "done") {
-        const { allCoreDone } = await evaluateStageUnlock(task.stageId);
-        if (allCoreDone && task.stage.status === "active") {
-          await prisma.stage.update({ where: { id: task.stageId }, data: { status: "completed" } });
-          const next = await prisma.stage.findFirst({
-            where: { planId: params.planId, stageIndex: task.stage.stageIndex + 1 },
+        // guided_selection 任务未选定就标完成是没有意义的——不知道他到底做了哪个方案，
+        // 也就写不出正确的 ChangeManifestEntry
+        if (task.taskType === "guided_selection" && params.nextStatus === "done" && task.selectionStatus !== "selected") {
+          return {
+            ok: false,
+            reason: "这个任务需要先选定具体方向，再标记完成",
+            code: "selection_required",
+          };
+        }
+
+        await tx.stageTask.update({ where: { id: task.id }, data: { status: params.nextStatus } });
+
+        // tasks 8.3：完成即写账本，**无 LLM 调用**。
+        // change_description 在任务生成时（S5）就预写好了，这里原样复制。
+        let manifestEntryCreated = false;
+        if (params.nextStatus === "done" && task.changeDescription) {
+          // guided_selection 任务用**选中候选**的 changeDescription，而不是任务级的占位描述
+          let description = task.changeDescription;
+          if (task.taskType === "guided_selection" && task.styleTag) {
+            const opts = (task.candidateOptions ?? []) as { styleTag: string; changeDescription: string }[];
+            const chosen = opts.find((o) => o.styleTag === task.styleTag);
+            if (chosen) description = chosen.changeDescription;
+          }
+
+          // sourceTaskId 的 DB 唯一约束是最后一道防线；先查再建则让历史上已经存在
+          // 账本、但 task 状态异常回退到 pending 的数据也能被幂等修复而非整笔回滚。
+          const existingEntry = await tx.changeManifestEntry.findFirst({
+            where: { sourceTaskId: task.id },
+            select: { id: true },
           });
-          if (next) {
-            await prisma.stage.update({ where: { id: next.id }, data: { status: "active" } });
-            await prisma.appearancePlan.update({
-              where: { id: params.planId },
-              data: { currentStage: next.stageIndex },
+          if (!existingEntry) {
+            await tx.changeManifestEntry.create({
+              data: {
+                planId: params.planId,
+                stageId: task.stageId,
+                sourceTaskId: task.id,
+                domain: task.domain,
+                changeDescription: description,
+                // 决策 13：自报完成默认 unverified，等 progress_recheck 校准
+                verificationStatus: "unverified",
+              },
             });
-            stageUnlocked = true;
-            unlockedStageIndex = next.stageIndex;
-          } else {
-            // 阶段3 完成 = 整个方案走完
-            await prisma.appearancePlan.update({ where: { id: params.planId }, data: { status: "completed" } });
+            manifestEntryCreated = true;
           }
         }
-      }
 
-      return { ok: true, status: params.nextStatus, manifestEntryCreated, stageUnlocked, unlockedStageIndex };
+        // 更新进度条百分比（仅 UI 用，不参与解锁判定）
+        const allTasks = await tx.stageTask.count({ where: { stageId: task.stageId } });
+        const doneTasks = await tx.stageTask.count({ where: { stageId: task.stageId, status: "done" } });
+        await tx.stage.update({
+          where: { id: task.stageId },
+          data: { completionPct: allTasks > 0 ? Math.round((doneTasks / allTasks) * 100) : 0 },
+        });
+
+        // tasks 8.5：解锁判定。在 stage 行锁内实时查询全部 core，
+        // 因而同阶段并发完成不同 task 时只有后一个事务能执行解锁。
+        let stageUnlocked = false;
+        let unlockedStageIndex: number | undefined;
+        if (params.nextStatus === "done") {
+          const coreTasks = await tx.stageTask.findMany({
+            where: { stageId: task.stageId, priority: "core" },
+            select: { status: true },
+          });
+          const allCoreDone = coreTasks.length > 0 && coreTasks.every((core) => core.status === "done");
+          if (allCoreDone && task.stage.status === "active") {
+            await tx.stage.update({ where: { id: task.stageId }, data: { status: "completed" } });
+            const next = await tx.stage.findFirst({
+              where: { planId: params.planId, stageIndex: task.stage.stageIndex + 1 },
+            });
+            if (next) {
+              await tx.stage.update({ where: { id: next.id }, data: { status: "active" } });
+              await tx.appearancePlan.update({
+                where: { id: params.planId },
+                data: { currentStage: next.stageIndex },
+              });
+              stageUnlocked = true;
+              unlockedStageIndex = next.stageIndex;
+            } else {
+              // 阶段3 完成 = 整个方案走完
+              await tx.appearancePlan.update({ where: { id: params.planId }, data: { status: "completed" } });
+            }
+          }
+        }
+
+        return { ok: true, status: params.nextStatus, manifestEntryCreated, stageUnlocked, unlockedStageIndex };
+      });
     },
 
     /** tasks 8.4：guided_selection 选定。只改 selectionStatus 与 styleTag，不动 status，不写账本 */
@@ -167,12 +223,17 @@ export function createStageProgressionService(prisma: PrismaClient) {
       const plan = await prisma.appearancePlan.findUnique({ where: { id: planId } });
       if (!plan) return null;
 
-      const stage = await prisma.stage.findUnique({ where: { id: stageId } });
+      const stage = await prisma.stage.findFirst({ where: { id: stageId, planId } });
       if (!stage) return null;
 
       // 基准照片恒为最初上传的正面照，禁止用上一阶段生成图（防身份漂移）
       const baseline = await prisma.userPhoto.findFirst({
-        where: { userId: plan.userId, photoType: "front", deletionStatus: "active" },
+        where: {
+          userId: plan.userId,
+          photoType: "front",
+          deletionStatus: "active",
+          ...photoModerationWhere(),
+        },
         orderBy: { uploadedAt: "asc" },
       });
       if (!baseline) return null;

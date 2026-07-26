@@ -1,6 +1,19 @@
-import type { Step, StepContext, StepDeps } from "./types.js";
-import type { ScoredCandidate } from "./recommend.js";
-import { createPresignedReadUrl, putBuffer, buildStorageKey } from "../lib/ossUpload.js";
+import { recordWorkflowRun, type Step, type StepContext, type StepDeps } from "./types.js";
+import { photoModerationWhere } from "../lib/photoModerationGate.js";
+/**
+ * 预览的候选输入。`renderInstruction` 已由 `RecommendationApplication` 用固定模板构建
+ * 并追加了身份保持后缀——这里不再拼指令，也不该再拼，否则两处会各追加一遍。
+ */
+export type PreviewCandidate = {
+  candidateId: string;
+  nameZh: string;
+  renderInstruction: string;
+  /** 无全身照的降级路径要把理由一起展示，因为那时没有图可看 */
+  modelRationale?: string;
+};
+import { persistGeneratedImage } from "../lib/generatedImagePersistence.js";
+import { createGeneratedAssetService } from "../services/generatedAssetService.js";
+import { createPhotoAccessService } from "../services/photoAccessService.js";
 
 /**
  * S4 / S4' 效果图生成（tasks 5.6/5.7）。
@@ -21,18 +34,21 @@ export type RenderPreviewsInput = {
   /** 基准照片的 storageKey。发型预览用正面照，穿搭预览用全身照 */
   baselinePhotoStorageKey: string;
   /** 已按匹配度降序排列的候选。顺序即提交顺序，不要在这里重排 */
-  candidates: (ScoredCandidate & { changeInstruction: string })[];
+  candidates: PreviewCandidate[];
   kind: "hairstyle" | "outfit";
 };
 
 export type RenderedPreview = {
-  entryId: string;
+  candidateId: string;
   nameZh: string;
-  storageKey: string;
+  storageKey: string | null;
   /** 短时预签名读取 URL，供客户端展示 */
-  readUrl: string;
+  readUrl: string | null;
   providerCallId?: string;
   latencyMs: number;
+  /** 无全身照时只展示文字/非本人参考，不得冒充本人生成结果。 */
+  referenceOnly?: boolean;
+  rationale?: string;
 };
 
 export type RenderPreviewsOutput = {
@@ -56,7 +72,7 @@ async function pushPartial(
     data: {
       partialResult: {
         ...existing,
-        [`${kind}Previews`]: previews.map((p) => ({ entryId: p.entryId, nameZh: p.nameZh, readUrl: p.readUrl })),
+        [`${kind}Previews`]: previews.map((p) => ({ candidateId: p.candidateId, nameZh: p.nameZh, readUrl: p.readUrl })),
         [`${kind}PreviewsPending`]: pending,
       } as never,
     },
@@ -70,8 +86,32 @@ export const renderPreviewsStep: Step<RenderPreviewsInput, RenderPreviewsOutput>
     const previews: RenderedPreview[] = [];
     const failures: { item: string; reason: string }[] = [];
 
-    // 供应商需要能抓到输入图 → 短时预签名 URL（不是永久公开链接）
-    const baselineUrl = createPresignedReadUrl(input.baselinePhotoStorageKey, { expiresSeconds: 900 });
+    const baselinePhoto = await deps.prisma.userPhoto.findFirst({
+      where: {
+        userId: ctx.userId,
+        storageKey: input.baselinePhotoStorageKey,
+        deletionStatus: "active",
+        ...photoModerationWhere(),
+      },
+    });
+    if (!baselinePhoto) {
+      return { status: "failed", error: "找不到已通过审核的本人基准照片" };
+    }
+    const photoAccess = createPhotoAccessService(deps.prisma);
+    // 供应商需要能抓到输入图 → 短时预签名 URL，并把授权事件写入审计日志。
+    const { url: baselineUrl } = await photoAccess.issueReadUrl({
+      storageKey: baselinePhoto.storageKey,
+      photoId: baselinePhoto.id,
+      accessorType: "system_provider",
+      purpose: `${input.kind}预览图生成`,
+      expiresSeconds: 900,
+    });
+    const plan = ctx.planId
+      ? await deps.prisma.appearancePlan.findUnique({
+          where: { id: ctx.planId },
+          select: { generationSeed: true },
+        })
+      : null;
 
     // ⚠ 串行 for 循环是刻意的，不要改成 Promise.all —— 供应商并发上限为 1，
     // 并发提交会被 code 50430 拒。队列层也配了 concurrency=1 做跨进程保证，
@@ -80,26 +120,62 @@ export const renderPreviewsStep: Step<RenderPreviewsInput, RenderPreviewsOutput>
       try {
         const result = await deps.providers.imageEdit.edit({
           imageUrl: baselineUrl,
-          instruction: candidate.changeInstruction,
+          instruction: candidate.renderInstruction,
+          seed: plan?.generationSeed,
+        });
+        await recordWorkflowRun(deps.prisma, {
+          jobId: ctx.jobId,
+          planId: ctx.planId,
+          stepName: `S4_render_${input.kind}_provider`,
+          finalStatus: "completed",
+          latencyMs: result.latencyMs,
+          provider: result.provider,
         });
 
-        if (!result.imageUrl) {
-          failures.push({ item: candidate.nameZh, reason: "供应商未返回图片 URL" });
-          continue;
+        // URL/base64 都走唯一持久化入口：有限下载、格式验证、AI 隐式标识、再写 OSS。
+        const safeId = candidate.candidateId.replace(/[^A-Za-z0-9._-]/g, "_").slice(0, 80);
+        const persisted = await persistGeneratedImage({
+          result,
+          userId: ctx.userId,
+          filenameBase: `${input.kind}-${safeId}-${Date.now()}`,
+          planId: ctx.planId,
+        });
+        // 先落资产台账再签发读取地址：删除链路靠它枚举 OSS 对象，
+        // 否则这张图从删除路径的视角是孤儿（预览图此前就是这个状态）
+        await createGeneratedAssetService(deps.prisma).record({
+          userId: ctx.userId,
+          planId: ctx.planId,
+          kind: input.kind === "hairstyle" ? "hairstyle_preview" : "outfit_preview",
+          candidateId: candidate.candidateId,
+          storageKey: persisted.storageKey,
+          provider: result.provider,
+          providerCallId: result.callId,
+        });
+
+        let readUrl: string | null = null;
+        try {
+          readUrl = (
+            await photoAccess.issueReadUrl({
+              storageKey: persisted.storageKey,
+              accessorType: "user",
+              accessorId: ctx.userId,
+              purpose: `用户查看${input.kind}预览图`,
+              expiresSeconds: 3600,
+            })
+          ).url;
+        } catch (error) {
+          // 供应商调用与 OSS 持久化已经成功；不要因即时授权日志故障而重复烧图。
+          failures.push({
+            item: candidate.nameZh,
+            reason: `图片已生成，但即时读取授权暂不可用：${error instanceof Error ? error.message : String(error)}`,
+          });
         }
 
-        // 生成结果回存到我们自己的对象存储——供应商链接 24 小时后失效，
-        // 而目标图要长期可见
-        const res = await fetch(result.imageUrl);
-        const buf = Buffer.from(await res.arrayBuffer());
-        const storageKey = buildStorageKey("generated", ctx.userId, `${input.kind}-${candidate.entryId}-${Date.now()}.png`);
-        await putBuffer(storageKey, buf);
-
         previews.push({
-          entryId: candidate.entryId,
+          candidateId: candidate.candidateId,
           nameZh: candidate.nameZh,
-          storageKey,
-          readUrl: createPresignedReadUrl(storageKey, { expiresSeconds: 3600 }),
+          storageKey: persisted.storageKey,
+          readUrl,
           providerCallId: result.callId,
           latencyMs: result.latencyMs,
         });
@@ -130,7 +206,7 @@ export const renderPreviewsStep: Step<RenderPreviewsInput, RenderPreviewsOutput>
 export type OutfitPreviewInput = {
   /** 全身照。缺失时走降级路径 */
   fullBodyPhotoStorageKey?: string;
-  candidates: (ScoredCandidate & { changeInstruction: string })[];
+  candidates: PreviewCandidate[];
 };
 
 export type OutfitPreviewOutput = {
@@ -153,10 +229,18 @@ export const renderOutfitPreviewsStep: Step<OutfitPreviewInput, OutfitPreviewOut
         status: "completed",
         data: {
           mode: "text_and_reference_only",
-          previews: [],
+          previews: input.candidates.map((candidate) => ({
+            candidateId: candidate.candidateId,
+            nameZh: candidate.nameZh,
+            storageKey: null,
+            readUrl: null,
+            latencyMs: 0,
+            referenceOnly: true,
+            rationale: candidate.modelRationale,
+          })),
           degradedNotice:
-            "还没有你的全身照，所以这些穿搭方案先以文字和风格示意图呈现（示意图不是你本人）。" +
-            "上传一张全身照就能看到穿在你身上的效果。",
+            "还没有你的全身照，所以这些穿搭方案先以文字候选呈现，不包含你的本人效果图。" +
+            "上传一张已通过审核的全身照，就能看到穿在你身上的模拟效果。",
         },
       };
     }

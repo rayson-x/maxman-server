@@ -15,6 +15,8 @@
  *   ACTIVE_FREE_RECOMMENDATION_PROVIDER=deepseek (only viable one so far)
  *   ACTIVE_ADVERSARIAL_REVIEW_PROVIDER=deepseek (only viable one so far)
  *   ACTIVE_INPUT_REVIEW_PROVIDER=deepseek      (only viable one so far)
+ *   ACTIVE_HAIRSTYLE_RECOMMENDATION_PROVIDER=multimodal-agent
+ *   ACTIVE_OUTFIT_RECOMMENDATION_PROVIDER=multimodal-agent
  */
 import { createZhipuVisionProvider } from "./providers/vision/zhipuVision.js";
 import { createQwenVisionProvider } from "./providers/vision/qwenVision.js";
@@ -42,8 +44,17 @@ import type { FreeRecommendationProvider } from "./providers/freeRecommendation/
 import { createDeepSeekAdversarialReviewProvider } from "./providers/adversarialReview/deepseekAdversarialReview.js";
 import type { AdversarialReviewProvider } from "./providers/adversarialReview/types.js";
 
+
 import { createDeepSeekInputReviewProvider } from "./providers/inputReview/deepseekInputReview.js";
+import { createVisionLlmStyleRecommendationProvider } from "./providers/styleRecommendation/visionLlmStyleRecommendation.js";
+import {
+  createHairstyleMultimodalAgentProvider,
+  createOutfitMultimodalAgentProvider,
+} from "./providers/styleRecommendation/multimodalAgentRecommendation.js";
 import type { InputReviewProvider } from "./providers/inputReview/types.js";
+import type { StyleRecommendationProvider } from "./providers/styleRecommendation/types.js";
+import { createRuleBasedPlanMaterializationProvider } from "./providers/planMaterialization/ruleBasedPlanMaterialization.js";
+import type { PlanMaterializationProvider } from "./providers/planMaterialization/types.js";
 
 import { createDeepSeekModel } from "./providers/llm/deepseekModel.js";
 import { createAppearanceAgent, type AppearanceAgentDeps } from "./agent.js";
@@ -150,6 +161,7 @@ export function getAdversarialReviewProvider(): AdversarialReviewProvider {
   ));
 }
 
+
 let inputReviewProvider: InputReviewProvider | undefined;
 export function getInputReviewProvider(): InputReviewProvider {
   return (inputReviewProvider ??= pick(
@@ -158,6 +170,54 @@ export function getInputReviewProvider(): InputReviewProvider {
       deepseek: createDeepSeekInputReviewProvider,
     },
     "deepseek",
+  ));
+}
+
+let styleRecommendationProvider: StyleRecommendationProvider | undefined;
+/**
+ * 方案推荐。**这是一条刻意设计的接缝**——过渡期是视觉 LLM 直接看图推荐，
+ * 审美匹配数据到位后换成 `catalog-matching`，上游一行不改。
+ * 见 openspec/changes/add-pluggable-style-recommendation。
+ */
+export function getStyleRecommendationProvider(): StyleRecommendationProvider {
+  return (styleRecommendationProvider ??= pick(
+    "ACTIVE_STYLE_RECOMMENDATION_PROVIDER",
+    {
+      "vision-llm": () =>
+        createVisionLlmStyleRecommendationProvider({
+          modelId: process.env.STYLE_RECOMMENDATION_MODEL,
+        }),
+      // "catalog-matching": 待审美匹配数据到位后实现（tasks 8.5）
+    },
+    "vision-llm",
+  ));
+}
+
+let hairstyleRecProvider: ReturnType<typeof createHairstyleMultimodalAgentProvider> | undefined;
+/** 发型推荐 adapter。`RecommendationApplication` 的内部可替换件 */
+export function getHairstyleRecommendationProvider() {
+  return (hairstyleRecProvider ??= pick(
+    "ACTIVE_HAIRSTYLE_RECOMMENDATION_PROVIDER",
+    { "multimodal-agent": createHairstyleMultimodalAgentProvider },
+    "multimodal-agent",
+  ));
+}
+
+let outfitRecProvider: ReturnType<typeof createOutfitMultimodalAgentProvider> | undefined;
+export function getOutfitRecommendationProvider() {
+  return (outfitRecProvider ??= pick(
+    "ACTIVE_OUTFIT_RECOMMENDATION_PROVIDER",
+    { "multimodal-agent": createOutfitMultimodalAgentProvider },
+    "multimodal-agent",
+  ));
+}
+
+let planMaterializationProvider: PlanMaterializationProvider | undefined;
+export function getPlanMaterializationProvider(): PlanMaterializationProvider {
+  return (planMaterializationProvider ??= pick(
+    "ACTIVE_PLAN_MATERIALIZATION_PROVIDER",
+    { "rule-based": createRuleBasedPlanMaterializationProvider },
+    "rule-based",
   ));
 }
 
@@ -279,5 +339,8 @@ export function resetProviderRegistry() {
   weatherProvider = undefined;
   historicalTemperatureStore = undefined;
   weatherContextService = undefined;
+  styleRecommendationProvider = undefined;
+  hairstyleRecProvider = undefined;
+  outfitRecProvider = undefined;
   weatherAwareAppearanceAgentRunner = undefined;
 }

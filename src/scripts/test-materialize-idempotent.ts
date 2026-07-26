@@ -3,6 +3,7 @@ import { createPrismaClient } from "../lib/prisma.js";
 import { createContainer } from "../app/container.js";
 import { materializePlanStep, type MaterializeTaskSpec } from "../steps/materializePlan.js";
 import type { StepContext } from "../steps/types.js";
+import { createRuleBasedPlanMaterializationProvider } from "../features/appearance-agent/providers/planMaterialization/ruleBasedPlanMaterialization.js";
 
 /**
  * S5 幂等性。
@@ -18,6 +19,8 @@ import type { StepContext } from "../steps/types.js";
 
 const prisma = createPrismaClient();
 const container = createContainer({ withProviders: false });
+container.providers.planMaterialization =
+  createRuleBasedPlanMaterializationProvider();
 let pass = 0, fail = 0;
 const check = (ok: boolean, label: string, detail = "") => {
   ok ? pass++ : fail++;
