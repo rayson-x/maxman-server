@@ -68,8 +68,18 @@ export async function saveBasicQuestionnaire(
   // 用 upsert：basic 问卷是采集第一步，profile 通常还不存在。
   await prisma.appearanceProfile.upsert({
     where: { userId },
-    create: { userId, track: input.track, domainSelections: [] },
-    update: { track: input.track },
+    create: {
+      userId,
+      track: input.track,
+      province: input.province,
+      city: input.city,
+      domainSelections: [],
+    },
+    update: {
+      track: input.track,
+      province: input.province,
+      city: input.city,
+    },
   });
 }
 

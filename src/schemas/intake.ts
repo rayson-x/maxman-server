@@ -8,11 +8,33 @@ import { ALL_DOMAINS } from "../features/appearance-agent/data/domains.js";
  * 用对话收这些字段会导致「问全了吗」的反向校验负担。
  */
 
-export const basicQuestionnaireSchema = z.object({
-  track: z.enum(["short_term", "long_term"]),
-  birthDate: z.string().datetime().optional(),
-  ageConfirmed18Plus: z.boolean(),
-});
+const locationTextSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(80)
+  .refine((value) => !/[\u0000-\u001F\u007F]/u.test(value), {
+    message: "省市名称不能包含控制字符",
+  });
+
+export const basicQuestionnaireSchema = z
+  .object({
+    track: z.enum(["short_term", "long_term"]),
+    birthDate: z.string().datetime().optional(),
+    ageConfirmed18Plus: z.boolean(),
+    /** 天气查询只接受省/市文本；坐标与 IP 定位不在首版契约内。 */
+    province: locationTextSchema.optional(),
+    city: locationTextSchema.optional(),
+  })
+  .superRefine((value, context) => {
+    if (Boolean(value.province) === Boolean(value.city)) return;
+    const missingField = value.province ? "city" : "province";
+    context.addIssue({
+      code: "custom",
+      message: "province 和 city 必须同时提供",
+      path: [missingField],
+    });
+  });
 
 export const fullQuestionnaireSchema = z.object({
   heightCm: z.number().int().min(120).max(230).optional(),

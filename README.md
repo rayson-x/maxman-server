@@ -25,6 +25,7 @@ Worker 必须单独起。API 进程只负责入队，实际执行在 worker 里�
 
 ```bash
 npx tsc --noEmit
+npm run test:weather                # 天气适配器、历史 JSON、prompt 隔离
 bash scripts/smoke-http-flow.sh    # HTTP 全链路，⚠ 产生真实图片费用（约 ¥0.6）
 npx tsx src/scripts/seed-test-style-data.ts   # 冒烟测试前需要：写入测试用风格数据
 ```
@@ -35,6 +36,26 @@ npx tsx src/scripts/seed-test-style-data.ts   # 冒烟测试前需要：写入�
 ⚠ **`scripts/smoke-http-flow.sh` 与 `src/scripts/test-e2e-flow.ts` 的分工是刻意的**：
 后者直接调 step 函数，因此测不出编排层缺失——它曾经全绿而 HTTP 链路是断的。
 涉及"零件是否装成整机"的验证必须走前者。
+
+## 天气数据
+
+首版天气入口只接受客户端明确提供的 `province` + `city`，两者必须同时存在。
+Agent 每次运行前会：
+
+1. 解析省市到城市、坐标和 IANA 时区；
+2. 读取或刷新最近滚动 36 个月的日最低/平均/最高温；
+3. 把历史数据写入 `data/weather-history/<sha256>.json`；
+4. 获取当前、体感温度和未来 7/10/15 日最低/最高温；
+5. 只将 12 个月度摘要与实时/预报业务字段作为本次请求的 system context。
+
+运行时 JSON、原始供应商响应和约 1,096 条历史日数据都不会进入 prompt，也不入库。
+缓存采用校验后读取和临时文件原子替换，损坏、过期或范围不完整时会自动重拉。
+
+开发/评估默认使用 Open-Meteo 公共 Geocoding、Historical Weather 和 Forecast
+端点。生产流量必须在 `.env` 中换成许可合适的 commercial/customer 或自托管 HTTPS
+端点；可同时设置 `WEATHER_API_KEY`。其他边界配置见 `.env.example`。当前没有做
+IP/GPS 定位、天气数据库或自研气温预测模型。对外展示天气数据时还必须按
+Open-Meteo 的 CC BY 4.0 数据许可提供适当署名。
 
 ## 架构要点
 

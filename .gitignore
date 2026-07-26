@@ -21,7 +21,8 @@ src/generated/
 # ⚠ gitignore **不支持行尾注释**：`data/    # 说明` 会把整行（含空格和 #）当成模式，
 # 于是 data/ 根本不被忽略。注释必须独占一行。这个坑本仓库初始化时踩过。
 # 文件版 taskLedger（生产用 Postgres 版，见 lib/prismaTaskLedger.ts）
-data/
+/data/
+/.codegraph/
 # 单实例推进锁
 .agent-lock.json
 tmp-uploads/

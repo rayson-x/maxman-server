@@ -47,6 +47,16 @@ import type { InputReviewProvider } from "./providers/inputReview/types.js";
 
 import { createDeepSeekModel } from "./providers/llm/deepseekModel.js";
 import { createAppearanceAgent, type AppearanceAgentDeps } from "./agent.js";
+import { env } from "../../config/env.js";
+import { createOpenMeteoWeatherProvider } from "./weather/openMeteoWeatherProvider.js";
+import { createHistoricalTemperatureStore } from "./weather/historicalTemperatureStore.js";
+import { createWeatherContextService } from "./weather/weatherContextService.js";
+import { createWeatherAwareAgentRunner } from "./weather/weatherAwareAgentRunner.js";
+import type {
+  HistoricalTemperatureStore,
+  WeatherContextService,
+  WeatherProvider,
+} from "./weather/types.js";
 
 function pick<T>(name: string, factories: Record<string, () => T>, fallback: string): T {
   const key = process.env[name] ?? fallback;
@@ -166,9 +176,92 @@ function getAppearanceAgentDeps(): AppearanceAgentDeps {
 }
 
 let appearanceAgent: ReturnType<typeof createAppearanceAgent> | undefined;
-/** The default, config-selected appearance agent — build it once here rather than importing a bare singleton. */
-export function getAppearanceAgent() {
+/** Internal base Agent. Recommendation callers must use the weather-aware runner below. */
+function getBaseAppearanceAgent() {
   return (appearanceAgent ??= createAppearanceAgent(getAppearanceAgentDeps()));
+}
+
+function configuredForecastDays(): 7 | 10 | 15 {
+  if (
+    env.weather.forecastDays !== 7 &&
+    env.weather.forecastDays !== 10 &&
+    env.weather.forecastDays !== 15
+  ) {
+    throw new Error("WEATHER_FORECAST_DAYS must be 7, 10, or 15");
+  }
+  return env.weather.forecastDays;
+}
+
+let weatherProvider: WeatherProvider | undefined;
+export function getWeatherProvider(): WeatherProvider {
+  return (weatherProvider ??= createOpenMeteoWeatherProvider({
+    geocodingOrigin: env.weather.geocodingOrigin,
+    archiveOrigin: env.weather.archiveOrigin,
+    forecastOrigin: env.weather.forecastOrigin,
+    allowedOrigins: [
+      env.weather.geocodingOrigin,
+      env.weather.archiveOrigin,
+      env.weather.forecastOrigin,
+    ],
+    apiKey: env.weather.apiKey,
+    requestTimeoutMs: env.weather.requestTimeoutMs,
+    maxResponseBytes: env.weather.maxResponseBytes,
+  }));
+}
+
+let historicalTemperatureStore: HistoricalTemperatureStore | undefined;
+export function getHistoricalTemperatureStore(): HistoricalTemperatureStore {
+  if (
+    !Number.isFinite(env.weather.historyRefreshHours) ||
+    env.weather.historyRefreshHours < 0
+  ) {
+    throw new Error(
+      "WEATHER_HISTORY_REFRESH_HOURS must be a non-negative number",
+    );
+  }
+  return (historicalTemperatureStore ??= createHistoricalTemperatureStore({
+    rootDir: env.weather.historyDir,
+    maxAgeMs: env.weather.historyRefreshHours * 60 * 60 * 1_000,
+  }));
+}
+
+let weatherContextService: WeatherContextService | undefined;
+export function getWeatherContextService(): WeatherContextService {
+  return (weatherContextService ??= createWeatherContextService({
+    provider: getWeatherProvider(),
+    historyStore: getHistoricalTemperatureStore(),
+    forecastDays: configuredForecastDays(),
+  }));
+}
+
+function createDefaultWeatherAwareAppearanceAgentRunner() {
+  const agentAdapter = {
+    generate(prompt: string, options?: { system?: string }) {
+      return getBaseAppearanceAgent().generate(prompt, {
+        system: options?.system,
+      });
+    },
+  };
+  return createWeatherAwareAgentRunner({
+    agent: agentAdapter,
+    weatherContextService: getWeatherContextService(),
+  });
+}
+
+let weatherAwareAppearanceAgentRunner:
+  | ReturnType<typeof createDefaultWeatherAwareAppearanceAgentRunner>
+  | undefined;
+/**
+ * Resolve/fetch weather immediately before each Agent run and inject it as a
+ * request-local system message. The cached Agent's base instructions are never
+ * mutated, so one user's city cannot leak into another user's request.
+ */
+export function getWeatherAwareAppearanceAgentRunner() {
+  if (!weatherAwareAppearanceAgentRunner) {
+    weatherAwareAppearanceAgentRunner =
+      createDefaultWeatherAwareAppearanceAgentRunner();
+  }
+  return weatherAwareAppearanceAgentRunner;
 }
 
 /** Reset all cached instances — useful in tests that swap env vars between runs. */
@@ -183,4 +276,8 @@ export function resetProviderRegistry() {
   inputReviewProvider = undefined;
   agentDeps = undefined;
   appearanceAgent = undefined;
+  weatherProvider = undefined;
+  historicalTemperatureStore = undefined;
+  weatherContextService = undefined;
+  weatherAwareAppearanceAgentRunner = undefined;
 }

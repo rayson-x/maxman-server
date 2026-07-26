@@ -51,6 +51,29 @@ export const env = {
   redis: {
     url: optional("REDIS_URL") ?? "redis://localhost:6379",
   },
+  weather: {
+    geocodingOrigin:
+      optional("WEATHER_GEOCODING_ORIGIN") ??
+      "https://geocoding-api.open-meteo.com",
+    archiveOrigin:
+      optional("WEATHER_ARCHIVE_ORIGIN") ??
+      "https://archive-api.open-meteo.com",
+    forecastOrigin:
+      optional("WEATHER_FORECAST_ORIGIN") ?? "https://api.open-meteo.com",
+    apiKey: optional("WEATHER_API_KEY"),
+    historyDir:
+      optional("WEATHER_HISTORY_DIR") ?? "./data/weather-history",
+    historyRefreshHours: Number(
+      optional("WEATHER_HISTORY_REFRESH_HOURS") ?? "168",
+    ),
+    forecastDays: Number(optional("WEATHER_FORECAST_DAYS") ?? "7"),
+    requestTimeoutMs: Number(
+      optional("WEATHER_REQUEST_TIMEOUT_MS") ?? "8000",
+    ),
+    maxResponseBytes: Number(
+      optional("WEATHER_MAX_RESPONSE_BYTES") ?? String(2 * 1024 * 1024),
+    ),
+  },
   server: {
     port: Number(optional("PORT") ?? "8787"),
     uploadDir: optional("UPLOAD_DIR") ?? "./tmp-uploads",

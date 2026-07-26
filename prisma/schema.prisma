@@ -103,6 +103,9 @@ model AppearanceProfile {
   occupation          String?
   wearsGlasses        Boolean?
   hasBeard            Boolean?
+  /// 用户明确提供的省/市，仅用于城市级天气查询；不保存精确坐标或 IP 定位结果。
+  province             String?
+  city                 String?
 
   /// 决策 6：发量自报。云端视觉判断发量实测不可靠（两家一致率 2/10，
   /// Zhipu 对 10 张全答 dense），自报在此用途上够用且本身即决策依据。
