@@ -203,3 +203,49 @@
 - [~] 10.9 对话 Agent 生产入口
 - [~] 10.10 内容安全供应商接入
 - [~] 10.11 第三方模型留存期限、备份删除、供应商侧真实读取审计
+
+## 11. 【对抗式评审发现】已修（ac8c0c9）
+
+三个独立 review agent 对 acf795f 的对抗式评审结果。每条都有回归断言。
+
+- [x] 11.1 删单张目标图曾枚举该用户**全部**目标图的 OSS 对象（数据丢失）
+- [x] 11.2 撤回人脸同意 / 删全部照片不级联清人脸派生的预览图（合规硬要求）
+- [x] 11.3 `inputFingerprint` 含视觉模型自由文本 → 抢占永不命中 → 重复付费
+- [x] 11.4 两道安全边界依赖仓库里从未设置的 `NODE_ENV`；改为显式放宽开关
+- [x] 11.5 越界/诊断词守卫可用空格、全角、繁体绕过；且无裸露/未成年化红线
+- [x] 11.6 provider 原始响应经 `failureReason` → `errorReason` 回传客户端
+- [x] 11.7 **`feasibility: catalog_verified` 是谎报**：只看名称命中属性表，
+      从不比对 `hairSignals`。已改为调用前算约束、事后用同一份判定过滤
+- [x] 11.8 硬约束未前置告知 provider，导致发际线偏后+发量少的用户候选被全部
+      剔除、集合直接 failed（实测）。已把可行子集送进 prompt
+- [x] 11.9 强约束的用户文案举「短寸」为例，而短寸露额正被该约束剔除
+- [x] 11.10 `failed` 与陈旧 `preparing` 集合无法回收 → 同一输入永久无结果
+- [x] 11.11 follower 立刻返回空候选 → job 落 `completed_partial`（实测触发）
+- [x] 11.12 顶层 JSON 解析失败即整批候选作废；glm-4v-flash 输出上限 1024
+- [x] 11.13 readiness 校验用自己那份审核判定，未走中心闸门
+
+## 12. 【对抗式评审发现】未修，按危害排序
+
+- [ ] 12.1 `recordPrepared` 与并发信号量只覆盖火山：`ACTIVE_IMAGE_EDIT_PROVIDER`
+      切到 stepfun/qwen 时两者全部旁路；多模态推荐调用同样无账本
+- [ ] 12.2 `sweepStale` 没有生产调用方 → `prepared` 永不转 `unknown`，
+      对账列表恒为空
+- [ ] 12.3 队列重复投递会重跑整条付费链路。实测观察到一次幽灵运行
+      （旧实例被杀后任务被重新投递，白跑 3 次付费出图）
+- [ ] 12.4 `GeneratedAsset` 无回指 baseline 照片的外键，所以删单张照片
+      无法级联到由它生成的预览图（当前刻意不做无条件枚举，见 11.2）
+- [ ] 12.5 `conversation.ts` 用 `RecommendationCandidate.id` 查
+      `StyleProfileEntry` → `style-change-options` 恒空；其测试重建了重构前的世界
+- [ ] 12.6 `agent_estimated` 在任何地方都不会被写入（spec §14.2 要求）
+- [ ] 12.7 rank 冲突被静默重排而非拒绝（spec §5.4/§14.3 要求拒绝）
+- [ ] 12.8 `RecommendationApplication` 不做 spec §7① 的归属/同意/照片校验，
+      当前依赖上游路由已校验
+- [ ] 12.9 指纹不含 `catalogVariants`，B 阶段目录对存量方案不生效
+- [ ] 12.10 `redactRequestBody` 只截断 >500 字符的串，预签名 OSS URL 常短于此，
+      删号后照片地址仍留在 `ProviderCallLog`
+- [ ] 12.11 IPv4-mapped IPv6 私网覆盖不全（`::ffff:172.16.x`、
+      `::ffff:169.254.169.254`、`::ffff:100.64.x` 放行）
+- [ ] 12.12 `src/scripts/test-*.ts` 不在 `npm test` 收集范围内；
+      `recommendationApplication.ts` 没有 `.test.ts`
+- [ ] 12.13 `docs/target-workflow.md:346` 写「B6 可行性校验 ✅ 已实现」，
+      在 11.7 修好之前是假的；现在需复核措辞
