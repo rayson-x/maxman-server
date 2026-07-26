@@ -55,6 +55,10 @@ export const recommendStep: Step<RecommendInput, RecommendOutput> = {
       frontPhotoStorageKey: input.frontPhotoStorageKey,
       geometry: input.vision.geometry,
       hairSignals: input.vision.hairSignals,
+      // ⚠ 语义分析的**自由文本不能进指纹**：它是视觉模型的非确定性输出，
+      // 两次运行必然不同 → computationKey 不同 → 抢占形同虚设、重复付费。
+      // 这里只把它作为 prompt 上下文传给 provider（见 recommendationApplication
+      // 的 fingerprintable 划分），不参与指纹计算。
       semantics: input.vision.semanticAnalysis ? { raw: input.vision.semanticAnalysis } : null,
       preference: input.userPreferenceText
         ? { text: input.userPreferenceText, normalizedTag: input.userPreferenceStyleTag ?? null }

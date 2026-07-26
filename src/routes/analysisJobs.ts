@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
-import { photoModerationWhere } from "../lib/photoModerationGate.js";
+import { acceptedPhotoModerationStatuses, photoModerationWhere } from "../lib/photoModerationGate.js";
 import { requireUser } from "../plugins/session.js";
 import { env } from "../config/env.js";
 import { createAnalysisJobRepository } from "../repositories/analysisJobRepository.js";
@@ -66,23 +66,14 @@ async function checkInitialAnalysisReadiness(
     issues.push({ field: "frontPhoto", message: "缺少正面照" });
   } else if (frontPhoto.moderationStatus === "rejected") {
     issues.push({ field: "frontPhoto", message: "正面照未通过内容审核，请重新上传" });
-  } else if (frontPhoto.moderationStatus !== "passed" && imageModerationRequired()) {
-    // 图片内容审核 provider 当前搁置，没有任何东西会把 pending 置为 passed。
-    // 按 spec §9 的 fallback 口径：**生产环境 fail closed**，本地与内部测试放行。
-    // 放行不等于假装审核过——S1 会如实写下 photoVerdicts: deferred_no_provider。
+  } else if (!acceptedPhotoModerationStatuses().includes(frontPhoto.moderationStatus)) {
+    // 走中心闸门而不是本地重新判一遍：这个门槛曾散落在 6 处，改一处漏一处，
+    // 表现为「路由放行、某个 step 说找不到照片」这类自相矛盾的失败。
+    // 放行 pending 不等于假装审核过——S1 会如实写下 photoVerdicts: deferred_no_provider。
     issues.push({ field: "frontPhoto", message: "正面照尚未通过内容审核，请稍后重试" });
   }
 
   return issues;
-}
-
-/**
- * 生产环境要求图片审核通过才放行；本地与内部测试在 provider 缺位时放行。
- * 判据是「有没有配置内容审核 provider」，而不是猜测环境——
- * 将来接上 provider 后这个函数自然变成恒真。
- */
-function imageModerationRequired(): boolean {
-  return env.server.isProduction;
 }
 
 export async function registerAnalysisJobRoutes(app: FastifyInstance): Promise<void> {
@@ -274,6 +265,9 @@ export async function registerAnalysisJobRoutes(app: FastifyInstance): Promise<v
       jobType: job.jobType,
       status: job.status,
       terminal: jobs.isTerminal(job.status),
+      // initial_analysis 是方案的创建点，客户端只能从这里知道自己的 planId，
+      // 后续 select-style / outfit-previews / materialize 全要用它。
+      planId: job.planId ?? null,
       // 即使还在跑，已完成的部分也直接给出去
       partialResult: job.partialResult ?? null,
       errorReason: job.errorReason,

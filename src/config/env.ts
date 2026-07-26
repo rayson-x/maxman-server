@@ -77,6 +77,13 @@ export const env = {
   server: {
     port: Number(optional("PORT") ?? "8787"),
     uploadDir: optional("UPLOAD_DIR") ?? "./tmp-uploads",
+    /**
+     * 放宽照片审核门槛到 `pending`，仅供本地与内部测试。
+     * 生产环境**不要设**——它会让审核 provider 缺位期间的所有照片直接通行。
+     * 与 `isProduction` 解耦是刻意的：漏设 NODE_ENV 不能等于放宽安全边界。
+     */
+    allowPendingModeration:
+      process.env.ALLOW_PENDING_MODERATION === "1" && process.env.NODE_ENV !== "production",
     isProduction: (optional("NODE_ENV") ?? "development") === "production",
   },
 };

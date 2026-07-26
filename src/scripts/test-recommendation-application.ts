@@ -129,10 +129,21 @@ try {
       const r = await app.recommendHairstyles({ ...baseCommand, hairSignals: signals, requestedCount: 2 });
 
       const bh = r.candidates.find((c) => c.nameZh === "大背头");
-      check(bh?.estimatedAttributes?.coversForehead === false,
-        `发际线=${signals.hairline} 时「大背头」仍取表里的露额值（不采信 provider 自报）`,
-        `实际 ${JSON.stringify(bh?.estimatedAttributes)}`);
-      check(bh?.verificationStatus === "catalog_verified", "命中属性表的候选标为 catalog_verified");
+      if (signals.hairline === "normal") {
+        // 正常发际线：候选保留，属性以表为准而不是 provider 自报的相反值
+        check(bh?.estimatedAttributes?.coversForehead === false,
+          `发际线=${signals.hairline} 时「大背头」取表里的露额值（不采信 provider 自报的 true）`,
+          `实际 ${JSON.stringify(bh?.estimatedAttributes)}`);
+        check(bh?.verificationStatus === "catalog_verified", "命中属性表的候选标为 catalog_verified");
+      } else {
+        // 发际线偏后：大背头露额（表里 coversForehead:false）且需高发量，
+        // 硬约束必须把它剔除。这里断言的是**表值参与了硬性判定**，
+        // 而不只是"存到了库里"——首版正是只查表、从不比对 hairSignals，
+        // 于是发际线偏后的用户照样收到露额造型，同时被告知"已校验"。
+        check(bh === undefined,
+          `发际线=${signals.hairline} 时「大背头」被硬约束剔除（露额+需高发量）`,
+          bh ? `却仍在结果里：${JSON.stringify(bh.estimatedAttributes)}` : "已剔除");
+      }
       const uk = r.candidates.find((c) => c.nameZh === "自创飘逸盖");
       check(uk?.verificationStatus === "not_checked" && uk?.estimatedAttributes === null,
         "未命中属性表的候选标为 not_checked 且不编造属性");

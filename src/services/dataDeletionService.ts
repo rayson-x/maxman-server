@@ -134,6 +134,27 @@ export function createDataDeletionService(prisma: PrismaClient) {
         select: { storageKey: true },
       });
       storageKeys.push(...derived.map((t) => t.storageKey).filter((k): k is string => Boolean(k)));
+
+      /**
+       * 预览图也是人脸派生数据，必须随原图一起清。
+       *
+       * 首版只把 `GeneratedAsset` 的枚举放在「删生成图/删号」那个分支里，
+       * 于是**撤回人脸处理同意**这条路径（它自动受理 all_photos）会删掉原图、
+       * 却把用户人脸的 AI 生成图永久留在 OSS 与库中。撤回同意恰恰是合规上
+       * 最不能漏的出口。
+       *
+       * 只在「清掉全部照片」时做无条件枚举。`single_photo` 不能这样做：
+       * GeneratedAsset 目前没有回指 baseline 照片的外键，无条件枚举等于删一张照片
+       * 就清空该用户所有预览图——那是把过删 bug 换个地方重犯。删单张照片时能确定
+       * 归属的只有经 baselinePhotoId 反查到的目标图（上面的 `derived` 已覆盖）。
+       */
+      if (scope.kind !== "single_photo") {
+        const faceDerived = await prisma.generatedAsset.findMany({
+          where: { userId, kind: { in: ["hairstyle_preview", "outfit_preview", "target_image"] } },
+          select: { storageKey: true },
+        });
+        storageKeys.push(...faceDerived.map((a) => a.storageKey));
+      }
     }
 
     if (scope.kind === "single_target_image" || scope.kind === "all_generated_images" || scope.kind === "account") {
@@ -144,19 +165,30 @@ export function createDataDeletionService(prisma: PrismaClient) {
             : { plan: { userId } },
         select: { storageKey: true },
       });
-      storageKeys.push(...images.map((t) => t.storageKey).filter((k): k is string => Boolean(k)));
+      const targetKeys = images.map((t) => t.storageKey).filter((k): k is string => Boolean(k));
+      storageKeys.push(...targetKeys);
 
       // 预览图不在 TargetImage 里——它们经 GeneratedAsset 台账枚举。
-      // 此前只查 TargetImage，导致删除全部生成图或删号时预览图的 OSS 对象删不掉：
-      // 预览图的 storageKey 只写在 job 的 partialResult JSON 里，从删除路径看是孤儿。
+      // 此前只查 TargetImage，导致删除全部生成图或删号时预览图的 OSS 对象删不掉。
+      //
+      // ⚠ single_target_image 必须按 storageKey 精确定位。首版写成
+      // `{userId, kind:"target_image"}`（无 id 过滤），后果是删一张目标图会删掉
+      // 该用户**所有**目标图的 OSS 对象，而只删掉一行 TargetImage——
+      // 其余行从此指向不存在的文件。这是数据丢失，不是多删几个字节。
       const assets = await prisma.generatedAsset.findMany({
         where:
           scope.kind === "single_target_image"
-            ? { userId, kind: "target_image", planId: { not: null } }
+            ? { userId, storageKey: { in: targetKeys } }
             : { userId },
         select: { storageKey: true },
       });
       storageKeys.push(...assets.map((a) => a.storageKey));
+    }
+
+    // 资产行随对象一起清理：只删对象会留下指向不存在文件的行，
+    // 之后的删除请求会反复尝试删已删对象
+    if (scope.kind !== "account" && storageKeys.length > 0) {
+      await prisma.generatedAsset.deleteMany({ where: { userId, storageKey: { in: storageKeys } } });
     }
 
     // 先删对象存储

@@ -103,8 +103,11 @@ export function computeHairConstraint(signals: HairSignals): HairConstraint {
       excludeVolumeRequirements: ["high"],
       requireCoversForehead: true,
       rationale:
-        "你的发际线位置偏高，同时整体发量偏少——需要靠蓬松堆叠撑起来的发型（如纹理烫、蓬松碎盖）做出来达不到参考图的效果。" +
-        "更稳的方向是短寸、textured crop 这类不依赖量感、且能自然覆盖前额的发型。",
+        // 举例必须落在过滤器**真的会给出**的可行集里。原文举的是「短寸、textured crop」，
+        // 而短寸露额、正被这条约束的 requireCoversForehead 剔除——
+        // 等于告诉用户一个系统永远不会推荐的方向。
+        "你的发际线位置偏高，同时整体发量偏少——需要靠蓬松堆叠撑起来的发型（如蓬松纹理烫）做出来达不到参考图的效果。" +
+        "更稳的方向是微碎盖、法式碎盖、法式刘海短发这类不依赖量感、且能自然覆盖前额的发型。",
       evidenceBasis: basis,
       needsCloudFallback: false,
     };

@@ -90,6 +90,83 @@ try {
     check(onlyTarget.length === 0, "按 kind 过滤生效");
   }
 
+  // ── ④ 删单张目标图**只能**删这一张的对象 ──
+  //
+  // 回归：资产查询曾写成 `{userId, kind:"target_image", planId:{not:null}}`——没有
+  // id 过滤。删一张目标图会把该用户所有目标图的 OSS 对象删掉，而只删一行
+  // TargetImage，其余行从此指向不存在的文件。这是数据丢失，必须有断言守着。
+  {
+    const user = await prisma.user.create({ data: { deviceSessionId: `${prefix}-d`, ageConfirmed18Plus: true } });
+    const plan = await prisma.appearancePlan.create({ data: { userId: user.id, track: "short_term", generationSeed: 4 } });
+    const stage = await prisma.stage.create({
+      data: { planId: plan.id, stageIndex: 1, windowLabel: "1-2 周", unlockRule: {} },
+    });
+    const baseline = await prisma.userPhoto.create({
+      data: { userId: user.id, photoType: "front", storageKey: `raw/${user.id}/base-d.jpg`, moderationStatus: "passed" },
+    });
+    const mk = async (n: number) => {
+      const storageKey = `generated/${user.id}/target-keep-${n}.png`;
+      const t = await prisma.targetImage.create({
+        data: {
+          planId: plan.id, stageId: stage.id, imageType: "face_hair", baselinePhotoId: baseline.id,
+          manifestSnapshot: {}, plannedChangesSnapshot: {}, storageKey,
+        },
+      });
+      await assets.record({
+        userId: user.id, planId: plan.id, kind: "target_image", storageKey, provider: "stub", basedOnSelfReported: true,
+      });
+      return t;
+    };
+    const t1 = await mk(1);
+    await mk(2);
+    await mk(3);
+
+    const out = await deletion.executeDeletion(user.id, { kind: "single_target_image", targetImageId: t1.id });
+    check(out.objectsDeleted === 1, "**删单张目标图只删这一张的 OSS 对象**", `objectsDeleted=${out.objectsDeleted}（应为 1）`);
+
+    const rows = await prisma.targetImage.count({ where: { plan: { userId: user.id } } });
+    check(rows === 2, "其余目标图行保留", `剩余 ${rows}`);
+    const remainingAssets = await prisma.generatedAsset.findMany({
+      where: { userId: user.id }, select: { storageKey: true },
+    });
+    check(
+      remainingAssets.length === 2 && !remainingAssets.some((a) => a.storageKey.endsWith("target-keep-1.png")),
+      "**资产台账与保留的行一致**（不留指向已删对象的行）",
+      remainingAssets.map((a) => a.storageKey.slice(-18)).join(","),
+    );
+  }
+
+  // ── ⑤ 撤回人脸同意 / 删全部照片必须级联清人脸派生图 ──
+  //
+  // 回归：GeneratedAsset 的枚举曾只放在「删生成图/删号」分支里，
+  // 于是 all_photos（撤回同意的唯一出口）删掉原图、却把用户人脸的
+  // AI 生成图永久留在 OSS 与库中。合规上最不能漏的正是这条路径。
+  {
+    const user = await prisma.user.create({ data: { deviceSessionId: `${prefix}-e`, ageConfirmed18Plus: true } });
+    const plan = await prisma.appearancePlan.create({ data: { userId: user.id, track: "short_term", generationSeed: 5 } });
+    // all_photos 是两段式的：请求阶段把照片标 pending，执行阶段才真删。
+    // 测试要走同一条路径，否则断言的是一个不存在的调用方式。
+    await prisma.userPhoto.create({
+      data: {
+        userId: user.id, photoType: "front", storageKey: `raw/${user.id}/front.jpg`,
+        moderationStatus: "passed", deletionStatus: "pending",
+      },
+    });
+    await assets.record({
+      userId: user.id, planId: plan.id, kind: "hairstyle_preview",
+      storageKey: `generated/${user.id}/hair-from-face.png`, provider: "stub",
+    });
+
+    const out = await deletion.executeDeletion(user.id, { kind: "all_photos" });
+    check(
+      out.objectsDeleted >= 2,
+      "**删全部照片时人脸派生的预览图也被清理**",
+      `objectsDeleted=${out.objectsDeleted}（原图 1 + 预览 1）`,
+    );
+    const leftover = await prisma.generatedAsset.count({ where: { userId: user.id } });
+    check(leftover === 0, "人脸派生资产行不残留", `剩余 ${leftover}`);
+  }
+
   console.log(`\n${fail === 0 ? "全部通过" : "有失败项"}：${pass} 通过 / ${fail} 失败`);
   if (fail > 0) process.exitCode = 1;
 } finally {

@@ -44,13 +44,61 @@ function stripFences(text: string): string {
   return first >= 0 && last > first ? t.slice(first, last + 1) : t;
 }
 
+/**
+ * 从文本里扫出所有**括号配平**的顶层 `{...}` 块。
+ *
+ * 用途是顶层 JSON 根本解析不了的时候（输出被截断、尾部多了解释性文字）还能捞出
+ * 完整的那几条候选。实测触发过：prompt 变长后 glm-4v 的响应在数组中途被截断，
+ * `JSON.parse` 直接失败，整批 3 条候选全丢——而这次调用的钱已经花了。
+ * 字符串内的花括号会被跳过，否则 description 里出现 `{` 就会算错配平。
+ */
+function extractObjectBlocks(text: string): string[] {
+  const blocks: string[] = [];
+  let depth = 0, start = -1, inString = false, escaped = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i]!;
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') { inString = true; continue; }
+    if (ch === "{") { if (depth === 0) start = i; depth += 1; continue; }
+    if (ch === "}") {
+      depth -= 1;
+      if (depth === 0 && start >= 0) { blocks.push(text.slice(start, i + 1)); start = -1; }
+      if (depth < 0) depth = 0;
+    }
+  }
+  return blocks;
+}
+
 /** 整批校验失败时逐条捞：模型常是大部分合格、个别缺字段 */
 function parseCandidates(text: string): ProviderCandidate[] {
   let payload: unknown;
   try {
     payload = JSON.parse(stripFences(text));
   } catch {
-    return [];
+    // 顶层解析不了：退到逐块扫描，能捞几条算几条
+    const salvaged = extractObjectBlocks(text)
+      .map((b) => { try { return JSON.parse(b) as unknown; } catch { return null; } })
+      .filter((v): v is unknown => v !== null)
+      .flatMap((v) => {
+        const wrapped = (v as { candidates?: unknown[] })?.candidates;
+        return Array.isArray(wrapped) ? wrapped : [v];
+      })
+      .map((c) => CANDIDATE_SCHEMA.safeParse(c))
+      .filter((r): r is { success: true; data: z.infer<typeof CANDIDATE_SCHEMA> } => r.success)
+      .map((r) => r.data);
+    return salvaged.map((r, i) => ({
+      providerCandidateKey: `${MODEL_ID}:${r.nameZh}`,
+      nameZh: r.nameZh,
+      description: r.description,
+      modelRationale: r.modelRationale,
+      rank: i + 1,
+      visualDirection: r.visualDirection,
+    }));
   }
   // 实测 glm-4v 会把对象包进数组返回（`[{"candidates":[...]}]`），
   // 即使 prompt 给了明确的对象结构示例。三种形态都接：
@@ -93,12 +141,21 @@ async function callModel(prompt: string, photoReadUrl?: string): Promise<string>
     { type: "text", text: prompt },
   ];
   if (photoReadUrl) content.push({ type: "image", image: photoReadUrl });
-  const { text } = await generateText({ model: model(), messages: [{ role: "user", content }] });
+  const { text } = await generateText({
+    model: model(),
+    messages: [{ role: "user", content }],
+    // glm-4v-flash 的 max_tokens 硬上限是 1024（超了直接 400 code 1210），
+    // 而 3 条候选的完整 JSON 正好压在这个量级——所以 prompt 里必须显式限制
+    // 各字段字数，否则响应会在数组中途被截断。
+    maxOutputTokens: 1024,
+  });
   return text;
 }
 
 const SHARED_RULES = [
   "只输出 json，不要输出 json 之外的任何文字，也不要用 markdown 代码块包裹。",
+  // 输出预算只有 1024 token，不限字数会导致 JSON 在数组中途被截断，整批候选作废
+  "每个字段都要简短：description 与 visualDirection 各不超过 40 字，modelRationale 不超过 50 字。",
   "",
   "【边界】只在发型、仪容、穿搭层面给建议。不要建议改变脸型骨骼、五官比例、性别、年龄、种族、身材胖瘦。",
   "不做医学诊断，不提及疾病或脱发症状；涉及发量时只用造型可行性口径（如「这个造型需要的量感」）。",
@@ -119,6 +176,12 @@ export function createHairstyleMultimodalAgentProvider() {
         photoReadUrl?: string;
         geometry?: { faceShape?: string | null; confidence?: string | null; evidence?: Record<string, number> };
         hairSignals?: Record<string, unknown>;
+        constraint?: {
+          requireCoversForehead: boolean;
+          excludeVolumeRequirements: string[];
+          rationale: string;
+          feasibleNames: string[];
+        };
         semantics?: Record<string, unknown> | null;
         preference?: { text?: string; normalizedTag?: string | null } | null;
         changeWillingness?: string | null;
@@ -138,6 +201,22 @@ export function createHairstyleMultimodalAgentProvider() {
         "【发际线与发量信号】",
         JSON.stringify(i.hairSignals ?? {}),
         "",
+        // 硬约束前置。事后过滤仍是权威闸门，这里只是别让模型白花一次调用：
+        // 实测发际线偏后 + 发量偏少时，模型自由推荐的 3 个候选被全部剔除，
+        // 集合直接 failed——而这正是这个产品的核心人群。
+        ...(i.constraint
+          ? [
+              "【本次的硬性可行性约束】不满足的方向会被系统剔除，请直接在可行范围内选。",
+              i.constraint.requireCoversForehead
+                ? "· 必须是能自然覆盖前额的造型；完全露出额头的方向（大背头、飞机头、背头）不可用。"
+                : "",
+              i.constraint.excludeVolumeRequirements.length > 0
+                ? `· 不要选需要以下发量档支撑的造型：${i.constraint.excludeVolumeRequirements.join("、")}（靠蓬松堆叠撑起来的款做不出参考图效果）。`
+                : "",
+              `· 口径参考（这是给用户看的说法）：${i.constraint.rationale}`,
+              "",
+            ]
+          : []),
         "【照片语义分析（另一个模型的结论，可参考）】",
         i.semantics ? JSON.stringify(i.semantics) : "（无）",
         "",
@@ -148,7 +227,8 @@ export function createHairstyleMultimodalAgentProvider() {
         `【改变意愿】${i.changeWillingness ?? "未填"}（意愿强则优先给见效快、打理成本低的方向）`,
         "",
         "【优先从这份造型词表里选】",
-        KNOWN_NAMES.join("、"),
+        // 有约束时给的是**筛过的可行子集**，不是全表
+        (i.constraint?.feasibleNames?.length ? i.constraint.feasibleNames : KNOWN_NAMES).join("、"),
         "词表内的造型系统能给出经过确认的可行性判断；确有更合适的方向时可以给词表外的，但要用理发店通用说法。",
         "",
         `【输出】给出 ${count} 个发型方向，按你认为最适合的顺序排列。每条包含：`,

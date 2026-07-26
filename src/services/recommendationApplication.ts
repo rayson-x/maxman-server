@@ -7,7 +7,11 @@ import type {
 import { createPhotoAccessService } from "./photoAccessService.js";
 import { IDENTITY_PRESERVATION_SUFFIX } from "./targetImageService.js";
 import { reviewFreeInput } from "../features/appearance-agent/data/domainLexicon.js";
-import { findObjectiveHairstyleAttributes } from "../features/appearance-agent/data/objectiveHairstyleAttributes.js";
+import {
+  OBJECTIVE_HAIRSTYLE_ATTRIBUTES,
+  findObjectiveHairstyleAttributes,
+} from "../features/appearance-agent/data/objectiveHairstyleAttributes.js";
+import { computeHairConstraint, applyHairConstraint, type HairSignals } from "../features/appearance-agent/rules/hairConstraints.js";
 
 /**
  * 推荐能力的唯一对外入口。
@@ -21,6 +25,32 @@ import { findObjectiveHairstyleAttributes } from "../features/appearance-agent/d
  *   2. **输出校验与渲染指令构建**（见 `validateCandidates` / `buildRenderInstruction`）
  *   3. 照片授权与访问记录
  */
+
+/**
+ * 送给 provider 的硬约束上下文。
+ *
+ * `feasibleNames` 是属性表按约束筛过的**可行子集**，不是完整词表。
+ * provider 只做建议，权威判定始终是应用模块调用后的 `applyHairConstraint`；
+ * 前置告知只是让模型别把机会浪费在注定被剔除的候选上。
+ */
+export type HairConstraintContext = {
+  requireCoversForehead: boolean;
+  excludeVolumeRequirements: ("low" | "medium" | "high")[];
+  rationale: string;
+  feasibleNames: string[];
+};
+
+/** 属性表里满足约束的造型名。约束为空时返回全表。 */
+export function feasibleHairstyleNames(constraint: {
+  requireCoversForehead: boolean;
+  excludeVolumeRequirements: ("low" | "medium" | "high")[];
+}): string[] {
+  return OBJECTIVE_HAIRSTYLE_ATTRIBUTES.filter(
+    (a) =>
+      !constraint.excludeVolumeRequirements.includes(a.requiresHairVolume)
+      && (!constraint.requireCoversForehead || a.coversForehead),
+  ).map((a) => a.canonicalName);
+}
 
 export type RecommendationSourceName = "multimodal_agent" | "catalog_matching" | "hybrid";
 
@@ -83,10 +113,41 @@ export type SelectionResult =
 const LIMITS = { nameZh: 40, description: 300, modelRationale: 400, visualDirection: 300 } as const;
 
 /**
+ * `preparing` 超过这个时长即视为遗留（worker 被杀、进程崩溃），可被回收重跑。
+ * 取值要大于一次推荐加出图的正常耗时，否则会把还在跑的集合抢走。
+ */
+const STALE_PREPARING_MS = 10 * 60 * 1000;
+
+/**
+ * follower 等创建者的上限与轮询间隔。上限要盖住一次推荐调用的正常耗时
+ * （实测多模态推荐 6-11s），又不能长到把 HTTP 请求挂死。
+ */
+const FOLLOWER_WAIT_MS = 45 * 1000;
+const FOLLOWER_POLL_MS = 500;
+
+/**
  * `visualDirection` 允许描述的范围。
  * 越界的例子：改变脸型骨骼、性别、年龄、背景、体型——这些由固定模板统一禁止，
  * 若 provider 又在描述里要求，两边会冲突。
  */
+/**
+ * 守卫前先归一化，否则空格/全角/繁体就能绕过。
+ * 用户可控文本（`stylePreferenceText`，300 字）会经 prompt 进入模型输出，
+ * 再经 `visualDirection` 拼进图生图指令——绕过守卫等于拿用户真实人脸
+ * 生成越界图像，且已带上身份保持后缀。
+ */
+function normalizeForGuard(text: string): string {
+  return text
+    .replace(/[\s\u3000]+/g, "")
+    .replace(/[\uFF01-\uFF5E]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0))
+    // 需要拦的词的常见繁体写法（不做完整繁简转换，只覆盖守卫词表用到的字）
+    .replace(/臉/g, "脸").replace(/骼/g, "骼").replace(/頜/g, "颌").replace(/顎/g, "颌")
+    .replace(/顴/g, "颧").replace(/鼻樑/g, "鼻梁").replace(/嘴脣/g, "嘴唇")
+    .replace(/種族/g, "种族").replace(/膚色/g, "肤色").replace(/裸體/g, "裸体")
+    .replace(/髮際線/g, "发际线").replace(/脫髮/g, "脱发").replace(/髮/g, "发")
+    .replace(/兒童/g, "儿童").replace(/減脂/g, "减脂").replace(/瘦身/g, "瘦身");
+}
+
 const OUT_OF_DOMAIN_DIRECTION = /(脸型|骨骼|下颌|颧骨|鼻|眼睛|嘴唇|性别|年龄|种族|背景|身高|减脂|增肌|瘦身|变胖)/;
 
 /**
@@ -99,6 +160,14 @@ const OUT_OF_DOMAIN_DIRECTION = /(脸型|骨骼|下颌|颧骨|鼻|眼睛|嘴唇|
  * ⚠ 刻意不含「发际线」：那是造型事实而非诊断，
  * 「额前碎发能覆盖发际线」是正当的造型可行性表述，误杀它会砍掉核心业务语言。
  */
+/**
+ * 与人物图像生成绑死的红线：命中即整条丢弃，不看它落在哪个字段。
+ * 首版的越界词表只覆盖「改脸型体型」这类跑偏，完全没有裸露/情色/未成年化项——
+ * 而这条链路的终点是拿用户本人的脸做图生图。
+ */
+const ALWAYS_REJECTED_DIRECTION =
+  /(裸体|裸露|全裸|半裸|情色|色情|性感撩人|内衣|内裤|比基尼|泳装|脱衣|露点|儿童|小孩|幼|未成年|低龄化|校服)/;
+
 const DIAGNOSTIC_TERMS = /(脱发|秃|症状|诊断|治疗|疾病|病症|病理)/;
 
 function stableHash(value: unknown): string {
@@ -159,7 +228,15 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         fail("文本超长");
         continue;
       }
-      if (OUT_OF_DOMAIN_DIRECTION.test(c.visualDirection)) {
+      // 守卫一律走归一化文本：`脸 型`、`臉型`、全角写法否则直接绕过。
+      const allText = normalizeForGuard(`${c.nameZh}${c.description}${c.modelRationale}${c.visualDirection}`);
+
+      // 人物图像生成的红线：任何字段命中即整条丢弃
+      if (ALWAYS_REJECTED_DIRECTION.test(allText)) {
+        fail("文案命中人物图像生成红线");
+        continue;
+      }
+      if (OUT_OF_DOMAIN_DIRECTION.test(normalizeForGuard(c.visualDirection))) {
         fail("visualDirection 涉及本领域不允许修改的内容");
         continue;
       }
@@ -170,7 +247,7 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       }
       // 诊断性表述守卫。modelRationale 会直接展示给用户，
       // 一个不能展示理由的候选是不可用的，所以整条丢弃而不是改写它的文案。
-      if (DIAGNOSTIC_TERMS.test(`${c.nameZh}${c.description}${c.modelRationale}`)) {
+      if (DIAGNOSTIC_TERMS.test(normalizeForGuard(`${c.nameZh}${c.description}${c.modelRationale}`))) {
         fail("文案含诊断性表述");
         continue;
       }
@@ -254,7 +331,32 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
     // Prisma 的 log 配置含 "error"，被 catch 的 P2002 也会打成 prisma:error，
     // 让预期路径看起来像故障。
     const fast = await prisma.recommendationSet.findUnique({ where: { computationKey } });
-    if (fast) return { role: "follower", setId: fast.id };
+    if (fast) {
+      /**
+       * `failed` 与陈旧 `preparing` 必须可回收，否则同一输入永久拿不到结果。
+       *
+       * 首版直接把任何已存在的集合当 follower 返回，后果是：供应商抖动一次导致
+       * `failed`，此后同一问卷+照片的每次请求都命中这条 failed 记录，用户永远
+       * 拿不到候选；worker 中途被杀留下的 `preparing` 同理，客户端永远收到
+       * 「请稍后重试」而没有任何东西会去重试。
+       *
+       * 回收 = 把它重置为 preparing 并成为创建者。竞态由后面的唯一键兜底：
+       * 两个请求同时回收时，updateMany 的条件保证只有一个真的翻转了状态。
+       */
+      const isStalePreparing =
+        fast.status === "preparing" && Date.now() - fast.updatedAt.getTime() > STALE_PREPARING_MS;
+      if (fast.status === "failed" || isStalePreparing) {
+        const reclaimed = await prisma.recommendationSet.updateMany({
+          where: { id: fast.id, status: fast.status, updatedAt: fast.updatedAt },
+          data: { status: "preparing", failureReason: null },
+        });
+        // 抢到重置权的成为创建者；没抢到的说明别人正在重跑，按 follower 读
+        return reclaimed.count === 1
+          ? { role: "creator", setId: fast.id }
+          : { role: "follower", setId: fast.id };
+      }
+      return { role: "follower", setId: fast.id };
+    }
 
     try {
       const created = await prisma.recommendationSet.create({
@@ -279,6 +381,32 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       if (!existing) throw err;
       return { role: "follower", setId: existing.id };
     }
+  }
+
+  /**
+   * follower 等创建者出结果，而不是立刻返回空候选。
+   *
+   * 为什么必须等：抢占的目的是「同一输入只付一次钱，且两个请求都拿到答案」。
+   * 直接返回 `inProgress + candidates: []` 只实现了前一半——实测中 S3 的第二次调用
+   * 就此让整个 job 落到 `completed_partial`，用户看到「请稍后重试」，
+   * 而创建者几秒后已经把 3 条候选写好了。
+   *
+   * 这个等待在修正指纹（去掉非确定性的 semantics）之后才显现：在那之前两次调用
+   * 算出不同的 computationKey，各自成为创建者、各自付费一次，症状是重复付费而非空结果。
+   *
+   * 超时不抛错，如实返回当时的状态：等待有上限，好过把请求挂死。
+   */
+  async function awaitCreator(setId: string): Promise<RecommendationSetView> {
+    const deadline = Date.now() + FOLLOWER_WAIT_MS;
+    for (;;) {
+      const set = await prisma.recommendationSet.findUniqueOrThrow({
+        where: { id: setId },
+        select: { status: true },
+      });
+      if (set.status !== "preparing" || Date.now() >= deadline) break;
+      await new Promise((r) => setTimeout(r, FOLLOWER_POLL_MS));
+    }
+    return loadView(setId, true);
   }
 
   async function loadView(setId: string, reused: boolean): Promise<RecommendationSetView> {
@@ -314,7 +442,15 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
     userId: string;
     requestedCount: number;
     photoStorageKey?: string;
-    buildInput: (photoReadUrl?: string) => unknown;
+    /** 发型域必传：硬约束校验要拿它与目录属性比对 */
+    hairSignals?: HairSignals;
+    /**
+     * 第二个参数是**前置告知 provider 的硬约束**。
+     * 只做事后过滤是不够的：真实调用实测下来，发际线偏后 + 发量偏少的用户
+     * （恰恰是这个产品的核心人群）模型给的 3 个候选会被全部剔除，集合直接 failed。
+     * 约束不放宽，但要让 provider 一开始就在可行集里选。
+     */
+    buildInput: (photoReadUrl?: string, constraint?: HairConstraintContext) => unknown;
     provider: RecommendationApplicationDeps["hairstyleProvider"];
   }): Promise<RecommendationSetView> {
     try {
@@ -332,7 +468,20 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         ).url;
       }
 
-      const result = await params.provider.recommend(params.buildInput(photoReadUrl));
+      // 约束在调用**之前**算出来，既送进 prompt 也用于事后过滤——
+      // 同一份判定，两个用途，不会出现"告知的"与"执行的"不一致。
+      const constraint =
+        params.kind === "hairstyle" && params.hairSignals ? computeHairConstraint(params.hairSignals) : undefined;
+      const constraintContext = constraint
+        ? {
+            requireCoversForehead: constraint.requireCoversForehead,
+            excludeVolumeRequirements: constraint.excludeVolumeRequirements,
+            rationale: constraint.rationale,
+            feasibleNames: feasibleHairstyleNames(constraint),
+          }
+        : undefined;
+
+      const result = await params.provider.recommend(params.buildInput(photoReadUrl, constraintContext));
       const { kept, rejected } = validateCandidates(result.candidates, params.requestedCount);
 
       if (kept.length === 0) {
@@ -340,6 +489,9 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
           where: { id: params.setId },
           data: {
             status: "failed",
+            // 只写校验器给出的结构化原因，**不写 provider 原始响应**：
+            // failureReason 会经 job.errorReason 回传客户端，
+            // 把模型自由文本放进来等于绕过诊断词守卫直接展示给用户
             failureReason: `provider 未产出合格候选：${rejected.map((r) => r.reason).join("; ").slice(0, 300)}`,
           },
         });
@@ -347,12 +499,65 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       }
 
       // 候选写入与集合转 ready 在同一事务：避免出现「集合已 ready 但候选为空」
-      // 逐条解析客观属性；同时汇总为集合级的 feasibility（取最弱的那一档）
-      const resolved = kept.map((c) => ({ c, ...resolveAttributes(params.kind, c.nameZh) }));
+      // 逐条解析客观属性
+      const resolvedAll = kept.map((c) => ({ c, ...resolveAttributes(params.kind, c.nameZh) }));
+
+      /**
+       * **拿用户信号与目录属性做真正的硬约束校验。**
+       *
+       * 此前这里只看「名称是否命中属性表」就写 catalog_verified，从不比对 hairSignals——
+       * 于是发际线后移的用户拿到 coversForehead:false 的短寸，而系统报告「已校验通过」。
+       * 把「查到了属性」当成「约束已校验」，是本项目反复出现的同一类错误。
+       */
+      let resolved = resolvedAll;
+      let constraintApplied = false;
+      let constraintDropped: { nameZh: string; reason: string }[] = [];
+
+      if (constraint) {
+        const checkable = resolvedAll.filter((r) => r.attributes?.requiresHairVolume && r.attributes.coversForehead !== undefined);
+        const { kept: keptRefs, excluded } = applyHairConstraint(
+          checkable.map((r, i) => ({
+            id: String(i),
+            requiresHairVolume: r.attributes!.requiresHairVolume!,
+            coversForehead: r.attributes!.coversForehead!,
+          })),
+          constraint,
+        );
+        const keptIdx = new Set(keptRefs.map((k) => Number(k.id)));
+        constraintDropped = excluded.map((e) => ({
+          nameZh: checkable[Number(e.item.id)]!.c.nameZh,
+          reason: e.reason,
+        }));
+        // 属性不可查的候选保留但标 not_checked——不能因为查不到就当它违规，
+        // 也不能当它合规；这个区别体现在 feasibility 上。
+        const unknownAttr = resolvedAll.filter((r) => !checkable.includes(r));
+        resolved = [...checkable.filter((_, i) => keptIdx.has(i)), ...unknownAttr];
+        constraintApplied = true;
+      }
+
+      // rank 因剔除而出现空洞时重排，保持连续
+      resolved.sort((a, b) => a.c.rank - b.c.rank);
+      resolved.forEach((r, i) => (r.c.rank = i + 1));
+
+      /**
+       * `catalog_verified` 只在**约束真的跑过、且每条候选的属性都查得到**时才成立。
+       * 任一条件不满足即 `not_checked`——上游据此知道这一项未被校验。
+       */
       const feasibility: CapabilityStatus["feasibility"] =
-        resolved.length > 0 && resolved.every((r) => r.verificationStatus === "catalog_verified")
+        constraintApplied && resolved.length > 0 && resolved.every((r) => r.verificationStatus === "catalog_verified")
           ? "catalog_verified"
           : "not_checked";
+
+      if (resolved.length === 0) {
+        await prisma.recommendationSet.update({
+          where: { id: params.setId },
+          data: {
+            status: "failed",
+            failureReason: `候选全部未通过可行性校验（不放宽约束）：${constraintDropped.map((d) => `${d.nameZh}—${d.reason}`).join("; ").slice(0, 250)}`,
+          },
+        });
+        return loadView(params.setId, false);
+      }
 
       await prisma.$transaction(async (tx) => {
         for (const { c, attributes, verificationStatus } of resolved) {
@@ -385,7 +590,10 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
     } catch (err) {
       await prisma.recommendationSet.update({
         where: { id: params.setId },
-        data: { status: "failed", failureReason: (err instanceof Error ? err.message : String(err)).slice(0, 300) },
+        // provider 抛出的错误可能含模型原始文本（见 multimodalAgentRecommendation
+        // 把响应前 200 字放进 Error）。只记类型不记内容，避免它经 errorReason
+        // 绕过诊断词守卫展示给用户；原文留在服务端日志里排查。
+        data: { status: "failed", failureReason: "推荐调用失败（详情见服务端日志）" },
       });
       throw err;
     }
@@ -416,7 +624,10 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       const inputFingerprint = stableHash({
         geometry: command.geometry,
         hairSignals: command.hairSignals,
-        semantics: command.semantics ?? null,
+        // 刻意**不含** semantics：那是视觉模型的自由文本，非确定性。
+        // 把它放进指纹会让同一用户每次都算出不同的 computationKey，
+        // 抢占永不命中、每次都重新付费——这正是抢占设计要防的事。
+        // 它仍作为 prompt 上下文传给 provider，只是不参与去重键。
         preference: command.preference ?? null,
         changeWillingness: command.changeWillingness ?? null,
         requestedCount: command.requestedCount,
@@ -433,7 +644,7 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         source: provider.source,
         capabilityStatus,
       });
-      if (role === "follower") return loadView(setId, true);
+      if (role === "follower") return awaitCreator(setId);
 
       return runAsCreator({
         setId,
@@ -441,11 +652,14 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         userId: command.userId,
         requestedCount: command.requestedCount,
         photoStorageKey: command.frontPhotoStorageKey,
+        hairSignals: command.hairSignals as HairSignals,
         provider,
-        buildInput: (photoReadUrl) => ({
+        buildInput: (photoReadUrl, constraint) => ({
           photoReadUrl,
           geometry: command.geometry,
           hairSignals: command.hairSignals,
+          // 硬约束前置：不给的话模型会在注定被剔除的方向上浪费整批候选
+          constraint,
           semantics: command.semantics,
           preference: command.preference,
           changeWillingness: command.changeWillingness,
@@ -505,7 +719,7 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         capabilityStatus,
         injectedContext: { scene: command.scene ?? null, weather: command.weather ?? null },
       });
-      if (role === "follower") return loadView(setId, true);
+      if (role === "follower") return awaitCreator(setId);
 
       return runAsCreator({
         setId,
