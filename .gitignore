@@ -1,0 +1,33 @@
+# 密钥 —— 绝不入库。本仓库独立于上级 workspace，父目录的 .gitignore 规则不会继承过来，
+# 所以这几行必须在这里重申一遍。
+.env
+.env.*
+!.env.example
+
+# 依赖
+node_modules/
+.pnpm-store/
+
+# 构建产物
+dist/
+build/
+
+# Prisma 生成产物：由 schema 派生，`prisma generate` 可重建。
+# Prisma 7 要求生成物落在源码树内（见 prisma/schema.prisma 注释），所以路径在 src 下，
+# 但它仍然是产物而非源码。
+src/generated/
+
+# 运行时状态
+# ⚠ gitignore **不支持行尾注释**：`data/    # 说明` 会把整行（含空格和 #）当成模式，
+# 于是 data/ 根本不被忽略。注释必须独占一行。这个坑本仓库初始化时踩过。
+# 文件版 taskLedger（生产用 Postgres 版，见 lib/prismaTaskLedger.ts）
+data/
+# 单实例推进锁
+.agent-lock.json
+tmp-uploads/
+*.log
+
+# 系统与编辑器
+.DS_Store
+.vscode/
+.idea/

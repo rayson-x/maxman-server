@@ -1,0 +1,691 @@
+// BetterMeet 服务端数据模型
+//
+// 对应 openspec/changes/add-mvp1-backend-flow/design.md 的 16 条决策。
+// 关键设计点在各模型上以注释标注，注释里的「决策 N」指向 design.md 对应条目。
+
+// Prisma 7 用 `prisma-client`（取代已废弃的 `prisma-client-js`），
+// 且生成产物必须落在源码树内，不能放 node_modules。
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+// Prisma 7 起，连接串不再写在这里：Migrate 从 prisma.config.ts 读取，
+// 运行时由 PrismaClient 构造函数接收 driver adapter（见 src/lib/prisma.ts）。
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// 身份与同意
+// ---------------------------------------------------------------------------
+
+/// MVP1 用匿名 device_session_id 识别身份，不做鉴权（无 JWT/短信登录）。
+/// phone 预留可空，为下一轮「匿名账号绑定手机号」的升级路径留位。
+model User {
+  id                  String   @id @default(cuid())
+  deviceSessionId     String   @unique
+  phone               String?  @unique
+  birthDate           DateTime?
+  ageConfirmed18Plus  Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  consents            ConsentRecord[]
+  profile             AppearanceProfile?
+  event               Event?
+  photos              UserPhoto[]
+  plans               AppearancePlan[]
+  analysisJobs        AnalysisJob[]
+
+  @@index([deviceSessionId])
+}
+
+enum ConsentType {
+  terms
+  face_processing
+  training
+}
+
+/// 三类同意互相独立、可单独撤回。存同意文本快照引用以便存证。
+model ConsentRecord {
+  id                String      @id @default(cuid())
+  userId            String
+  consentType       ConsentType
+  version           String
+  grantedAt         DateTime    @default(now())
+  revokedAt         DateTime?
+  sourceIp          String?
+  snapshotTextRef   String?
+
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, consentType])
+}
+
+// ---------------------------------------------------------------------------
+// 用户画像
+// ---------------------------------------------------------------------------
+
+enum Track {
+  short_term
+  long_term
+}
+
+enum BudgetTier {
+  low
+  medium
+  high
+}
+
+enum SelfReportedHairVolume {
+  thin
+  medium
+  thick
+}
+
+/// 决策 11：身体数据是**推荐引擎输入**，不是图像生成输入。
+/// 实测证明给 img2img 加体型描述词会导致连脸一起重新生成（身份漂移加剧）。
+model AppearanceProfile {
+  id                  String      @id @default(cuid())
+  userId              String      @unique
+
+  heightCm            Int?
+  weightKg            Float?
+  /// 以下为可选细项，填了能让穿搭推荐更准（决策 11）
+  shoulderWidthCm     Float?
+  chestCm             Float?
+  waistCm             Float?
+  thighCm             Float?
+  bodyFatPercent      Float?
+  exercisesRegularly  Boolean?
+
+  occupation          String?
+  wearsGlasses        Boolean?
+  hasBeard            Boolean?
+
+  /// 决策 6：发量自报。云端视觉判断发量实测不可靠（两家一致率 2/10，
+  /// Zhipu 对 10 张全答 dense），自报在此用途上够用且本身即决策依据。
+  selfReportedHairVolume SelfReportedHairVolume?
+  /// 决策 6：与视觉信号交叉验证，evidence_basis=self_reported
+  hairLossConcern     Boolean     @default(false)
+
+  domainSelections    String[]
+  domainAcceptance    Json?
+  budgetTier          BudgetTier?
+
+  /// 决策 5：用户对客户端几何测量出的脸型的确认/修正。
+  /// 用户修正值优先于计算值用于所有下游过滤。
+  confirmedFaceShape  String?
+
+  /// 短期/长期赛道。在 basic 问卷就采集，但 AppearancePlan 此时还不存在
+  /// （方案在 initial_analysis 编排里创建），所以先存在 profile 上，建方案时拷过去。
+  /// 原先 schema 接收了这个字段却没有任何地方持久化，导致编排器无从得知赛道。
+  track               Track?
+
+  /// 决策 3：过完两层审核的发型意向。**必须持久化**——审核发生在同步请求里，
+  /// 而消费它的 S3 在 worker 里异步执行，不落库就等于「用户有中意发型」这条
+  /// 分支永久失效（实测过：hair-intent 只把结果返回给客户端，worker 读不到）。
+  stylePreferenceText      String?
+  /// 归一化命中的目录 tag；null 表示未命中
+  stylePreferenceStyleTag  String?
+  /// 未命中目录时为 true，下游须标注为「用户指定方向」而非我们的推荐
+  stylePreferenceUserSpecified Boolean @default(false)
+
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// 仅短期 track 有值
+model Event {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  eventType         String?
+  eventDate         DateTime?
+  city              String?
+  venueType         String?
+  activityType      String?
+  desiredImpression String?
+  formalityLevel    Int?
+
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plans             AppearancePlan[]
+}
+
+// ---------------------------------------------------------------------------
+// 照片
+// ---------------------------------------------------------------------------
+
+enum PhotoType {
+  front
+  side
+  full_body
+  progress
+}
+
+enum ModerationStatus {
+  pending
+  passed
+  rejected
+}
+
+enum DeletionStatus {
+  active
+  pending
+  deleted
+}
+
+/// 决策 5：faceMetrics 存客户端 MediaPipe 计算的几何数据（含 faceShape 分类
+/// + confidence + 支撑比值），是脸型的**权威来源**——云端 vision 只做语义判断。
+/// 决策 11：full_body 可选，缺失时穿搭效果图降级而非阻塞流程。
+model UserPhoto {
+  id                String            @id @default(cuid())
+  userId            String
+  photoType         PhotoType
+  storageKey        String
+  faceMetrics       Json?
+  moderationStatus  ModerationStatus  @default(pending)
+  moderationReason  String?
+  deletionStatus    DeletionStatus    @default(active)
+  trainingConsentId String?
+  uploadedAt        DateTime          @default(now())
+
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  baselineForImages TargetImage[]     @relation("BaselinePhoto")
+
+  @@index([userId, photoType])
+}
+
+// ---------------------------------------------------------------------------
+// 风格数据（人工/调研维护的种子表）
+// ---------------------------------------------------------------------------
+
+enum HairVolumeRequirement {
+  low
+  medium
+  high
+}
+
+/// 决策 2：协调性编码在数据里，由风格向量确定性计算，**不交给 LLM 判断审美**。
+/// 决策 22：两套独立审美评分——两者背离本身就是产品要呈现的核心信息差。
+/// 数据由调研任务产出（docs/style-data-research-plan.md）。
+model StyleProfileEntry {
+  id            String   @id
+  kind          String   /// "hairstyle" | "outfit_combo"
+  nameZh        String
+  aliases       String[]
+  description   String?
+
+  /// 风格向量四轴，各 1-10。协调判定 = 各轴差值 ≤ 阈值（默认 3）
+  formality     Int
+  maturity      Int
+  boldness      Int
+  upkeep        Int
+
+  /// 决策 22：双审美评分。必须带 source/confidence——这是从调研整理出的
+  /// 有偏先验而非客观真理，对用户表述须用参考性口气。
+  femaleAppealScore       Int
+  femaleAppealSource      String
+  femaleAppealConfidence  String
+  femaleAppealRationale   String
+  maleSelfAppealScore     Int
+  maleSelfAppealSource    String
+  maleSelfAppealConfidence String
+  maleSelfAppealRationale String
+
+  /// 决策 6：发型专属硬过滤属性。发际线/发量信号按组合规则驱动这两个字段的过滤。
+  requiresHairVolume  HairVolumeRequirement?
+  coversForehead      Boolean?
+
+  suitableFaceShapes    String[]
+  unsuitableFaceShapes  Json?
+  suitableBodyTypes     String[]
+  suitableScenes        String[]
+
+  /// 穿搭条目的品类组合（不是具体可购买单品——可执行性由品类描述承载）
+  items         Json?
+
+  estCostRange  String?
+  estTime       String?
+  notes         String?
+  isRecommended Boolean  @default(true)
+  exclusionReason String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([kind, isRecommended])
+}
+
+/// 单个发型 style_tag → 打理教程。referenceUrl 必须是真实访问过的链接，
+/// 宁可留空不可编造（LLM 编 URL 是已踩过的坑，本表即为此而设）。
+model StyleReferenceGuide {
+  id            String   @id @default(cuid())
+  domain        String
+  styleTag      String   @unique
+  title         String
+  referenceUrl  String?
+  referenceType String?
+  summaryText   String
+  updatedAt     DateTime @updatedAt
+}
+
+enum EvidenceBasis {
+  visual_detected
+  self_reported
+  general_best_practice
+}
+
+enum Reversibility {
+  full
+  partial
+  irreversible
+}
+
+enum RiskLevel {
+  low
+  medium
+  high
+}
+
+/// 非风格领域（仪容/护肤/健身/体态）的人工维护方法目录。
+/// 风格相关的发型/穿搭由 StyleProfileEntry 接管。
+/// 决策 7：applicableStageRange 决定阶段落位（时间尺度），打分只定 core/optional。
+model CandidateTaskCatalog {
+  id                  String        @id @default(cuid())
+  domain              String
+  methodName          String
+  description         String
+  evidenceBasis       EvidenceBasis
+  estTime             String?
+  estCostRange        String?
+  reversibility       Reversibility
+  riskLevel           RiskLevel
+  riskNote            String?
+  /// 决策 7：阶段落位依据，如 ["stage0","stage1"]
+  applicableStageRange String[]
+  visualBenefitLevel  String?
+  /// 调研标注「不建议纳入」的方法（如 Mewing、下颌线训练器）设 false，
+  /// 规则引擎永不选取，仅保留记录与原因
+  isRecommended       Boolean       @default(true)
+  exclusionReason     String?
+
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@index([domain, isRecommended])
+}
+
+// ---------------------------------------------------------------------------
+// 方案
+// ---------------------------------------------------------------------------
+
+enum PlanStatus {
+  active
+  completed
+  abandoned
+}
+
+/// 每用户仅一条活跃记录，plan_version 原地递增不产生历史行；
+/// 历史演变靠 WorkflowRun 审计追溯。
+model AppearancePlan {
+  id            String     @id @default(cuid())
+  userId        String
+  eventId       String?
+  track         Track
+  currentStage  Int        @default(0)
+  status        PlanStatus @default(active)
+  planVersion   Int        @default(1)
+
+  /// 决策 4：per-user 固定生成 seed。实测同一 manifest 用 seed=-1 重复生成
+  /// 结果不同，四阶段图像会不连贯，看起来像四个不同造型而非同一人的递进。
+  generationSeed Int
+
+  /// 决策 3：两步约束选择的结果。发型（不可逆）先选，穿搭（可逆）后选且受发型约束。
+  selectedHairstyleId String?
+  selectedOutfitId    String?
+  /// 决策 22：双审美加权中女性视角的权重（0-1），按用户目标设定，显式存储以便向用户解释
+  femaleAppealWeight  Float   @default(0.5)
+
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event         Event?     @relation(fields: [eventId], references: [id])
+  stages        Stage[]
+  manifestEntries ChangeManifestEntry[]
+  targetImages  TargetImage[]
+  analysisJobs  AnalysisJob[]
+  workflowRuns  WorkflowRun[]
+  decisions     ConversationDecision[]
+  feedback      Feedback[]
+
+  @@index([userId, status])
+}
+
+enum StageStatus {
+  locked
+  active
+  completed
+}
+
+model Stage {
+  id            String      @id @default(cuid())
+  planId        String
+  stageIndex    Int
+  windowLabel   String
+  status        StageStatus @default(locked)
+  unlockRule    Json
+  /// 仅用于 UI 进度条展示，不作为解锁判定依据（解锁实时查询 StageTask）
+  completionPct Int         @default(0)
+
+  plan          AppearancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  tasks         StageTask[]
+  targetImages  TargetImage[]
+  manifestEntries ChangeManifestEntry[]
+
+  @@unique([planId, stageIndex])
+}
+
+enum TaskPriority {
+  core
+  optional
+}
+
+enum TaskType {
+  simple
+  guided_selection
+}
+
+enum SelectionStatus {
+  not_applicable
+  pending_selection
+  selected
+}
+
+enum TaskStatus {
+  pending
+  done
+  skipped
+  blocked
+  replaced
+}
+
+/// 阶段任务：一个阶段一份扁平清单，无日期分配。
+/// 决策 8：四个阶段的任务清单在 S5 一次性全生成（数据驱动落位后，
+/// 懒生成要调 4 次 LLM，反而贵约 4 倍）。
+model StageTask {
+  id                String          @id @default(cuid())
+  stageId           String
+  domain            String
+  priority          TaskPriority
+  /// 硬性前置门槛，不参与打分：general_best_practice 永远只能是 optional
+  evidenceBasis     EvidenceBasis
+  taskType          TaskType        @default(simple)
+  selectionStatus   SelectionStatus @default(not_applicable)
+
+  /// 决策 11（plan-materialization）：guided_selection 的候选**每个都带自己的
+  /// change_description**，不是裸 tag 数组——选中后要直接落为本阶段计划变化。
+  /// 形状：[{ styleTag, changeDescription }]
+  candidateOptions  Json?
+  /// 用户从候选中确认选定的那一个
+  styleTag          String?
+
+  title             String
+  estTime           String?
+  estCost           String?
+  rationale         String?
+  completionCriteria String?
+  alternative       String?
+  expectedImpact    String?
+  status            TaskStatus      @default(pending)
+  sortOrder         Int             @default(0)
+  /// 任务生成时预写，完成时原样写入 ChangeManifestEntry，不再调 LLM
+  changeDescription String?
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  stage             Stage           @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  manifestEntries   ChangeManifestEntry[]
+
+  @@index([stageId, priority, status])
+}
+
+enum VerificationStatus {
+  unverified
+  verified
+  rolled_back
+}
+
+/// 决策 4：账本 —— **已发生事实的记录**，不是生成图的唯一输入。
+/// 生成图用的是「账本 + 本阶段 core 计划变化」。
+/// 决策 13：verificationStatus 供 progress_recheck 校准自报失真。
+model ChangeManifestEntry {
+  id                 String             @id @default(cuid())
+  planId             String
+  stageId            String
+  sourceTaskId       String?
+  domain             String
+  changeDescription  String
+  methodSummary      String?
+  verificationStatus VerificationStatus @default(unverified)
+  verifiedAt         DateTime?
+  createdAt          DateTime           @default(now())
+
+  plan               AppearancePlan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  stage              Stage              @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  sourceTask         StageTask?         @relation(fields: [sourceTaskId], references: [id], onDelete: SetNull)
+
+  @@index([planId, stageId])
+}
+
+enum TargetImageType {
+  face_hair
+  full_body_outfit
+}
+
+enum QualityCheckStatus {
+  pending
+  passed
+  failed
+}
+
+/// 决策 4：目标图 = 基准照片 + 已完成账本 + **本阶段 core 任务的计划变化**。
+/// 只有 core 进图（core 集合同时定义解锁条件与图内容，两者一致）。
+/// baselinePhotoId 恒指向最初的基准照片，禁止用上一阶段生成图作为输入（防身份漂移）。
+model TargetImage {
+  id                    String             @id @default(cuid())
+  planId                String
+  stageId               String
+  imageType             TargetImageType
+  baselinePhotoId       String
+  /// 生成时的已完成账本快照
+  manifestSnapshot      Json
+  /// 生成时的本阶段 core 计划变化快照（决策 4 新增，前一份 spec 没有这个）
+  plannedChangesSnapshot Json
+  storageKey            String?
+  changeExplanation     Json?
+  qualityCheckStatus    QualityCheckStatus @default(pending)
+  retryCount            Int                @default(0)
+  isFreeFirstGeneration Boolean            @default(true)
+  /// 决策 15：MVP1 不设计费 gate，但**正确记账**——支付上线时开关一打即生效，
+  /// 且这批数据用于校准定价
+  consumedWeeklyQuota   Boolean            @default(false)
+  modelVersion          String?
+  provider              String?
+  /// 供应商 task_id，用于断线恢复与计费追溯
+  providerCallId        String?
+  createdAt             DateTime           @default(now())
+
+  plan                  AppearancePlan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  stage                 Stage              @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  /// onDelete: Cascade 是合规要求而非便利选择——「分级数据删除」要求删除原图时
+  /// 必须级联清理派生数据。若用默认的 restrict，用户的删号请求会被外键卡住而失败。
+  baselinePhoto         UserPhoto          @relation("BaselinePhoto", fields: [baselinePhotoId], references: [id], onDelete: Cascade)
+
+  @@index([planId, stageId, imageType])
+}
+
+// ---------------------------------------------------------------------------
+// 任务编排
+// ---------------------------------------------------------------------------
+
+/// 决策 1 + job_type 重定义：full_analysis 被拆成三个 job，因为流程中间
+/// 有两次必须的同步用户选择（选发型、选穿搭），物理上不可能连续执行。
+enum JobType {
+  initial_analysis
+  outfit_preview_generation
+  plan_materialization
+  stage_unlock_generation
+  user_regeneration
+  progress_recheck
+}
+
+/// 决策 16：渐进式推送下「全或无」自相矛盾（已推送的图收不回），
+/// 故新增 completed_partial 态。
+enum JobStatus {
+  created
+  input_moderating
+  analyzing
+  recommending
+  rendering
+  materializing
+  output_moderating
+  quality_checking
+  completed
+  completed_partial
+  failed
+  cancelled
+}
+
+model AnalysisJob {
+  id            String     @id @default(cuid())
+  userId        String
+  planId        String?
+  stageId       String?
+  jobType       JobType
+  status        JobStatus  @default(created)
+  errorReason   String?
+  /// 决策 12/16：渐进式可读的部分结果（文字推荐先到、图片逐张到）
+  partialResult Json?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  completedAt   DateTime?
+
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan          AppearancePlan? @relation(fields: [planId], references: [id], onDelete: Cascade)
+  workflowRuns  WorkflowRun[]
+
+  @@index([userId, status])
+  @@index([planId, jobType])
+}
+
+model WorkflowRun {
+  id              String   @id @default(cuid())
+  jobId           String
+  planId          String?
+  stepName        String
+  planVersion     Int?
+  artifactVersion String?
+  promptVersion   String?
+  modelVersion    String?
+  provider        String?
+  latencyMs       Int?
+  retryCount      Int      @default(0)
+  cost            Float?
+  safetyResult    Json?
+  qualityResult   Json?
+  finalStatus     String
+  createdAt       DateTime @default(now())
+
+  job             AnalysisJob     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  plan            AppearancePlan? @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+}
+
+enum ProviderCallStatus {
+  submitted
+  polling
+  done
+  failed
+}
+
+/// 决策 12：把 add-appearance-agent-foundation 的文件版 taskLedger 迁到 Postgres。
+/// 目的不变：供应商异步调用在**提交后立刻落盘**，这样即使调用方崩溃/断线，
+/// 也能凭 callId 恢复轮询而不是重新提交（避免重复计费）。
+model ProviderCallLog {
+  id             String             @id @default(cuid())
+  /// 供应商返回的 task_id
+  callId         String             @unique
+  provider       String
+  reqKey         String
+  purpose        String?
+  status         ProviderCallStatus @default(submitted)
+  requestSummary Json?
+  resultUrls     String[]
+  error          String?
+  costEstimate   Float?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([status, provider])
+}
+
+// ---------------------------------------------------------------------------
+// 对话
+// ---------------------------------------------------------------------------
+
+/// 决策 0.6：对话多轮，但**只存结构化决策摘要，不存对话原文**。
+/// 跨轮需要记住的是"已确认/已否决的决策"，方案当前状态本来就在 AppearancePlan 里。
+/// 不存原文同时规避了对话内容的隐私删除负担。
+model ConversationDecision {
+  id           String   @id @default(cuid())
+  planId       String
+  /// "style_selected" | "direction_rejected" | "weight_adjusted" 等
+  decisionKind String
+  /// 结构化内容，如 { rejectedStyleId, reason }
+  payload      Json
+  createdAt    DateTime @default(now())
+
+  plan         AppearancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId, decisionKind])
+}
+
+model Feedback {
+  id                String   @id @default(cuid())
+  planId            String
+  helpfulScore      Int?
+  confidenceChange  Int?
+  completedActions  Json?
+  comments          String?
+  createdAt         DateTime @default(now())
+
+  plan              AppearancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+}
+
+/// 敏感照片访问日志（tasks 10.4）。
+/// 合规要求：「敏感照片访问需记录操作日志」，尤其是后台人工审核场景。
+/// 记录**预签名 URL 的签发**而非 HTTP 读取——我们无法拦截对象存储的直接读取，
+/// 但签发是必经之路，签发即等于授予了访问权，这是真正可控的记录点。
+model PhotoAccessLog {
+  id           String   @id @default(cuid())
+  /// 被访问的照片。照片删除后日志保留（脱敏），用于审计
+  photoId      String?
+  storageKey   String
+  /// 谁签发的：用户自己 / 后台人工审核 / 系统（给 AI 供应商抓图）
+  accessorType String
+  accessorId   String?
+  purpose      String
+  /// 签发的预签名 URL 有效期，用于评估暴露窗口
+  expiresInSeconds Int
+  sourceIp     String?
+  createdAt    DateTime @default(now())
+
+  @@index([photoId, createdAt])
+  @@index([accessorType, createdAt])
+}

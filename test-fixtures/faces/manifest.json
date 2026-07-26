@@ -1,0 +1,62 @@
+[
+  {
+    "id": "01-round",
+    "label": "圆脸",
+    "file": "test-fixtures/faces/01-round.jpg",
+    "sourceUrl": "(pre-existing, url not recorded)"
+  },
+  {
+    "id": "02-square",
+    "label": "方脸",
+    "file": "test-fixtures/faces/02-square.jpg",
+    "sourceUrl": "(pre-existing, url not recorded)"
+  },
+  {
+    "id": "03-long",
+    "label": "长脸",
+    "file": "test-fixtures/faces/03-long.jpg",
+    "sourceUrl": "(pre-existing, url not recorded)"
+  },
+  {
+    "id": "04-oval",
+    "label": "瓜子脸/鹅蛋脸",
+    "file": "test-fixtures/faces/04-oval.jpg",
+    "sourceUrl": "(pre-existing, url not recorded)"
+  },
+  {
+    "id": "05-guozi",
+    "label": "国字脸",
+    "file": "test-fixtures/faces/05-guozi.jpg",
+    "sourceUrl": "(pre-existing, url not recorded)"
+  },
+  {
+    "id": "06-youzi",
+    "label": "由字脸",
+    "file": "test-fixtures/faces/06-youzi.jpg",
+    "sourceUrl": "(pre-existing, url not recorded)"
+  },
+  {
+    "id": "07-jiazi",
+    "label": "甲字脸",
+    "file": "test-fixtures/faces/07-jiazi.jpg",
+    "sourceUrl": "(pre-existing, url not recorded)"
+  },
+  {
+    "id": "08-glasses",
+    "label": "圆脸+眼镜",
+    "file": "test-fixtures/faces/08-glasses.jpg",
+    "sourceUrl": "https://p3-aiop-sign.byteimg.com/tos-cn-i-vuqhorh59i/20260726011759255DD0F710E443C1C92B-5489-0~tplv-vuqhorh59i-image-v1.image?rk3s=7f9e702d&x-expires=1785086279&x-signature=yRYlFtuZE5ZMTtUGBqtTqd54%2FL0%3D"
+  },
+  {
+    "id": "09-beard",
+    "label": "方脸+胡须",
+    "file": "test-fixtures/faces/09-beard.jpg",
+    "sourceUrl": "https://p3-aiop-sign.byteimg.com/tos-cn-i-vuqhorh59i/2026072601181383F6B6A431B8A4C9D9FF-2061-0~tplv-vuqhorh59i-image-v1.image?rk3s=7f9e702d&x-expires=1785086294&x-signature=tJPRGM%2BfXKolJa9VG9ldgvuURHY%3D"
+  },
+  {
+    "id": "10-receding",
+    "label": "长脸+发际线后移",
+    "file": "test-fixtures/faces/10-receding.jpg",
+    "sourceUrl": "https://p26-aiop-sign.byteimg.com/tos-cn-i-vuqhorh59i/2026072601182318E5DF84C07D2E5F3056-6073-0~tplv-vuqhorh59i-image-v1.image?rk3s=7f9e702d&x-expires=1785086303&x-signature=AaOLsCkt9ST3kokALNiNTehuh1s%3D"
+  }
+]

@@ -1,0 +1,46 @@
+{
+  "name": "bettermeet-server",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "test:providers": "tsx src/scripts/test-providers.ts",
+    "dev:worker": "tsx watch src/worker.ts",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "prisma migrate dev",
+    "db:generate": "prisma generate",
+    "lock:status": "node scripts/agent-lock.mjs status",
+    "progress": "node scripts/openspec-progress.mjs"
+  },
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "^3.0.14",
+    "@fastify/cookie": "^11.1.2",
+    "@fastify/cors": "^11.3.0",
+    "@fastify/multipart": "^10.1.0",
+    "@mastra/core": "^1.48.1-alpha.0",
+    "@prisma/adapter-pg": "^7.9.0",
+    "@prisma/client": "^7.9.0",
+    "@volcengine/openapi": "^1.36.2",
+    "ai": "^7.0.0",
+    "ali-oss": "^6.23.0",
+    "bullmq": "^5.81.2",
+    "dotenv": "^17.2.3",
+    "fastify": "^5.10.0",
+    "fastify-plugin": "^6.0.0",
+    "ioredis": "^5.11.1",
+    "pg": "^8.22.0",
+    "tencentcloud-sdk-nodejs-hunyuan": "^4.1.188",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/ali-oss": "^6.23.3",
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.20.0",
+    "prisma": "^7.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
