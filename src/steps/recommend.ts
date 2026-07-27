@@ -35,6 +35,8 @@ export type RecommendOutput = {
   reused: boolean;
   /** 另一个请求正在生成，本次读到的是准备中的集合 */
   inProgress: boolean;
+  /** 与发型候选来自同一次多模态 tool call。 */
+  firstRound?: import("../services/recommendationApplication.js").FirstRoundAgentOutput;
 };
 
 export const recommendStep: Step<RecommendInput, RecommendOutput> = {
@@ -55,11 +57,8 @@ export const recommendStep: Step<RecommendInput, RecommendOutput> = {
       frontPhotoStorageKey: input.frontPhotoStorageKey,
       geometry: input.vision.geometry,
       hairSignals: input.vision.hairSignals,
-      // ⚠ 语义分析的**自由文本不能进指纹**：它是视觉模型的非确定性输出，
-      // 两次运行必然不同 → computationKey 不同 → 抢占形同虚设、重复付费。
-      // 这里只把它作为 prompt 上下文传给 provider（见 recommendationApplication
-      // 的 fingerprintable 划分），不参与指纹计算。
-      semantics: input.vision.semanticAnalysis ? { raw: input.vision.semanticAnalysis } : null,
+      clientSignals: input.vision.clientSignals,
+      workflow: { jobId: ctx.jobId, stepName: "S2_S3_multimodal_agent" },
       preference: input.userPreferenceText
         ? { text: input.userPreferenceText, normalizedTag: input.userPreferenceStyleTag ?? null }
         : null,
@@ -72,11 +71,15 @@ export const recommendStep: Step<RecommendInput, RecommendOutput> = {
       capabilityStatus: view.capabilityStatus,
       reused: view.reused,
       inProgress: view.inProgress,
+      firstRound: view.firstRound,
     };
 
-    if (view.status === "failed") return { status: "failed", error: "provider 未产出通过校验的候选" };
+    if (view.status === "failed" && !view.firstRound) {
+      return { status: "failed", error: "provider 未产出通过校验的候选" };
+    }
     if (view.candidates.length === 0) {
-      // 准备中或零候选：如实标记缺口，不把空集合当成功
+      // 准备中、零候选，或候选全被过滤时：首轮人脸结论与风格方向仍可用，
+      // 因此如实标记为部分成功，而不是丢弃已经完成的付费首轮调用。
       return {
         status: "completed_partial",
         data,

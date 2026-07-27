@@ -55,7 +55,12 @@ const prefix = `recapp-${Date.now()}`;
 try {
   const user = await prisma.user.create({ data: { deviceSessionId: `${prefix}-dev`, ageConfirmed18Plus: true } });
   const plan = await prisma.appearancePlan.create({
-    data: { userId: user.id, track: "short_term", generationSeed: 7 },
+    data: {
+      userId: user.id,
+      track: "short_term",
+      generationSeed: 7,
+      selectedStyle: { id: "test-style", nameZh: "测试风格", description: "测试", rationale: "测试" },
+    },
   });
   const photo = await prisma.userPhoto.create({
     data: { userId: user.id, photoType: "front", storageKey: `raw/${user.id}/front.jpg`, moderationStatus: "passed" },

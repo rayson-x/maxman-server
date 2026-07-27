@@ -12,6 +12,30 @@ const statusUpdateSchema = z.object({
 });
 
 const selectSchema = z.object({ styleTag: z.string().min(1) });
+const styleDirectionSelectionSchema = z.object({ styleId: z.string().regex(/^[a-z0-9][a-z0-9_-]{1,39}$/) });
+
+const selectableStyleDirectionSchema = z.object({
+  id: z.string().regex(/^[a-z0-9][a-z0-9_-]{1,39}$/),
+  nameZh: z.string().min(1).max(40),
+  description: z.string().min(1).max(240),
+  rationale: z.string().min(1).max(400),
+});
+
+export type SelectableStyleDirection = z.infer<typeof selectableStyleDirectionSchema>;
+
+/** 只信任最新成功首轮任务里 tool schema 已验证过的风格方向。 */
+export function findSelectableStyleDirection(
+  partialResult: unknown,
+  styleId: string,
+): SelectableStyleDirection | null {
+  const rows = (partialResult as { styleRecommendations?: unknown } | null)?.styleRecommendations;
+  if (!Array.isArray(rows)) return null;
+  for (const row of rows) {
+    const parsed = selectableStyleDirectionSchema.safeParse(row);
+    if (parsed.success && parsed.data.id === styleId) return parsed.data;
+  }
+  return null;
+}
 
 type StyleSelectionEvidenceInput = {
   entryExists: boolean;
@@ -92,6 +116,7 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
       currentStage: plan.currentStage,
       selectedHairstyleId: plan.selectedHairstyleId,
       selectedOutfitId: plan.selectedOutfitId,
+      selectedStyle: plan.selectedStyle,
       stages: await Promise.all(
         plan.stages.map(async (stage) => {
           const { coreTotal, coreDone, allCoreDone } = await progression.evaluateStageUnlock(stage.id);
@@ -209,10 +234,46 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
         not_found: "候选不存在",
         not_owned: "该候选不属于你的方案",
         set_not_ready: "候选集尚未就绪或已被新一轮推荐取代",
+        style_not_selected: "请先选定一个风格方向",
       }[result.reason];
       return reply.code(code).send({ error: result.reason, message });
     }
     return reply.send({ ok: true, candidateId: result.candidateId, nameZh: result.nameZh });
+  });
+
+  /** 首轮 3–4 个风格方向的选择落点；选择后才能选发型或请求穿搭。 */
+  app.post("/plans/:planId/select-style-direction", async (req, reply) => {
+    const user = requireUser(req);
+    const { planId } = req.params as { planId: string };
+    const { styleId } = styleDirectionSelectionSchema.parse(req.body);
+    const plan = await prisma.appearancePlan.findFirst({ where: { id: planId, userId: user.id } });
+    if (!plan) return reply.code(404).send({ error: "方案不存在" });
+
+    const job = await prisma.analysisJob.findFirst({
+      where: {
+        userId: user.id,
+        planId,
+        jobType: "initial_analysis",
+        status: { in: ["completed", "completed_partial"] },
+      },
+      orderBy: { createdAt: "desc" },
+      select: { partialResult: true },
+    });
+    const style = findSelectableStyleDirection(job?.partialResult, styleId);
+    if (!style) {
+      return reply.code(422).send({
+        error: "style_not_offered",
+        message: "该风格方向不在当前首轮推荐中，请重新查看分析结果后选择",
+      });
+    }
+
+    await prisma.$transaction([
+      prisma.appearancePlan.update({ where: { id: planId }, data: { selectedStyle: style as never } }),
+      prisma.conversationDecision.create({
+        data: { planId, decisionKind: "style_direction_selected", payload: style as never },
+      }),
+    ]);
+    return reply.send({ ok: true, style });
   });
 
   /** tasks 8.2/8.3：任务状态更新，完成时自动写账本 */

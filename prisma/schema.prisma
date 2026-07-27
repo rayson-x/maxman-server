@@ -373,6 +373,8 @@ model AppearancePlan {
   generationSeed Int
 
   /// 决策 3：两步约束选择的结果。发型（不可逆）先选，穿搭（可逆）后选且受发型约束。
+  /// 首轮 Agent 提供的风格方向（id/name/description/rationale）；必须在选发型与穿搭前选定。
+  selectedStyle       Json?
   selectedHairstyleId String?
   selectedOutfitId    String?
   /// 决策 22：双审美加权中女性视角的权重（0-1），按用户目标设定，显式存储以便向用户解释

@@ -287,6 +287,9 @@ export async function registerAnalysisJobRoutes(app: FastifyInstance): Promise<v
 
     const plan = await prisma.appearancePlan.findFirst({ where: { id: planId, userId: user.id } });
     if (!plan) return reply.code(404).send({ error: "方案不存在" });
+    if (!plan.selectedStyle) {
+      return reply.code(422).send({ error: "style_not_selected", message: "请先选定风格方向" });
+    }
     if (!plan.selectedHairstyleId) {
       // 决策 3：两步约束选择——穿搭候选集由已选发型过滤，没选发型就无从生成
       return reply.code(422).send({ error: "hairstyle_not_selected", message: "请先选定发型方向，穿搭候选会依据它筛选" });

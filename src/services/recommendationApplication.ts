@@ -5,13 +5,15 @@ import type {
   CandidateVerificationStatus,
 } from "../generated/prisma/enums.js";
 import { createPhotoAccessService } from "./photoAccessService.js";
-import { IDENTITY_PRESERVATION_SUFFIX } from "./targetImageService.js";
+import { identityConstraint } from "./targetImageService.js";
 import { reviewFreeInput } from "../features/appearance-agent/data/domainLexicon.js";
 import {
   OBJECTIVE_HAIRSTYLE_ATTRIBUTES,
   findObjectiveHairstyleAttributes,
 } from "../features/appearance-agent/data/objectiveHairstyleAttributes.js";
 import { computeHairConstraint, applyHairConstraint, type HairSignals } from "../features/appearance-agent/rules/hairConstraints.js";
+import { applySemanticHairlineVisibility, type StructuredSemanticAnalysis } from "../features/appearance-agent/analysis/semanticAnalysis.js";
+import { recordWorkflowRun } from "../steps/types.js";
 
 /**
  * 推荐能力的唯一对外入口。
@@ -93,6 +95,20 @@ export type CandidateView = {
   estimatedAttributes: ProviderCandidate["estimatedAttributes"] | null;
 };
 
+/** 首轮同一次多模态调用的附加输出，供风格选择与穿搭上下文复用。 */
+export type FirstRoundAgentOutput = {
+  faceAnalysis: {
+    narrative: string;
+    structuredSemantic: StructuredSemanticAnalysis;
+  };
+  styleRecommendations: Array<{
+    id: string;
+    nameZh: string;
+    description: string;
+    rationale: string;
+  }>;
+};
+
 export type RecommendationSetView = {
   setId: string;
   kind: RecommendationKind;
@@ -103,11 +119,14 @@ export type RecommendationSetView = {
   /** 跟随者读到 preparing 时为 true，调用方应轮询而非重试 */
   inProgress: boolean;
   reused: boolean;
+  firstRound?: FirstRoundAgentOutput;
+  /** 仅由应用层写入的结构化失败摘要；不含模型原始文本。 */
+  failureReason?: string | null;
 };
 
 export type SelectionResult =
   | { ok: true; candidateId: string; nameZh: string }
-  | { ok: false; reason: "not_found" | "not_owned" | "set_not_ready" };
+  | { ok: false; reason: "not_found" | "not_owned" | "set_not_ready" | "style_not_selected" };
 
 /** 候选文本的长度上限。超长的多半是模型把整段说明塞进了字段 */
 const LIMITS = { nameZh: 40, description: 300, modelRationale: 400, visualDirection: 300 } as const;
@@ -186,15 +205,39 @@ export type RecommendationApplicationDeps = {
     readonly name: string;
     readonly version: string;
     readonly source: RecommendationSourceName;
-    recommend(input: unknown): Promise<{ candidates: ProviderCandidate[]; callId?: string }>;
+    recommend(input: unknown): Promise<{
+      candidates: ProviderCandidate[];
+      callId?: string;
+      latencyMs?: number;
+      provider?: string;
+      modelVersion?: string;
+      firstRound?: FirstRoundAgentOutput;
+    }>;
   };
   outfitProvider: {
     readonly name: string;
     readonly version: string;
     readonly source: RecommendationSourceName;
-    recommend(input: unknown): Promise<{ candidates: ProviderCandidate[]; callId?: string }>;
+    recommend(input: unknown): Promise<{
+      candidates: ProviderCandidate[];
+      callId?: string;
+      latencyMs?: number;
+      provider?: string;
+      modelVersion?: string;
+      firstRound?: FirstRoundAgentOutput;
+    }>;
   };
 };
+
+function isFirstRoundOutput(value: unknown): value is FirstRoundAgentOutput {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<FirstRoundAgentOutput>;
+  return (
+    Boolean(candidate.faceAnalysis)
+    && typeof candidate.faceAnalysis?.narrative === "string"
+    && Array.isArray(candidate.styleRecommendations)
+  );
+}
 
 export function createRecommendationApplication(deps: RecommendationApplicationDeps) {
   const { prisma } = deps;
@@ -297,10 +340,23 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
    * 模板放在应用模块而非目录上：目录首版可以为空，模板不能因此缺失。
    */
   function buildRenderInstruction(kind: RecommendationKind, c: ProviderCandidate): string {
-    const head = kind === "hairstyle"
-      ? `把发型改成${c.nameZh}：${c.visualDirection}`
-      : `换成这套穿搭：${c.nameZh}：${c.visualDirection}`;
-    return `${head} ${IDENTITY_PRESERVATION_SUFFIX}`;
+    let head: string;
+    if (kind === "hairstyle") {
+      // 命中属性表时用**表里的规范渲染描述**，而不是模型给的 visualDirection。
+      // visualDirection 是没校验的自由文本，实测「三七侧分短发」被描述成
+      // 「左侧头发剃短至耳下，右侧头发留长至肩膀附近」——名字是常规侧分、
+      // 描述是极端不对称剪裁，图像模型忠实照画，产出一眼假的怪造型。
+      // 名字来自这张表，渲染描述也应当来自这张表；只有表外（用户自报）的
+      // 造型才退回模型描述。
+      const attrs = findObjectiveHairstyleAttributes(c.nameZh);
+      const direction = attrs?.renderDescription ?? c.visualDirection;
+      head = `把发型改成${c.nameZh}：${direction}`;
+    } else {
+      head = `换成这套穿搭：${c.visualDirection}`;
+    }
+    // 正向只留一句含"表情"的身份约束（实测缺了表情模型会自己加微笑），
+    // 反磨皮的否定式走 NEGATIVE_PROMPT，两边都不挤占造型描述的长度预算。
+    return `${head} ${identityConstraint(kind === "hairstyle" ? "头发" : "服装")}`;
   }
 
   /**
@@ -432,6 +488,8 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         verificationStatus: c.verificationStatus,
         estimatedAttributes: (c.estimatedAttributes ?? null) as CandidateView["estimatedAttributes"],
       })),
+      firstRound: isFirstRoundOutput(set.injectedContext) ? set.injectedContext : undefined,
+      failureReason: set.failureReason,
     };
   }
 
@@ -452,6 +510,7 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
      */
     buildInput: (photoReadUrl?: string, constraint?: HairConstraintContext) => unknown;
     provider: RecommendationApplicationDeps["hairstyleProvider"];
+    workflow?: { jobId: string; planId?: string; stepName: string };
   }): Promise<RecommendationSetView> {
     try {
       // 照片授权走统一入口，签发即记录。纯文字路径不签发，也就不产生访问记录。
@@ -481,7 +540,28 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
           }
         : undefined;
 
+      const startedAt = Date.now();
       const result = await params.provider.recommend(params.buildInput(photoReadUrl, constraintContext));
+      if (params.workflow) {
+        await recordWorkflowRun(prisma, {
+          jobId: params.workflow.jobId,
+          planId: params.workflow.planId,
+          stepName: params.workflow.stepName,
+          finalStatus: "completed",
+          latencyMs: result.latencyMs ?? Date.now() - startedAt,
+          provider: result.provider ?? params.provider.name,
+          modelVersion: result.modelVersion ?? params.provider.version,
+          qualityResult: result.callId ? { providerCallId: result.callId } : undefined,
+        });
+      }
+      // 先持久化首轮的非候选输出。即便所有发型都被确定性硬约束剔除，用户仍应
+      // 得到这次已付费调用的人脸结论与风格方向，而不是被迫再调用一次模型。
+      if (result.firstRound) {
+        await prisma.recommendationSet.update({
+          where: { id: params.setId },
+          data: { injectedContext: result.firstRound as never },
+        });
+      }
       const { kept, rejected } = validateCandidates(result.candidates, params.requestedCount);
 
       if (kept.length === 0) {
@@ -513,7 +593,17 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       let constraintApplied = false;
       let constraintDropped: { nameZh: string; reason: string }[] = [];
 
-      if (constraint) {
+      const effectiveConstraint =
+        constraint && result.firstRound
+          ? computeHairConstraint(
+              applySemanticHairlineVisibility(
+                params.hairSignals ?? { hairline: "normal", volume: "unknown" },
+                result.firstRound.faceAnalysis.structuredSemantic,
+              ),
+            )
+          : constraint;
+
+      if (effectiveConstraint) {
         const checkable = resolvedAll.filter((r) => r.attributes?.requiresHairVolume && r.attributes.coversForehead !== undefined);
         const { kept: keptRefs, excluded } = applyHairConstraint(
           checkable.map((r, i) => ({
@@ -521,7 +611,7 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
             requiresHairVolume: r.attributes!.requiresHairVolume!,
             coversForehead: r.attributes!.coversForehead!,
           })),
-          constraint,
+          effectiveConstraint,
         );
         const keptIdx = new Set(keptRefs.map((k) => Number(k.id)));
         constraintDropped = excluded.map((e) => ({
@@ -582,12 +672,26 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         const status = current.capabilityStatus as unknown as CapabilityStatus;
         await tx.recommendationSet.update({
           where: { id: params.setId },
-          data: { status: "ready", capabilityStatus: { ...status, feasibility } as never },
+          data: {
+            status: "ready",
+            capabilityStatus: { ...status, feasibility } as never,
+            injectedContext: result.firstRound ? result.firstRound as never : undefined,
+          },
         });
       });
 
       return loadView(params.setId, false);
     } catch (err) {
+      if (params.workflow) {
+        await recordWorkflowRun(prisma, {
+          jobId: params.workflow.jobId,
+          planId: params.workflow.planId,
+          stepName: params.workflow.stepName,
+          finalStatus: "failed",
+          provider: params.provider.name,
+          modelVersion: params.provider.version,
+        });
+      }
       await prisma.recommendationSet.update({
         where: { id: params.setId },
         // provider 抛出的错误可能含模型原始文本（见 multimodalAgentRecommendation
@@ -607,11 +711,15 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       frontPhotoStorageKey: string;
       geometry: unknown;
       hairSignals: unknown;
+      clientSignals?: unknown;
+      /** 兼容已有调用方；首轮实现不再单独消费该字段。 */
       semantics?: unknown;
       preference?: unknown;
       changeWillingness?: string | null;
       catalogVariants?: unknown[];
       generation?: number;
+      /** 固定管道传入以审计实际发生的付费 provider 调用。 */
+      workflow?: { jobId: string; stepName: string };
     }): Promise<RecommendationSetView> {
       const provider = deps.hairstyleProvider;
       const capabilityStatus: CapabilityStatus = {
@@ -624,10 +732,8 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       const inputFingerprint = stableHash({
         geometry: command.geometry,
         hairSignals: command.hairSignals,
-        // 刻意**不含** semantics：那是视觉模型的自由文本，非确定性。
-        // 把它放进指纹会让同一用户每次都算出不同的 computationKey，
-        // 抢占永不命中、每次都重新付费——这正是抢占设计要防的事。
-        // 它仍作为 prompt 上下文传给 provider，只是不参与去重键。
+        // 客户端测算是确定性输入，必须进指纹；同一照片的不同测量值不能复用旧推荐。
+        clientSignals: command.clientSignals ?? null,
         preference: command.preference ?? null,
         changeWillingness: command.changeWillingness ?? null,
         requestedCount: command.requestedCount,
@@ -654,13 +760,16 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         photoStorageKey: command.frontPhotoStorageKey,
         hairSignals: command.hairSignals as HairSignals,
         provider,
+        workflow: command.workflow
+          ? { ...command.workflow, planId: command.planId }
+          : undefined,
         buildInput: (photoReadUrl, constraint) => ({
           photoReadUrl,
           geometry: command.geometry,
           hairSignals: command.hairSignals,
           // 硬约束前置：不给的话模型会在注定被剔除的方向上浪费整批候选
           constraint,
-          semantics: command.semantics,
+          clientSignals: command.clientSignals,
           preference: command.preference,
           changeWillingness: command.changeWillingness,
           requestedCount: command.requestedCount,
@@ -681,7 +790,13 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       /** 仅在有全身照且要出图时提供；纯文字路径不传，因此不签发也不留访问记录 */
       fullBodyPhotoStorageKey?: string;
       catalogVariants?: unknown[];
+      /** 首轮选定的大风格，作为穿搭推荐的硬上下文。 */
+      selectedStyle?: unknown;
+      /** 人脸信息（几何 / 语义 / 发量信号 / 已选发型的风格向量），供 LLM 判断版型与配色 */
+      face?: unknown;
       generation?: number;
+      /** 固定管道传入以审计实际发生的付费 provider 调用。 */
+      workflow?: { jobId: string; stepName: string };
     }): Promise<RecommendationSetView> {
       const provider = deps.outfitProvider;
       const selected = await prisma.recommendationCandidate.findUnique({
@@ -695,7 +810,8 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       const capabilityStatus: CapabilityStatus = {
         knowledgeSource: provider.source,
         feasibility: "not_checked",
-        // 协调判定依赖风格向量四轴，数据未就绪时由 Agent 主观判断
+        // 本版有意由 Agent 判断：风格数据量不足（12 发型 / 5 穿搭），
+        // 用没校准的四轴阈值过滤只会把候选饿死（见 jobOrchestrator 的说明）
         outfitCoordination: "agent_estimated",
         previewQuality: "not_checked",
       };
@@ -707,6 +823,9 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         budgetTier: command.budgetTier ?? null,
         hasFullBody: Boolean(command.fullBodyPhotoStorageKey),
         requestedCount: command.requestedCount,
+        // 人脸信息进指纹：脸型/肤色变了，缓存的推荐就不该复用
+        face: command.face ?? null,
+        selectedStyle: command.selectedStyle ?? null,
         provider: `${provider.name}@${provider.version}`,
       });
 
@@ -728,6 +847,9 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         requestedCount: command.requestedCount,
         photoStorageKey: command.fullBodyPhotoStorageKey,
         provider,
+        workflow: command.workflow
+          ? { ...command.workflow, planId: command.planId }
+          : undefined,
         buildInput: (photoReadUrl) => ({
           selectedHairstyle: { candidateId: selected.id, nameZh: selected.nameZh, description: selected.description },
           body: command.body,
@@ -737,6 +859,8 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
           fullBodyPhotoReadUrl: photoReadUrl,
           requestedCount: command.requestedCount,
           catalogVariants: command.catalogVariants,
+          face: command.face,
+          selectedStyle: command.selectedStyle,
         }),
       });
     },
@@ -745,13 +869,16 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
     async selectCandidate(command: { userId: string; planId: string; candidateId: string }): Promise<SelectionResult> {
       const candidate = await prisma.recommendationCandidate.findUnique({
         where: { id: command.candidateId },
-        include: { set: { include: { plan: { select: { userId: true } } } } },
+        include: { set: { include: { plan: { select: { userId: true, selectedStyle: true } } } } },
       });
       if (!candidate) return { ok: false, reason: "not_found" };
       if (candidate.set.planId !== command.planId || candidate.set.plan.userId !== command.userId) {
         return { ok: false, reason: "not_owned" };
       }
       if (candidate.set.status !== "ready") return { ok: false, reason: "set_not_ready" };
+      if (candidate.set.kind === "hairstyle" && !candidate.set.plan.selectedStyle) {
+        return { ok: false, reason: "style_not_selected" };
+      }
 
       const field = candidate.set.kind === "hairstyle" ? "selectedHairstyleId" : "selectedOutfitId";
       await prisma.$transaction(async (tx) => {

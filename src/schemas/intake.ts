@@ -141,6 +141,32 @@ export const faceMetricsSchema = z.object({
     /** occluded 表示被刘海遮挡判不出，下游据此走云端兜底（决策 6） */
     hairline: z.object({ value: z.enum(["normal", "high", "receding", "occluded"]) }).optional(),
     hairVolume: z.object({ value: z.enum(["thin", "medium", "thick"]) }).optional(),
+    /**
+     * 以下三项是客户端测量的方向性信号，不是对实际年龄或性别的判定。
+     * 统一沿用 Classification<T> 的可选 value / confidence / evidence 形状，
+     * 让服务端只接受受限枚举、仍可在测量局部失败时降级。
+     */
+    visualYouthfulness: z
+      .object({
+        value: z.enum(["low", "medium", "high"]),
+        confidence: z.enum(["low", "medium", "high"]).optional(),
+        evidence: z.record(z.string(), z.number()).optional(),
+      })
+      .optional(),
+    facialGenderTendency: z
+      .object({
+        value: z.enum(["masculine", "balanced", "soft"]),
+        confidence: z.enum(["low", "medium", "high"]).optional(),
+        evidence: z.record(z.string(), z.number()).optional(),
+      })
+      .optional(),
+    cheekboneCoverageNeed: z
+      .object({
+        value: z.enum(["low", "medium", "high"]),
+        confidence: z.enum(["low", "medium", "high"]).optional(),
+        evidence: z.record(z.string(), z.number()).optional(),
+      })
+      .optional(),
   }),
   /** 允许客户端附带原始 landmark、IPD 归一化参数等，服务端不解释 */
   raw: z.unknown().optional(),

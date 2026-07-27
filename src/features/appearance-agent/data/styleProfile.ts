@@ -195,3 +195,52 @@ export function appealGap(appeal: DualAppeal): number {
 export function isGapWorthDisclosing(appeal: DualAppeal, minGap = 3): boolean {
   return Math.abs(appealGap(appeal)) >= minGap;
 }
+
+// ---------------------------------------------------------------------------
+// 候选 ↔ 风格表的名称解析
+// ---------------------------------------------------------------------------
+
+/**
+ * 按名称/别名把「推荐候选」解析回风格表条目，以取得四轴向量。
+ *
+ * 为什么需要这一步：`RecommendationCandidate` 没有指向 `StyleProfileEntry` 的外键，
+ * 而 `AppearancePlan.selectedHairstyleId` 存的是**候选表**的 id。编排器却拿它去
+ * `styleProfileEntry.findUnique({ id })`，两个 id 空间串了——查询恒为 null，
+ * 于是 `coordinationAvailable` 恒为 false、协调过滤从未生效、`checkCompatibility`
+ * 在主流程一次都没被调用过，穿搭协调 100% 落回 LLM 主观判断，
+ * 正是决策 2 明令禁止的模式（而向量数据其实早就填满了：12 发型 + 5 穿搭）。
+ *
+ * 名称匹配是当前唯一可用的桥；命中不了（模型自创的造型）就如实返回 null，
+ * 让上层把协调标记为不可用，而不是假装做了过滤。
+ */
+export function normalizeStyleName(value: string): string {
+  return value
+    .toLocaleLowerCase("zh-CN")
+    .replace(/[\s\-—_·（）()]/g, "")
+    .replace(/发型|造型|风格/g, "");
+}
+
+export function resolveStyleEntryByName<
+  T extends { nameZh: string; aliases: string[] },
+>(entries: readonly T[], name: string): T | null {
+  const target = normalizeStyleName(name);
+  return (
+    entries.find((e) =>
+      [e.nameZh, ...e.aliases].some((n) => normalizeStyleName(n) === target)
+    ) ?? null
+  );
+}
+
+/** 条目的四轴是否齐全（可空列，缺一轴就不能参与协调判定） */
+export function toStyleVector(entry: {
+  formality: number | null;
+  maturity: number | null;
+  boldness: number | null;
+  upkeep: number | null;
+}): StyleVector | null {
+  const { formality, maturity, boldness, upkeep } = entry;
+  if (formality === null || maturity === null || boldness === null || upkeep === null) {
+    return null;
+  }
+  return { formality, maturity, boldness, upkeep };
+}

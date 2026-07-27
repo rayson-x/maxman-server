@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { basicQuestionnaireSchema } from "./intake.js";
+import { basicQuestionnaireSchema, faceMetricsSchema } from "./intake.js";
 
 test("basic questionnaire accepts a bounded province/city pair", () => {
   const parsed = basicQuestionnaireSchema.parse({
@@ -29,4 +29,35 @@ test("basic questionnaire rejects a partial location pair", () => {
       true,
     );
   }
+});
+
+test("face metrics accept the new bounded style signals and strip unknown fields", () => {
+  const parsed = faceMetricsSchema.parse({
+    classification: {
+      visualYouthfulness: { value: "high" },
+      facialGenderTendency: { value: "masculine" },
+      cheekboneCoverageNeed: { value: "medium" },
+    },
+    untrustedExtra: "must not cross the API boundary",
+  });
+
+  assert.deepEqual(parsed, {
+    classification: {
+      visualYouthfulness: { value: "high" },
+      facialGenderTendency: { value: "masculine" },
+      cheekboneCoverageNeed: { value: "medium" },
+    },
+  });
+});
+
+test("face metrics reject unsupported values for new style signals", () => {
+  const result = faceMetricsSchema.safeParse({
+    classification: {
+      visualYouthfulness: { value: "ageless" },
+      facialGenderTendency: { value: "unknown" },
+      cheekboneCoverageNeed: { value: "always" },
+    },
+  });
+
+  assert.equal(result.success, false);
 });

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { evaluateStyleSelectionEvidence } from "./plans.js";
+import { evaluateStyleSelectionEvidence, findSelectableStyleDirection } from "./plans.js";
 
 test("style selection fails closed when no completed job supplied candidates", () => {
   assert.deepEqual(
@@ -82,4 +82,16 @@ test("style selection accepts only an owned, offered vision-LLM entry", () => {
     }),
     { ok: false, error: "style_not_recommended" },
   );
+});
+
+test("style direction selection only accepts a direction emitted by the latest first round", () => {
+  const partial = {
+    styleRecommendations: [
+      { id: "clean-fit", nameZh: "干净简约", description: "基础利落", rationale: "适合日常" },
+    ],
+  };
+
+  assert.deepEqual(findSelectableStyleDirection(partial, "clean-fit"), partial.styleRecommendations[0]);
+  assert.equal(findSelectableStyleDirection(partial, "invented-style"), null);
+  assert.equal(findSelectableStyleDirection({}, "clean-fit"), null);
 });

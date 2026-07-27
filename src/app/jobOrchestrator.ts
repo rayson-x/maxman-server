@@ -18,6 +18,11 @@ import { buildSelectedStyleTaskSpecs } from "../services/selectedStyleTaskServic
 import { verifyProgressStep } from "../steps/verifyProgress.js";
 import { DEFAULT_COMPATIBILITY_THRESHOLD } from "../features/appearance-agent/data/styleProfile.js";
 import { createPhotoAccessService } from "../services/photoAccessService.js";
+import {
+  checkCompatibility,
+  resolveStyleEntryByName,
+  toStyleVector,
+} from "../features/appearance-agent/data/styleProfile.js";
 
 /**
  * jobType → step 管道的编排层。
@@ -181,7 +186,7 @@ export function createJobOrchestrator(container: AppContainer) {
       }
       await jobs.mergePartialResult(p.jobId, { moderation: { photoVerdicts: s1.data.photoVerdicts } });
 
-      // ── S2 视觉分析 ──
+      // ── 首轮 Agent 的确定性输入准备（不调用模型） ──
       await step(p.jobId, "analyzing");
       const s2 = await runWithSingleRetry(
         analyzeVisionStep,
@@ -193,16 +198,7 @@ export function createJobOrchestrator(container: AppContainer) {
         await jobs.fail(p.jobId, `S2 失败: ${s2.error}`);
         return { status: "failed" };
       }
-      await jobs.mergePartialResult(p.jobId, {
-        vision: {
-          geometry: s2.data.geometry,
-          hairSignals: s2.data.hairSignals,
-          structuredSemantic: s2.data.structuredSemantic,
-          hasFullBody: s2.data.hasFullBody,
-        },
-      });
-
-      // ── 建方案（S3 要读 femaleAppealWeight，所以必须先于 S3）──
+      // ── 建方案（首轮候选需要 planId 才能以同一事务落库）──
       const plan = await ensurePlan(p.userId);
       await prisma.analysisJob.update({ where: { id: p.jobId }, data: { planId: plan.id } });
       const planCtx: StepContext = { ...ctx, planId: plan.id };
@@ -232,9 +228,23 @@ export function createJobOrchestrator(container: AppContainer) {
         capabilityStatus: s3.data.capabilityStatus,
         reused: s3.data.reused,
       };
+      const firstRound = s3.data.firstRound;
+      const vision = {
+        geometry: s2.data.geometry,
+        hairSignals: s2.data.hairSignals,
+        clientSignals: s2.data.clientSignals,
+        structuredSemantic: firstRound?.faceAnalysis.structuredSemantic ?? {},
+        hasFullBody: s2.data.hasFullBody,
+      };
 
       if (s3.data.candidates.length === 0) {
-        await jobs.mergePartialResult(p.jobId, { planId: plan.id, recommendation });
+        await jobs.mergePartialResult(p.jobId, {
+          planId: plan.id,
+          vision,
+          faceAnalysis: firstRound?.faceAnalysis ?? null,
+          styleRecommendations: firstRound?.styleRecommendations ?? [],
+          recommendation,
+        });
         await jobs.complete(p.jobId, {
           missing: [{
             item: "发型候选",
@@ -247,7 +257,13 @@ export function createJobOrchestrator(container: AppContainer) {
       }
 
       // 文字候选先落地，客户端此刻已有内容可读；图片随后逐张追加（决策 12）
-      await jobs.mergePartialResult(p.jobId, { planId: plan.id, recommendation });
+      await jobs.mergePartialResult(p.jobId, {
+        planId: plan.id,
+        vision,
+        faceAnalysis: firstRound?.faceAnalysis ?? null,
+        styleRecommendations: firstRound?.styleRecommendations ?? [],
+        recommendation,
+      });
 
       // ── S4 发型预览（串行，顺序=匹配度降序）──
       await step(p.jobId, "rendering");
@@ -299,22 +315,71 @@ export function createJobOrchestrator(container: AppContainer) {
 
       const plan = await prisma.appearancePlan.findUnique({ where: { id: p.planId } });
       // 决策 3：穿搭候选受已选发型约束。发型未选时路由已 422，这里是防御性检查
-      if (!plan?.selectedHairstyleId) {
+      if (!plan?.selectedStyle) {
+        await jobs.fail(p.jobId, "尚未选定风格方向，无法生成穿搭候选");
+        return { status: "failed" };
+      }
+      if (!plan.selectedHairstyleId) {
         await jobs.fail(p.jobId, "尚未选定发型，无法筛选穿搭候选");
         return { status: "failed" };
       }
 
-      const hairstyle = await prisma.styleProfileEntry.findUnique({ where: { id: plan.selectedHairstyleId } });
+      /*
+       * 风格协调：**当前不做确定性过滤，全部交给 LLM 判断**。
+       *
+       * 决策 2 原本要求「协调性编码在数据里，不靠 LLM 判断审美」，方向是对的，
+       * 但前提是有足够的风格数据。实际库里只有 12 个发型 + 5 套穿搭——
+       * 用四轴阈值过滤只能从一个本就很小的池子里再减（实测「微碎盖」筛完剩 4/5，
+       * 换个正式度靠边的发型就可能剩 0-1 个），等于用没校准的阈值把候选饿死。
+       *
+       * 所以这一版：把**人脸信息 + 全量可选集合**交给 LLM，由它输出推荐，
+       * 四轴只作为参考信息随集合一起给出、不参与计算。
+       * 接缝保留不变——后续引入内部向量数据库时，替换的只是"集合怎么来"，
+       * provider 的调用方式不动。
+       *
+       * ⚠ 这是对决策 2 的**有意放宽**，不是漏做。数据量上来后应回到确定性过滤。
+       */
+      const selectedCandidate = await prisma.recommendationCandidate.findUnique({
+        where: { id: plan.selectedHairstyleId },
+      });
+      const hairstyleEntries = await prisma.styleProfileEntry.findMany({
+        where: { kind: "hairstyle" },
+      });
+      // 按名称解析回风格表（候选表没有指向风格表的外键）。取不到就是模型自创的造型。
+      const hairstyle = selectedCandidate
+        ? resolveStyleEntryByName(hairstyleEntries, selectedCandidate.nameZh)
+        : null;
+      const hairVector = hairstyle ? toStyleVector(hairstyle) : null;
+
+      /*
+       * 人脸信息复用 initial_analysis 的 S2 结果，不重跑视觉分析：
+       * 那一步要真调云端 vision（有成本），而穿搭这一步用的脸型/肤色/发量信号
+       * 与当时完全相同。partialResult.vision 里存着 geometry / hairSignals /
+       * structuredSemantic 三份。
+       */
+      const priorAnalysis = await prisma.analysisJob.findFirst({
+        where: {
+          userId: p.userId,
+          planId: p.planId,
+          jobType: "initial_analysis",
+          status: { in: ["completed", "completed_partial"] },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      const visionForOutfit = (priorAnalysis?.partialResult as
+        | { vision?: { geometry?: unknown; hairSignals?: unknown; structuredSemantic?: unknown } }
+        | null
+        | undefined)?.vision ?? null;
+
       const outfits = await prisma.styleProfileEntry.findMany({
         where: { kind: "outfit_combo", isRecommended: true },
       });
-      const coordinationAvailable = Boolean(
-        hairstyle &&
-          hairstyle.formality !== null &&
-          hairstyle.maturity !== null &&
-          hairstyle.boldness !== null &&
-          hairstyle.upkeep !== null,
-      );
+      // 全量给出，四轴附带作参考，不做筛选
+      const outfitCatalog = outfits.map((o) => ({
+        nameZh: o.nameZh,
+        description: o.description ?? "",
+        styleVector: toStyleVector(o),
+      }));
       // 穿搭候选改由应用模块产出：不再从 StyleProfileEntry 按双审美评分筛选
       // （那份数据为空，会导致零候选并卡住 /materialize）
       const profileForOutfit = await prisma.appearanceProfile.findUnique({ where: { userId: p.userId } });
@@ -347,6 +412,18 @@ export function createJobOrchestrator(container: AppContainer) {
         budgetTier: profileForOutfit?.budgetTier ?? null,
         // 有全身照才传，纯文字路径不签发照片地址
         fullBodyPhotoStorageKey: fullBody?.storageKey,
+        // 全量可选集合（带四轴作参考，不作过滤条件）
+        catalogVariants: outfitCatalog,
+        // 人脸信息：穿搭此前完全拿不到，而版型/颜色本就该看脸型与肤色
+        face: {
+          geometry: visionForOutfit?.geometry ?? null,
+          semantics: visionForOutfit?.structuredSemantic ?? null,
+          hairSignals: visionForOutfit?.hairSignals ?? null,
+          selectedHairstyleVector: hairVector,
+          selectedStyle: plan.selectedStyle,
+        },
+        selectedStyle: plan.selectedStyle,
+        workflow: { jobId: p.jobId, stepName: "S4_outfit_recommendation_provider" },
       });
 
       if (outfitView.candidates.length === 0) {
@@ -380,12 +457,15 @@ export function createJobOrchestrator(container: AppContainer) {
           mode: s4b.data.mode,
           previews: s4b.data.previews,
           degradedNotice: s4b.data.degradedNotice,
-          coordination: coordinationAvailable
-            ? { available: true, method: "catalog_style_vector_threshold" }
-            : {
-                available: false,
-                reason: "选定发型来自 vision-LLM，没有可信风格向量；本次穿搭未做协调过滤",
-              },
+          coordination: {
+            available: false,
+            method: "agent_judgement",
+            reason:
+              "风格数据量不足（12 发型 / 5 穿搭），本版不做确定性过滤，"
+              + "由 LLM 基于人脸信息与全量可选集合判断；数据量上来后回到向量过滤",
+            catalogSize: outfitCatalog.length,
+            selectedHairstyleInCatalog: hairVector !== null,
+          },
         },
       });
       await jobs.complete(p.jobId, { missing: s4b.status === "completed_partial" ? s4b.missing : undefined });
@@ -458,6 +538,8 @@ export function createJobOrchestrator(container: AppContainer) {
           applicableStageRange: c.applicableStageRange,
           evidenceBasis: c.evidenceBasis,
           changeDescription: c.description,
+          // 目录里为空就是"画不出来"，目标图会据此跳过这条
+          renderDescription: c.renderDescription ?? undefined,
           estTime: c.estTime ?? undefined,
           estCost: c.estCostRange ?? undefined,
           rationale: c.riskNote ?? undefined,
