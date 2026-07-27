@@ -37,6 +37,7 @@ test("首轮候选全被过滤时仍公开风格方向并记录付费调用", as
           description: "仅用于验证过滤后的部分成功",
           modelRationale: "不会公开为发型候选",
           visualDirection: "改变脸型骨骼比例",
+          styleDirectionId: "clean-fit",
           rank: 1,
         }],
         firstRound: {

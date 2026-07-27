@@ -73,6 +73,8 @@ export type ProviderCandidate = {
   rank: number;
   /** 受限造型描述。应用模块校验后放入固定模板，provider 不产出完整 prompt */
   visualDirection: string;
+  /** 首轮发型候选所属的风格方向；穿搭候选不填。 */
+  styleDirectionId?: string;
   estimatedAttributes?: {
     coversForehead?: boolean;
     requiresHairVolume?: "low" | "medium" | "high";
@@ -93,6 +95,8 @@ export type CandidateView = {
   renderInstruction: string;
   verificationStatus: CandidateVerificationStatus;
   estimatedAttributes: ProviderCandidate["estimatedAttributes"] | null;
+  /** 供客户端把发型候选展示在对应风格方向下。 */
+  styleDirectionId: string | null;
 };
 
 /** 首轮同一次多模态调用的附加输出，供风格选择与穿搭上下文复用。 */
@@ -126,7 +130,16 @@ export type RecommendationSetView = {
 
 export type SelectionResult =
   | { ok: true; candidateId: string; nameZh: string }
-  | { ok: false; reason: "not_found" | "not_owned" | "set_not_ready" | "style_not_selected" };
+  | {
+      ok: false;
+      reason:
+        | "not_found"
+        | "not_owned"
+        | "set_not_ready"
+        | "style_not_selected"
+        | "style_not_offered"
+        | "candidate_not_in_selected_style";
+    };
 
 /** 候选文本的长度上限。超长的多半是模型把整段说明塞进了字段 */
 const LIMITS = { nameZh: 40, description: 300, modelRationale: 400, visualDirection: 300 } as const;
@@ -239,6 +252,24 @@ function isFirstRoundOutput(value: unknown): value is FirstRoundAgentOutput {
   );
 }
 
+/** 从已完成首轮的持久化结果中重新取回风格，不能相信请求体带来的整段对象。 */
+function findPersistedStyleDirection(
+  partialResult: unknown,
+  styleId: string,
+): FirstRoundAgentOutput["styleRecommendations"][number] | null {
+  const rows = (partialResult as { styleRecommendations?: unknown } | null)?.styleRecommendations;
+  if (!Array.isArray(rows)) return null;
+  const style = rows.find((row) => (row as { id?: unknown } | null)?.id === styleId);
+  if (!style || typeof style !== "object") return null;
+  const candidate = style as Partial<FirstRoundAgentOutput["styleRecommendations"][number]>;
+  return (
+    typeof candidate.id === "string"
+    && typeof candidate.nameZh === "string"
+    && typeof candidate.description === "string"
+    && typeof candidate.rationale === "string"
+  ) ? candidate as FirstRoundAgentOutput["styleRecommendations"][number] : null;
+}
+
 export function createRecommendationApplication(deps: RecommendationApplicationDeps) {
   const { prisma } = deps;
   const photoAccess = createPhotoAccessService(prisma);
@@ -307,6 +338,34 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
     for (const c of kept.slice(requestedCount)) rejected.push({ key: c.providerCandidateKey, reason: "超出请求数量" });
 
     return { kept: capped, rejected };
+  }
+
+  /** 首轮的发型不能只“看起来”搭配某风格；关联必须由 tool schema 明确给出。 */
+  function validateFirstRoundStylePairs(
+    candidates: ProviderCandidate[],
+    firstRound?: FirstRoundAgentOutput,
+  ): { kept: ProviderCandidate[]; rejected: { key: string; reason: string }[] } {
+    if (!firstRound) return { kept: candidates, rejected: [] };
+    const offeredIds = new Set(firstRound.styleRecommendations.map((style) => style.id));
+    const rejected: { key: string; reason: string }[] = [];
+    const kept = candidates.filter((candidate) => {
+      if (!candidate.styleDirectionId || !offeredIds.has(candidate.styleDirectionId)) {
+        rejected.push({ key: candidate.providerCandidateKey, reason: "未关联首轮提供的风格方向" });
+        return false;
+      }
+      return true;
+    });
+    const covered = new Set(kept.map((candidate) => candidate.styleDirectionId));
+    if (covered.size !== offeredIds.size) {
+      return {
+        kept: [],
+        rejected: [
+          ...rejected,
+          { key: "style-pairing", reason: "并非每个首轮风格方向都有匹配的发型候选" },
+        ],
+      };
+    }
+    return { kept, rejected };
   }
 
   /**
@@ -487,6 +546,7 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         renderInstruction: c.renderInstruction,
         verificationStatus: c.verificationStatus,
         estimatedAttributes: (c.estimatedAttributes ?? null) as CandidateView["estimatedAttributes"],
+        styleDirectionId: c.styleDirectionId,
       })),
       firstRound: isFirstRoundOutput(set.injectedContext) ? set.injectedContext : undefined,
       failureReason: set.failureReason,
@@ -562,7 +622,12 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
           data: { injectedContext: result.firstRound as never },
         });
       }
-      const { kept, rejected } = validateCandidates(result.candidates, params.requestedCount);
+      const validated = validateCandidates(result.candidates, params.requestedCount);
+      const paired = params.kind === "hairstyle"
+        ? validateFirstRoundStylePairs(validated.kept, result.firstRound)
+        : { kept: validated.kept, rejected: [] };
+      const kept = paired.kept;
+      const rejected = [...validated.rejected, ...paired.rejected];
 
       if (kept.length === 0) {
         await prisma.recommendationSet.update({
@@ -661,6 +726,7 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
               modelRationale: c.modelRationale,
               rank: c.rank,
               visualDirection: c.visualDirection,
+              styleDirectionId: c.styleDirectionId,
               renderInstruction: buildRenderInstruction(params.kind, c),
               estimatedAttributes: (attributes ?? undefined) as never,
               verificationStatus,
@@ -876,8 +942,12 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         return { ok: false, reason: "not_owned" };
       }
       if (candidate.set.status !== "ready") return { ok: false, reason: "set_not_ready" };
-      if (candidate.set.kind === "hairstyle" && !candidate.set.plan.selectedStyle) {
-        return { ok: false, reason: "style_not_selected" };
+      if (candidate.set.kind === "hairstyle") {
+        const selectedStyleId = (candidate.set.plan.selectedStyle as { id?: unknown } | null)?.id;
+        if (typeof selectedStyleId !== "string") return { ok: false, reason: "style_not_selected" };
+        if (candidate.styleDirectionId !== selectedStyleId) {
+          return { ok: false, reason: "candidate_not_in_selected_style" };
+        }
       }
 
       const field = candidate.set.kind === "hairstyle" ? "selectedHairstyleId" : "selectedOutfitId";
@@ -894,8 +964,64 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       return { ok: true, candidateId: candidate.id, nameZh: candidate.nameZh };
     },
 
+
+    /** 原子选定首轮提供的一个风格—发型组合，避免短暂写入跨风格状态。 */
+    async selectStyleAndHairstyle(command: {
+      userId: string;
+      planId: string;
+      styleId: string;
+      candidateId: string;
+    }): Promise<SelectionResult> {
+      return prisma.$transaction(async (tx): Promise<SelectionResult> => {
+        const plan = await tx.appearancePlan.findFirst({
+          where: { id: command.planId, userId: command.userId },
+          select: { id: true },
+        });
+        if (!plan) return { ok: false, reason: "not_owned" };
+        const firstRound = await tx.analysisJob.findFirst({
+          where: {
+            userId: command.userId,
+            planId: command.planId,
+            jobType: "initial_analysis",
+            status: { in: ["completed", "completed_partial"] },
+          },
+          orderBy: { createdAt: "desc" },
+          select: { partialResult: true },
+        });
+        const style = findPersistedStyleDirection(firstRound?.partialResult, command.styleId);
+        if (!style) return { ok: false, reason: "style_not_offered" };
+        const candidate = await tx.recommendationCandidate.findUnique({
+          where: { id: command.candidateId },
+          include: { set: true },
+        });
+        if (!candidate) return { ok: false, reason: "not_found" };
+        if (candidate.set.planId !== command.planId) return { ok: false, reason: "not_owned" };
+        if (candidate.set.kind !== "hairstyle" || candidate.set.status !== "ready") {
+          return { ok: false, reason: "set_not_ready" };
+        }
+        if (candidate.styleDirectionId !== style.id) {
+          return { ok: false, reason: "candidate_not_in_selected_style" };
+        }
+        await tx.appearancePlan.update({
+          where: { id: command.planId },
+          data: { selectedStyle: style as never, selectedHairstyleId: candidate.id },
+        });
+        await tx.conversationDecision.createMany({
+          data: [
+            { planId: command.planId, decisionKind: "style_direction_selected", payload: style as never },
+            {
+              planId: command.planId,
+              decisionKind: "style_selected",
+              payload: { kind: "hairstyle", candidateId: candidate.id, nameZh: candidate.nameZh },
+            },
+          ],
+        });
+        return { ok: true, candidateId: candidate.id, nameZh: candidate.nameZh };
+      });
+    },
+
     /** 仅供测试与运维观察 */
-    __internals: { validateCandidates, buildRenderInstruction, stableHash },
+    __internals: { validateCandidates, validateFirstRoundStylePairs, buildRenderInstruction, stableHash },
   };
 }
 

@@ -9,7 +9,7 @@ import { moderateInputStep } from "../steps/moderateInput.js";
 import { analyzeVisionStep } from "../steps/analyzeVision.js";
 import { recommendStep } from "../steps/recommend.js";
 import { createRecommendationApplication } from "../services/recommendationApplication.js";
-import { renderPreviewsStep, renderOutfitPreviewsStep } from "../steps/renderPreviews.js";
+import { renderOutfitPreviewsStep } from "../steps/renderPreviews.js";
 import { materializePlanStep, type MaterializeTaskSpec } from "../steps/materializePlan.js";
 import { runWithSingleRetry, type StepContext, type StepDeps } from "../steps/types.js";
 import { isCatalogDomain, isStyleDomain } from "../features/appearance-agent/data/domains.js";
@@ -150,9 +150,8 @@ export function createJobOrchestrator(container: AppContainer) {
 
   const handlers = {
     /**
-     * S1 → S2 → 建方案 → S3 → S4。
-     * 每一步完成即写回 partialResult：文字推荐在 S3 结束时就可读，
-     * 不必等图片（决策 12——图片是并发=1 的稀缺资源，等它等于让用户干等 1 分钟）。
+     * S1 → S2 → 建方案 → S3（风格—发型组合）。
+     * 首轮结束即写回 partialResult；图像预览不再抢在用户选择组合之前生成。
      */
     async initial_analysis(p: JobPayload): Promise<OrchestratorResult> {
       const ctx: StepContext = { jobId: p.jobId, userId: p.userId };
@@ -256,7 +255,8 @@ export function createJobOrchestrator(container: AppContainer) {
         return { status: "completed_partial", detail: { candidates: 0 } };
       }
 
-      // 文字候选先落地，客户端此刻已有内容可读；图片随后逐张追加（决策 12）
+      // 首轮只落地可选择的风格—发型组合。未选前不为全部候选出图，避免把用户
+      // 尚未决定的方向变成图像生成成本，也避免 UI 看起来“先出发型图再选风格”。
       await jobs.mergePartialResult(p.jobId, {
         planId: plan.id,
         vision,
@@ -265,42 +265,11 @@ export function createJobOrchestrator(container: AppContainer) {
         recommendation,
       });
 
-      // ── S4 发型预览（串行，顺序=匹配度降序）──
-      await step(p.jobId, "rendering");
-      const s4 = await runWithSingleRetry(
-        renderPreviewsStep,
-        {
-          baselinePhotoStorageKey: front.storageKey,
-          // renderInstruction 已含身份保持后缀，这里不再拼指令
-          candidates: s3.data.candidates.map((c) => ({
-            candidateId: c.candidateId,
-            nameZh: c.nameZh,
-            renderInstruction: c.renderInstruction,
-            modelRationale: c.modelRationale,
-          })),
-          kind: "hairstyle",
-        },
-        planCtx,
-        deps,
-      );
-      if (s4.status === "failed") {
-        // 图片没出来但文字推荐已经推给用户了，收成部分成功而非 failed——
-        // 报 failed 会让客户端把已读到的推荐也丢掉
-        await jobs.complete(p.jobId, {
-          missing: [
-            { item: "发型效果图", reason: s4.error },
-          ],
-        });
-        return { status: "completed_partial", detail: { reason: s4.error } };
-      }
-      const missing = [
-        ...(s3.status === "completed_partial" ? s3.missing : []),
-        ...(s4.status === "completed_partial" ? s4.missing : []),
-      ];
+      const missing = s3.status === "completed_partial" ? s3.missing : [];
       await jobs.complete(p.jobId, { missing: missing.length > 0 ? missing : undefined });
       return {
         status: missing.length > 0 ? "completed_partial" : "completed",
-        detail: { previews: s4.data.previews.length },
+        detail: { candidates: s3.data.candidates.length },
       };
     },
 

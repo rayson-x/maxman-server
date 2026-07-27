@@ -13,6 +13,10 @@ const statusUpdateSchema = z.object({
 
 const selectSchema = z.object({ styleTag: z.string().min(1) });
 const styleDirectionSelectionSchema = z.object({ styleId: z.string().regex(/^[a-z0-9][a-z0-9_-]{1,39}$/) });
+const styleHairstyleSelectionSchema = z.object({
+  styleId: z.string().regex(/^[a-z0-9][a-z0-9_-]{1,39}$/),
+  candidateId: z.string().min(1),
+});
 
 const selectableStyleDirectionSchema = z.object({
   id: z.string().regex(/^[a-z0-9][a-z0-9_-]{1,39}$/),
@@ -235,6 +239,8 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
         not_owned: "该候选不属于你的方案",
         set_not_ready: "候选集尚未就绪或已被新一轮推荐取代",
         style_not_selected: "请先选定一个风格方向",
+        style_not_offered: "该风格方向不在当前首轮推荐中",
+        candidate_not_in_selected_style: "该发型不属于当前选定的风格方向",
       }[result.reason];
       return reply.code(code).send({ error: result.reason, message });
     }
@@ -267,13 +273,61 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
       });
     }
 
-    await prisma.$transaction([
-      prisma.appearancePlan.update({ where: { id: planId }, data: { selectedStyle: style as never } }),
-      prisma.conversationDecision.create({
+    const updated = await prisma.$transaction(async (tx) => {
+      const current = await tx.appearancePlan.findFirst({
+        where: { id: planId, userId: user.id },
+        select: { selectedHairstyleId: true },
+      });
+      if (!current) return false;
+      if (current.selectedHairstyleId) {
+        const selectedHair = await tx.recommendationCandidate.findUnique({
+          where: { id: current.selectedHairstyleId },
+          select: { styleDirectionId: true },
+        });
+        if (selectedHair?.styleDirectionId !== style.id) return false;
+      }
+      await tx.appearancePlan.update({ where: { id: planId }, data: { selectedStyle: style as never } });
+      await tx.conversationDecision.create({
         data: { planId, decisionKind: "style_direction_selected", payload: style as never },
-      }),
-    ]);
+      });
+      return true;
+    });
+    if (!updated) {
+      return reply.code(422).send({
+        error: "candidate_not_in_selected_style",
+        message: "已选发型不属于该风格方向；请使用组合选择入口重新选择",
+      });
+    }
     return reply.send({ ok: true, style });
+  });
+
+  /**
+   * 首轮的主选择入口：同一请求确认一个由 Agent 明确配对的风格—发型组合。
+   * 不允许先把风格写入、再在另一次请求中写入错误发型，从而产生短暂的跨风格状态。
+   */
+  app.post("/plans/:planId/select-style-hairstyle", async (req, reply) => {
+    const user = requireUser(req);
+    const { planId } = req.params as { planId: string };
+    const { styleId, candidateId } = styleHairstyleSelectionSchema.parse(req.body);
+    const app2 = createRecommendationApplication({
+      prisma,
+      hairstyleProvider: app.container.providers.hairstyleRecommendation,
+      outfitProvider: app.container.providers.outfitRecommendation,
+    });
+    const result = await app2.selectStyleAndHairstyle({ userId: user.id, planId, styleId, candidateId });
+    if (!result.ok) {
+      const code = result.reason === "not_found" ? 404 : 422;
+      const message = {
+        not_found: "候选不存在",
+        not_owned: "该候选不属于你的方案",
+        set_not_ready: "候选集尚未就绪或已被新一轮推荐取代",
+        style_not_selected: "请先选定一个风格方向",
+        style_not_offered: "该风格方向不在当前首轮推荐中",
+        candidate_not_in_selected_style: "该发型不属于所选风格方向",
+      }[result.reason];
+      return reply.code(code).send({ error: result.reason, message });
+    }
+    return reply.send({ ok: true, styleId, candidateId: result.candidateId, nameZh: result.nameZh });
   });
 
   /** tasks 8.2/8.3：任务状态更新，完成时自动写账本 */

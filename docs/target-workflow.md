@@ -139,50 +139,33 @@ flowchart TD
   B1d -->|是| FAIL1
   B1d -->|否| B2
 
-  B2["tool: analyzePhoto<br/>vision provider"]
-  B2 --> B2a["输出：当前发型 / 发际线可见性<br/>胡须 / 眼镜 / 肤色 / 当前穿着"]
-  B2a --> B2b{"发际线<br/>occluded？"}
-  B2b -->|是| B2c["云端兜底判定<br/>+ 自报数据补位"]
-  B2b -->|否| B3
-  B2c --> B3
-  note1["几何来自客户端 478 点测量<br/>云端负责语义特征：<br/>发型·发际线可见性·胡须·眼镜·肤色·穿着"]
+  B2["tool: analyzeVision<br/>读取并规范化客户端测量"]
+  B2 --> B3
+  note1["几何、发际线、发量来自客户端测量<br/>本步骤不调用云端视觉 provider"]
   B2 -.- note1
 
   B3["建方案（内核）<br/>generationSeed 固定 + 四阶段骨架"]
   B3 --> B4
 
-  B4["上下文装配（内核）<br/>省市 → 天气/季节 · 目标场景<br/>身体数据 · 意向"]
+  B4["首轮多模态 Agent<br/>一次 tool call：人脸结论 + 风格—发型组合"]
   B4 --> B5
 
-  B5["RecommendationApplication<br/>唯一对外入口"]
+  B5["RecommendationApplication<br/>唯一对外入口 + 候选持久化"]
   B5 --> B5a["① 计算 computationKey<br/>planId + kind + generation + 指纹"]
   B5a --> B5b{"原子 insert-or-get<br/>RecommendationSet(preparing)"}
   B5b -->|"已存在（跟随者）"| B5c["读取该集合<br/>不调用 provider"]
   B5b -->|"创建成功（创建者）"| B6
 
-  B6["② 目录预过滤（应用模块）<br/>按发量·发际线信号取 eligibleVariants"]
-  B6 --> B6a{"可行集合<br/>为空？"}
-  B6a -->|"是"| B6b["返回零候选并说明约束<br/>不放宽约束"]
-  B6a -->|"否"| B6c["③ 账本写 prepared<br/>（提交供应商之前）"]
-
-  B6c --> B7["④ provider 在 eligibleVariants 内<br/>选择与排序，产出 modelRationale"]
-  B7 --> B7a["⑤ 输出校验（应用模块）<br/>归属·去重·rank 连续·数量·长度"]
-  B7a --> B7b["⑥ 客观属性从目录读<br/>渲染指令由模板 + variantId 构建"]
-  B7b --> B7c["⑦ 候选写入 + set → ready<br/>同一事务"]
-  B7c --> B8
+  B6["② 首轮 tool schema<br/>3 个风格方向 + 各自匹配的发型建议"]
+  B6 --> B7["③ 输出校验<br/>发量/发际线约束 + styleId 归属"]
+  B7 --> B7a["④ 候选与 styleDirectionId 同一事务落库"]
+  B7a --> B8
   B5c --> B8
   note2["付费恢复语义：火山无供应商侧幂等<br/>过期 prepared 转 unknown<br/>不自动重提，走对账"]
-  B6c -.- note2
+  B5b -.- note2
 
-  B8["tool: renderPreview<br/>imageEdit provider（串行）"]
-  B8 --> B8a["Redis 信号量持槽<br/>覆盖整个 submit→poll"]
-  B8a --> B8b["按匹配度降序提交<br/>（并发=1 下完成顺序=提交顺序）"]
-  B8b --> B8c["内核统一追加身份保留后缀"]
-  B8c --> B8d["逐张写回 partialResult<br/>客户端增量渲染"]
-  B8d --> B9
-
-  B9["快照落库（内核）<br/>推荐 + 注入的天气 context + 全量判定<br/>可按地区 × 季节检索"]
-  B9 --> Done([文字推荐先到<br/>图片逐张追加])
+  B8["首轮结果写入 partialResult<br/>人脸结论 + 风格—发型组合"]
+  B8 --> Done([等待用户选择组合<br/>不生成未选择的发型图片])
 
   classDef stop fill:#fee,stroke:#c33
 ```
@@ -193,11 +176,10 @@ flowchart TD
 |---|---|
 | 审核在最前 | 层1 是确定性词库，由代码保证；通过后才值得花 LLM 判灰区 |
 | 建方案在 B3 而非路由里 | `generationSeed` 建方案时一次定死并全阶段复用，四阶段图像才是同一个人的递进 |
-| 天气在 B4 装配 | 它是上下文数据。装配进输入，推荐发生时天气已经在场 |
+| 首轮在 B4 合并语义与推荐 | 同一照片只发给多模态模型一次；人脸结论、风格与发型保持同一次判断的语境 |
 | 抢占在付费调用**之前** | 否则两个并发请求同时查不到就绪集合、同时调付费 provider，最后才竞争唯一键——库里只留一个集合而钱花了两次 |
-| 预过滤在 provider **之前** | provider 可能只挑中不可行项；若改为生成后过滤会得到零候选，而目录里存在可行方向 |
-| 属性与指令由服务端持有 | 属性取自目录带不可变 revision；指令由模板构建，避免可替换 adapter 获得改动身份与体型的通道 |
-| 快照在最后 | 天气走 prompt 注入，快照让每条推荐事后可解释：当时推这个，依据是哪份 context |
+| 约束校验在 provider **之后** | Agent 负责给出风格—发型配对；服务端仍以目录属性校验发量、遮额和组合归属，不放宽硬约束 |
+| 未选择前不出发型图 | 候选图片成本高，且用户需要先在同一轮决定风格与发型；只为已选择的路径继续生成 |
 
 ---
 
@@ -205,23 +187,9 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  C0([推荐已就绪]) --> C1["展示：为什么这 3 个最适合你<br/>（正面归因）"]
-  C1 --> C2["折叠区：其他方向为什么不优先<br/>逐条排除原因，造型可行性口径"]
-  C2 --> C2a{"有 A 类<br/>测量争议？"}
-  C2a -->|是| C2b["提示重新确认脸型<br/>→ 复用 /face-shape/confirm"]
-  C2a -->|否| C3
-  C2b --> C3
-
-  C3{"用户想要某个<br/>未入选项？"}
-  C3 -->|是| C3a["tool: assessStyleChange<br/>区分两种排除"]
-  C3a --> C3b["惯例未入选 → 可以选<br/>同时给出我们的顾虑"]
-  C3a --> C3c["可行性未入选 → 说明所需条件<br/>（这个造型需要的量感）"]
-  C3 -->|否| C4
-  C3b --> C4
-  C3c --> C4
-
-  C4["选定发型<br/>只接受候选集内的条目"]
-  C4 --> C5["穿搭候选<br/>输入含已选发型 id<br/>coordinationChecked=false（四轴数据待调研）"]
+  C0([首轮组合已就绪]) --> C1["同一页展示：风格方向<br/>及其匹配的发型候选"]
+  C1 --> C2["原子选定：styleId + candidateId<br/>拒绝跨风格组合"]
+  C2 --> C5["穿搭候选<br/>输入含已选风格、发型与首轮人脸信息"]
   C5 --> C5a{"有全身照？"}
   C5a -->|有| C5b["tool: renderOutfitPreview<br/>本人效果图"]
   C5a -->|无| C5c["以文字候选呈现<br/>并说明上传全身照可看本人效果"]
@@ -321,7 +289,7 @@ flowchart LR
 | tool | 背后 provider | 可换实现 | 内核部分（代码保证） |
 |---|---|---|---|
 | `moderateInput` | inputReview + 图片审核 | LLM 审核可换 | **层1 词库共现判定** |
-| `analyzePhoto` | vision | 多家可换 | 几何来自客户端，云端不判几何 |
+| `analyzeVision` | 无（客户端测量规范化） | — | 几何、发际线和发量只取已验证的客户端数据；首轮多模态 Agent 同时负责语义结论 |
 | `recommendStyle` | styleRecommendation | vision-llm ↔ catalog-matching | **可行性校验在外层** |
 | `renderPreview` / `renderTargetImage` | imageEdit / clothingSwap | 多家可换 | **身份保留后缀 + 并发信号量** |
 | `materializePlan` | planMaterialization | rule-based ↔ LLM | **阶段落位 + 证据门槛** |
@@ -339,7 +307,7 @@ flowchart LR
 |---|---|
 | B1 层1 词库 + 层2 LLM | ✅ 已实现 |
 | B1 层3 图片审核 | ⬜ provider 未选（本地 MVP 搁置） |
-| B2 analyzePhoto | ✅ 已实现；语义输出的解析与消费 ⬜ |
+| B2 analyzeVision | ✅ 已实现；只规范化客户端测量，不再单独调用云端视觉 provider |
 | B4 天气装配 | ⬜ 服务已实现但未接进推荐路径 |
 | B5 recommendStyle 接缝 | ✅ 接口 + vision-llm 实现；catalog-matching ⬜ |
 | B5 全量判定记录 | ⬜ 现在只有计数式 filterTrace |

@@ -719,6 +719,8 @@ model RecommendationCandidate {
   rank                 Int
   /// provider 返回的**受限造型描述**，不是最终图生图指令
   visualDirection      String
+  /// 首轮中该发型候选所属的风格方向 id；穿搭候选不填。
+  styleDirectionId     String?
   /// 由应用模块用固定模板构建，已含身份保持与禁止修改项。
   /// provider 不产出它，否则可替换 adapter 就获得了改动身份与体型的通道。
   renderInstruction    String

@@ -11,7 +11,7 @@ import { enqueueCreatedAnalysisJob } from "../services/analysisJobEnqueueService
  * Job 触发与轮询（tasks 7.2-7.5, 7.7-7.8）。
  *
  * 三个 job 对应流程里两次同步用户选择切开的三段（design.md job_type 重定义）：
- *   POST /analysis-jobs                     → initial_analysis（S1-S4）
+ *   POST /analysis-jobs                     → initial_analysis（S1-首轮选择数据，不自动出发型图）
  *   POST /plans/:id/outfit-previews         → outfit_preview_generation（S4'，选定发型后）
  *   POST /plans/:id/materialize             → plan_materialization（S5，选定穿搭后）
  *

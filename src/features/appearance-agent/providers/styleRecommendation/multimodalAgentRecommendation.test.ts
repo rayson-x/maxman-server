@@ -29,9 +29,20 @@ test("首轮 provider 用一次 tool 输出同时携带人脸结论、风格和�
             { id: "urban-commuter", nameZh: "都市通勤", description: "简洁克制", rationale: "适配正式场景" },
           ],
           hairstyleSuggestions: [{
+            styleId: "clean-fit",
             nameZh: "法式碎盖",
             description: "自然碎发短层次",
             modelRationale: "额前层次与整体比例协调",
+          }, {
+            styleId: "soft-youth",
+            nameZh: "微碎盖",
+            description: "额前轻薄碎发",
+            modelRationale: "保留轻盈亲和感",
+          }, {
+            styleId: "urban-commuter",
+            nameZh: "纹理前刺",
+            description: "短层次纹理向上",
+            modelRationale: "利落适配通勤",
           }],
         },
       };
@@ -48,11 +59,13 @@ test("首轮 provider 用一次 tool 输出同时携带人脸结论、风格和�
 
   assert.equal(result.callId, "first-round-call");
   assert.equal(result.candidates[0]?.nameZh, "法式碎盖");
+  assert.equal(result.candidates[0]?.styleDirectionId, "clean-fit");
   assert.notEqual(result.candidates[0]?.visualDirection, undefined);
   assert.equal(result.firstRound.styleRecommendations.length, 3);
   assert.equal(result.firstRound.faceAnalysis.structuredSemantic.hairlineVisibility, "occluded");
   assert.match(receivedPrompt, /新增客户端风格信号/);
   assert.match(receivedPrompt, /submit_first_round/);
+  assert.match(receivedPrompt, /styleId/);
   assert.match(receivedPrompt, /不提供族裔分类/);
 });
 

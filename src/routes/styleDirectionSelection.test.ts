@@ -72,3 +72,93 @@ test("style direction must be selected before outfit generation and must come fr
   assert.equal(nextGate.statusCode, 422);
   assert.equal(nextGate.json().error, "hairstyle_not_selected");
 });
+
+test("style and hairstyle are selected atomically and cannot cross the first-round pairing", async () => {
+  const session = await app.inject({ method: "POST", url: "/auth/device-session" });
+  assert.equal(session.statusCode, 201);
+  const deviceSessionId = session.json().deviceSessionId as string;
+  sessionIds.push(deviceSessionId);
+  const user = await container.prisma.user.findUniqueOrThrow({ where: { deviceSessionId } });
+  const plan = await container.prisma.appearancePlan.create({
+    data: { userId: user.id, track: "short_term", generationSeed: 43 },
+  });
+  await container.prisma.analysisJob.create({
+    data: {
+      userId: user.id,
+      planId: plan.id,
+      jobType: "initial_analysis",
+      status: "completed",
+      completedAt: new Date(),
+      partialResult: {
+        styleRecommendations: [
+          { id: "clean-fit", nameZh: "干净简约", description: "基础利落", rationale: "适合日常" },
+          { id: "soft-youth", nameZh: "轻柔少年", description: "自然层次", rationale: "保留亲和感" },
+          { id: "urban-commuter", nameZh: "都市通勤", description: "简洁克制", rationale: "适配正式场景" },
+        ],
+      },
+    },
+  });
+  const set = await container.prisma.recommendationSet.create({
+    data: {
+      planId: plan.id,
+      kind: "hairstyle",
+      status: "ready",
+      computationKey: `style-pair-${plan.id}`,
+      inputFingerprint: "test",
+      source: "multimodal_agent",
+      capabilityStatus: {} as never,
+    },
+  });
+  const [cleanHair, softHair] = await Promise.all([
+    container.prisma.recommendationCandidate.create({
+      data: {
+        setId: set.id, providerCandidateKey: "clean", nameZh: "法式碎盖", description: "自然碎发",
+        modelRationale: "利落", rank: 1, visualDirection: "自然短碎发", renderInstruction: "自然短碎发",
+        styleDirectionId: "clean-fit",
+      },
+    }),
+    container.prisma.recommendationCandidate.create({
+      data: {
+        setId: set.id, providerCandidateKey: "soft", nameZh: "微碎盖", description: "轻薄层次",
+        modelRationale: "亲和", rank: 2, visualDirection: "轻薄碎发", renderInstruction: "轻薄碎发",
+        styleDirectionId: "soft-youth",
+      },
+    }),
+  ]);
+  const headers = { cookie: `${SESSION_COOKIE_NAME}=${deviceSessionId}` };
+
+  const rejected = await app.inject({
+    method: "POST",
+    url: `/plans/${plan.id}/select-style-hairstyle`,
+    headers,
+    payload: { styleId: "clean-fit", candidateId: softHair.id },
+  });
+  assert.equal(rejected.statusCode, 422);
+  assert.equal(rejected.json().error, "candidate_not_in_selected_style");
+  const unchanged = await container.prisma.appearancePlan.findUniqueOrThrow({ where: { id: plan.id } });
+  assert.equal(unchanged.selectedStyle, null);
+  assert.equal(unchanged.selectedHairstyleId, null);
+
+  const accepted = await app.inject({
+    method: "POST",
+    url: `/plans/${plan.id}/select-style-hairstyle`,
+    headers,
+    payload: { styleId: "clean-fit", candidateId: cleanHair.id },
+  });
+  assert.equal(accepted.statusCode, 200);
+  const selected = await container.prisma.appearancePlan.findUniqueOrThrow({ where: { id: plan.id } });
+  assert.equal((selected.selectedStyle as { id: string }).id, "clean-fit");
+  assert.equal(selected.selectedHairstyleId, cleanHair.id);
+
+  const incompatibleSwitch = await app.inject({
+    method: "POST",
+    url: `/plans/${plan.id}/select-style-direction`,
+    headers,
+    payload: { styleId: "soft-youth" },
+  });
+  assert.equal(incompatibleSwitch.statusCode, 422);
+  assert.equal(incompatibleSwitch.json().error, "candidate_not_in_selected_style");
+  const stillSelected = await container.prisma.appearancePlan.findUniqueOrThrow({ where: { id: plan.id } });
+  assert.equal((stillSelected.selectedStyle as { id: string }).id, "clean-fit");
+  assert.equal(stillSelected.selectedHairstyleId, cleanHair.id);
+});
