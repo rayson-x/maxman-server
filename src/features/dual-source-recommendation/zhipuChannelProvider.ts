@@ -27,6 +27,14 @@ export function buildDualSourceProviderPrompt(request: DualSourceProviderRequest
     `【用户已选上游结果】${JSON.stringify(request.commonInput.selectedUpstream)}`,
     `【已授权用户结构化信息】${JSON.stringify(request.commonInput.userContext ?? {})}`,
   ];
+  if (request.domain === "wardrobe"
+    && (request.commonInput.userContext as { visualBodyEvidence?: unknown } | undefined)?.visualBodyEvidence === "missing") {
+    // Measurements and self-reports remain useful structured inputs, but a
+    // missing full-body original means neither A nor B may imply it visually
+    // observed proportions. This is a user-visible truthfulness boundary, not
+    // a ranking preference, so it belongs in their shared base prompt.
+    base.push("没有全身照：可依据用户自报尺寸和偏好给出穿搭结构建议，但不得声称观察到身材比例，也不得承诺或请求本人换装预览。");
+  }
   if (request.channel === "B") {
     base.push(
       `【系统候选投影】${JSON.stringify(request.systemContext?.candidates.map((row) => ({ id: row.stableId, nameZh: row.candidate.nameZh, rationale: row.candidate.rationale })) ?? [])}`,
@@ -92,4 +100,3 @@ export function createZhipuDualSourceChannelProvider(options: {
     };
   };
 }
-

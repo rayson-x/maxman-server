@@ -27,3 +27,19 @@ test("real channel adapter keeps A catalog-blind and gives both channels the sam
   assert.match(requests[1]!.prompt, /系统候选投影/);
   assert.doesNotMatch(buildDualSourceProviderPrompt(a), /目录理由/);
 });
+
+test("wardrobe recommendation without a full-body photo forbids visual-proportion claims in both channels", () => {
+  const input = {
+    ...commonInput,
+    userContext: { visualBodyEvidence: "missing", heightCm: 175, weightKg: 65 },
+  };
+  const a = { channel: "A" as const, domain: "wardrobe" as const, commonInput: input };
+  const b = {
+    ...a,
+    channel: "B" as const,
+    systemContext: { candidates: [], rules: [] },
+  };
+  for (const request of [a, b]) {
+    assert.match(buildDualSourceProviderPrompt(request), /没有全身照.*不得声称观察到身材比例/);
+  }
+});
