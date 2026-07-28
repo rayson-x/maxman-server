@@ -6,7 +6,7 @@ import { spawnSync } from "node:child_process";
 const workspaceRoot = resolve(import.meta.dirname, "../..");
 const serverRoot = resolve(workspaceRoot, "server");
 const clientRoot = resolve(workspaceRoot, "client");
-const defaultOutput = resolve(serverRoot, "src/features/recommendation-catalog/data/generated");
+const defaultOutput = resolve(serverRoot, "data/recommendation-catalog");
 const outputIndex = process.argv.indexOf("--output");
 const output = outputIndex >= 0 ? resolve(process.cwd(), process.argv[outputIndex + 1] ?? "") : defaultOutput;
 
