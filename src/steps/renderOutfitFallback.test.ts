@@ -34,4 +34,9 @@ test("outfit fallback preserves selectable text candidates without impersonating
       rationale: "颜色克制、版型利落",
     },
   ]);
+  assert.equal(
+    outcome.data.supplementaryPrompt,
+    "补拍一张已通过审核的全身照后，可查看穿在你身上的模拟效果。",
+  );
+  assert.equal("degradedNotice" in outcome.data, false);
 });

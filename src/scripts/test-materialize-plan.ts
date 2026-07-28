@@ -109,8 +109,8 @@ try {
       dd!.previews[0].storageKey === null,
     "降级模式保留可选择的文字候选，但不产生任何本人效果图（不消耗生成配额）",
   );
-  check(Boolean(dd?.degradedNotice?.includes("全身照")), "明确告知原因与解锁方式，而不是静默少给内容");
-  console.log(`     提示文案：${dd?.degradedNotice}`);
+  check(Boolean(dd?.supplementaryPrompt?.includes("全身照")), "以中性方式给出补拍引导，而不是静默少给内容");
+  console.log(`     提示文案：${dd?.supplementaryPrompt}`);
 
   await prisma.user.delete({ where: { id: user.id } });
   console.log(`\n${fail === 0 ? "全部通过" : "有失败项"}：${pass} 通过 / ${fail} 失败`);

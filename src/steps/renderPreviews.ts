@@ -58,6 +58,18 @@ export type RenderPreviewsOutput = {
   totalMs: number;
 };
 
+/**
+ * A preview job is an enhancement of an already-ready text candidate set. Even
+ * when every image provider call fails, preserve that usable path and retain
+ * detailed causes only for internal job auditing.
+ */
+export function completePreviewFallback(
+  missing: { item: string; reason: string }[],
+  totalMs: number,
+): Extract<import("./types.js").StepOutcome<RenderPreviewsOutput>, { status: "completed_partial" }> {
+  return { status: "completed_partial", data: { previews: [], totalMs }, missing };
+}
+
 /** 把已完成的预览增量写回 job.partialResult，客户端轮询即可看到（决策 12） */
 async function pushPartial(
   deps: StepDeps,
@@ -193,7 +205,7 @@ export const renderPreviewsStep: Step<RenderPreviewsInput, RenderPreviewsOutput>
     const totalMs = Date.now() - t0;
 
     if (previews.length === 0) {
-      return { status: "failed", error: `全部 ${input.candidates.length} 张预览图生成失败：${failures.map((f) => f.reason).join("; ")}` };
+      return completePreviewFallback(failures, totalMs);
     }
 
     // 部分成功必须可用**且必须告知**（决策 16）——静默少给一个选项，
@@ -215,8 +227,8 @@ export type OutfitPreviewInput = {
 export type OutfitPreviewOutput = {
   mode: "personalized" | "text_and_reference_only";
   previews: RenderedPreview[];
-  /** 降级模式下给客户端的提示，明确说明为什么没有本人效果图 */
-  degradedNotice?: string;
+  /** 面向用户的中性补充引导；技术失败信息只写入内部 missing/audit。 */
+  supplementaryPrompt?: string;
 };
 
 /**
@@ -241,9 +253,7 @@ export const renderOutfitPreviewsStep: Step<OutfitPreviewInput, OutfitPreviewOut
             referenceOnly: true,
             rationale: candidate.modelRationale,
           })),
-          degradedNotice:
-            "还没有你的全身照，所以这些穿搭方案先以文字候选呈现，不包含你的本人效果图。" +
-            "上传一张已通过审核的全身照，就能看到穿在你身上的模拟效果。",
+          supplementaryPrompt: "补拍一张已通过审核的全身照后，可查看穿在你身上的模拟效果。",
         },
       };
     }

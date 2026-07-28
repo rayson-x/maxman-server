@@ -724,7 +724,7 @@ export function createJobOrchestrator(container: AppContainer) {
                 referenceOnly: true,
                 rationale: selectedOutfit.modelRationale,
               }],
-              degradedNotice: "该穿搭候选当前没有与图片生成服务精确校准的渲染规格，因此保留文字方案，不生成本人换装预览。",
+              supplementaryPrompt: "这套方案当前先以文字内容呈现。",
             },
           });
           await jobs.complete(p.jobId, {
@@ -755,7 +755,7 @@ export function createJobOrchestrator(container: AppContainer) {
           outfit: {
             mode: rendered.data.mode,
             previews: rendered.data.previews,
-            degradedNotice: rendered.data.degradedNotice,
+            supplementaryPrompt: rendered.data.supplementaryPrompt,
           },
         });
         await jobs.complete(p.jobId, { missing: rendered.status === "completed_partial" ? rendered.missing : undefined });
@@ -935,7 +935,7 @@ export function createJobOrchestrator(container: AppContainer) {
           systemWardrobe,
           mode: s4b.data.mode,
           previews: s4b.data.previews,
-          degradedNotice: s4b.data.degradedNotice,
+          supplementaryPrompt: s4b.data.supplementaryPrompt,
           coordination: {
             available: false,
             method: "agent_judgement",
