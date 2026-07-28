@@ -11,6 +11,11 @@ function required(name: string): string {
   return v;
 }
 
+/** API 默认不直接对外监听；需要直连调试时才显式设置 HOST。 */
+export function resolveServerHost(value: string | undefined): string {
+  return value && value.trim() ? value : "127.0.0.1";
+}
+
 export const env = {
   deepseek: {
     apiKey: optional("DEEPSEEK_API_KEY"),
@@ -82,6 +87,7 @@ export const env = {
   },
   server: {
     port: Number(optional("PORT") ?? "8787"),
+    host: resolveServerHost(optional("HOST")),
     uploadDir: optional("UPLOAD_DIR") ?? "./tmp-uploads",
     /**
      * 放宽照片审核门槛到 `pending`，仅供本地与内部测试。
