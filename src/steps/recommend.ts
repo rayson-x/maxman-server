@@ -25,6 +25,11 @@ export type RecommendInput = {
   userPreferenceStyleTag?: string | null;
   changeWillingness?: string | null;
   hairstyleCandidateCount?: number;
+  /**
+   * 可用发量前提。缺省 `own_hair`（用户自己的头发）。
+   * 假发能力用 `ample` 再跑一轮，两轮共用本步骤与下游的全部实现。
+   */
+  premise?: import("../features/appearance-agent/rules/hairConstraints.js").AvailableVolumePremise;
 };
 
 export type RecommendOutput = {
@@ -63,6 +68,7 @@ export const recommendStep: Step<RecommendInput, RecommendOutput> = {
         ? { text: input.userPreferenceText, normalizedTag: input.userPreferenceStyleTag ?? null }
         : null,
       changeWillingness: input.changeWillingness ?? null,
+      premise: input.premise,
     });
 
     const data: RecommendOutput = {

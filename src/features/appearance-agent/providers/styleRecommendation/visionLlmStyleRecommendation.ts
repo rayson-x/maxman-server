@@ -9,6 +9,7 @@ import { env, required } from "../../../../config/env.js";
 import {
   applyHairConstraint,
   computeHairConstraint,
+  type AvailableVolumePremise,
   type HairSignals,
 } from "../../rules/hairConstraints.js";
 import type {
@@ -179,9 +180,10 @@ export function applyMechanicalHairFeasibility(args: {
   candidates: readonly unknown[];
   hairSignals: HairSignals;
   requestedCount: number;
+  premise?: AvailableVolumePremise;
 }): MechanicalHairFeasibilityResult {
   const requestedCount = checkedRequestedCount(args.requestedCount);
-  const constraint = computeHairConstraint(args.hairSignals);
+  const constraint = computeHairConstraint(args.hairSignals, args.premise);
   const excluded: MechanicalHairFeasibilityResult["excluded"] = [];
   const annotated: Array<{
     id: string;
@@ -330,6 +332,7 @@ export function createVisionLlmStyleRecommendationProvider(
             ? input.hairSignals
             : { hairline: "normal", volume: "unknown" },
         requestedCount: input.requestedCount,
+        premise: input.premise,
       });
 
       return {

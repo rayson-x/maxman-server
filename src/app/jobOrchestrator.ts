@@ -16,6 +16,8 @@ import { materializePlanStep, type MaterializeTaskSpec } from "../steps/material
 import { runWithSingleRetry, type StepContext, type StepDeps } from "../steps/types.js";
 import { isCatalogDomain, isStyleDomain } from "../features/appearance-agent/data/domains.js";
 import { deriveTaskDimensions } from "../features/appearance-agent/data/taskDimensions.js";
+import { findObjectiveHairstyleAttributes } from "../features/appearance-agent/data/objectiveHairstyleAttributes.js";
+import { deriveWigOptions, type WigMatchableCandidate } from "../features/appearance-agent/rules/wigOptions.js";
 import { buildSelectedStyleTaskSpecs } from "../services/selectedStyleTaskService.js";
 import { verifyProgressStep } from "../steps/verifyProgress.js";
 import { DEFAULT_COMPATIBILITY_THRESHOLD } from "../features/appearance-agent/data/styleProfile.js";
@@ -495,6 +497,58 @@ export function createJobOrchestrator(container: AppContainer) {
         return { status: "completed_partial", detail: { candidates: 0 } };
       }
 
+      /*
+       * ── 假发方案：以「已补充发量」为前提再跑一轮推荐，取差集 ──
+       *
+       * 上面那一轮的前提是用户自己的头发，产出的是「你现在就能达到什么」。这一轮把前提
+       * 换成充足，产出「如果发量不是限制该推荐什么」；**差集**就是只差发量/发际线的款式，
+       * 恰好是假发能解决的那一类。推荐能力两轮都不知道「假发」存在，它只看到前提。
+       *
+       * 只在入口有可能开放时才跑——这是一次付费 provider 调用，没人会看到的结果不值得买。
+       * 判据不足款式的人工复核不依赖这条路径：那是属性表的数据维护，与具体用户无关。
+       */
+      const wigTrack = profile?.track === "short_term" ? "short_term" : "long_term";
+      const wigDeclared = profile?.hairLossConcern === true;
+      let wigOptions: unknown = null;
+      if (wigTrack === "short_term" && wigDeclared) {
+        const amplePremise = await runWithSingleRetry(
+          recommendStep,
+          {
+            vision: s2.data,
+            frontPhotoStorageKey: front.storageKey,
+            userPreferenceText: profile?.stylePreferenceText ?? undefined,
+            userPreferenceStyleTag: profile?.stylePreferenceStyleTag ?? null,
+            changeWillingness: profile?.changeWillingness ?? null,
+            premise: "ample",
+          },
+          planCtx,
+          deps,
+        );
+        // 这一轮失败不影响主方案：假发是附加路径，不是方案的前置条件。
+        if (amplePremise.status !== "failed") {
+          const outcome = deriveWigOptions({
+            amplePremiseCandidates: amplePremise.data.candidates.map(toWigMatchable),
+            ownHairCandidates: s3.data.candidates.map(toWigMatchable),
+            track: wigTrack,
+            userDeclaredHairConcern: wigDeclared,
+          });
+          wigOptions = {
+            open: outcome.open,
+            closedReason: outcome.closedReason ?? null,
+            options: outcome.options.map((o) => ({
+              candidateId: o.candidate.candidateId,
+              nameZh: o.candidate.nameZh,
+              tier: o.tier,
+              // 达成路径标签随方案带走，不只出现在选择那一刻
+              achievementLabel: o.achievementLabel,
+            })),
+            needsHumanReview: outcome.unmatched
+              .filter((u) => u.needsHumanReview)
+              .map((u) => u.candidate.nameZh),
+          };
+        }
+      }
+
       // 首轮只落地可选择的风格—发型组合。未选前不为全部候选出图，避免把用户
       // 尚未决定的方向变成图像生成成本，也避免 UI 看起来“先出发型图再选风格”。
       await jobs.mergePartialResult(p.jobId, {
@@ -503,6 +557,7 @@ export function createJobOrchestrator(container: AppContainer) {
         faceAnalysis: firstRound?.faceAnalysis ?? null,
         styleRecommendations: firstRound?.styleRecommendations ?? [],
         recommendation,
+        wigOptions,
       });
 
       const missing = s3.status === "completed_partial" ? s3.missing : [];
@@ -1284,3 +1339,21 @@ export function createJobOrchestrator(container: AppContainer) {
 }
 
 export type JobOrchestrator = ReturnType<typeof createJobOrchestrator>;
+
+/**
+ * 候选 → 假发匹配所需的最小形状。
+ *
+ * 发量需求与是否遮额**取自客观属性表**，不取模型给的 estimatedAttributes——
+ * 属性表是权威来源，模型标注在本仓库其他地方也一律被它覆盖。属性表没收录的名字
+ * 会在下游的可行性查表里落到「未标注」，按 fail closed 处理。
+ */
+function toWigMatchable<T extends { candidateId: string; nameZh: string }>(
+  candidate: T,
+): T & WigMatchableCandidate {
+  const attributes = findObjectiveHairstyleAttributes(candidate.nameZh);
+  return {
+    ...candidate,
+    requiresHairVolume: attributes?.requiresHairVolume ?? "medium",
+    coversForehead: attributes?.coversForehead ?? false,
+  };
+}

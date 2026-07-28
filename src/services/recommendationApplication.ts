@@ -11,7 +11,7 @@ import {
   OBJECTIVE_HAIRSTYLE_ATTRIBUTES,
   findObjectiveHairstyleAttributes,
 } from "../features/appearance-agent/data/objectiveHairstyleAttributes.js";
-import { computeHairConstraint, applyHairConstraint, type HairSignals } from "../features/appearance-agent/rules/hairConstraints.js";
+import { computeHairConstraint, applyHairConstraint, type AvailableVolumePremise, type HairSignals } from "../features/appearance-agent/rules/hairConstraints.js";
 import { applySemanticHairlineVisibility, type StructuredSemanticAnalysis } from "../features/appearance-agent/analysis/semanticAnalysis.js";
 import { recordWorkflowRun } from "../steps/types.js";
 import { recommendWardrobe } from "../features/wardrobe-recommendation/recommend.js";
@@ -565,6 +565,12 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
     /** 发型域必传：硬约束校验要拿它与目录属性比对 */
     hairSignals?: HairSignals;
     /**
+     * 可用发量前提。缺省 `own_hair`，即只算用户自己的头发。
+     * 传 `ample` 时约束按「已补充发量」推导——这是假发能力跑第二轮用的，
+     * 本模块其余逻辑（抢占、指纹、落库、事后校验）一概不变。
+     */
+    premise?: AvailableVolumePremise;
+    /**
      * 第二个参数是**前置告知 provider 的硬约束**。
      * 只做事后过滤是不够的：真实调用实测下来，发际线偏后 + 发量偏少的用户
      * （恰恰是这个产品的核心人群）模型给的 3 个候选会被全部剔除，集合直接 failed。
@@ -592,7 +598,9 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       // 约束在调用**之前**算出来，既送进 prompt 也用于事后过滤——
       // 同一份判定，两个用途，不会出现"告知的"与"执行的"不一致。
       const constraint =
-        params.kind === "hairstyle" && params.hairSignals ? computeHairConstraint(params.hairSignals) : undefined;
+        params.kind === "hairstyle" && params.hairSignals
+          ? computeHairConstraint(params.hairSignals, params.premise)
+          : undefined;
       const constraintContext = constraint
         ? {
             requireCoversForehead: constraint.requireCoversForehead,
@@ -667,6 +675,7 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
                 params.hairSignals ?? { hairline: "normal", volume: "unknown" },
                 result.firstRound.faceAnalysis.structuredSemantic,
               ),
+              params.premise,
             )
           : constraint;
 
@@ -796,6 +805,8 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       generation?: number;
       /** 固定管道传入以审计实际发生的付费 provider 调用。 */
       workflow?: { jobId: string; stepName: string };
+      /** 可用发量前提。缺省 `own_hair` */
+      premise?: AvailableVolumePremise;
     }): Promise<RecommendationSetView> {
       const provider = deps.hairstyleProvider;
       const capabilityStatus: CapabilityStatus = {
@@ -816,6 +827,9 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         // provider 标识与实现版本进指纹：切换实现后旧集合不被复用，
         // 否则新实现在存量用户上永远不生效
         provider: `${provider.name}@${provider.version}`,
+        // 前提进指纹：两个前提是两套约束、两批候选，绝不能互相复用。
+        // 少了这一条，第二轮会直接命中第一轮的集合，差集恒为空。
+        premise: command.premise ?? "own_hair",
       });
 
       const { role, setId } = await acquireSet({
@@ -835,6 +849,7 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         requestedCount: command.requestedCount,
         photoStorageKey: command.frontPhotoStorageKey,
         hairSignals: command.hairSignals as HairSignals,
+        premise: command.premise,
         provider,
         workflow: command.workflow
           ? { ...command.workflow, planId: command.planId }
@@ -873,6 +888,8 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       generation?: number;
       /** 固定管道传入以审计实际发生的付费 provider 调用。 */
       workflow?: { jobId: string; stepName: string };
+      /** 可用发量前提。缺省 `own_hair` */
+      premise?: AvailableVolumePremise;
     }): Promise<RecommendationSetView> {
       const provider = deps.outfitProvider;
       const selected = await prisma.recommendationCandidate.findUnique({
@@ -903,6 +920,9 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         face: command.face ?? null,
         selectedStyle: command.selectedStyle ?? null,
         provider: `${provider.name}@${provider.version}`,
+        // 前提进指纹：两个前提是两套约束、两批候选，绝不能互相复用。
+        // 少了这一条，第二轮会直接命中第一轮的集合，差集恒为空。
+        premise: command.premise ?? "own_hair",
       });
 
       const { role, setId } = await acquireSet({
