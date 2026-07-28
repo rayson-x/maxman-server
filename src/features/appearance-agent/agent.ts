@@ -4,17 +4,11 @@ import { createAnalyzeAppearancePhotoTool } from "./tools/analyzeAppearancePhoto
 import { createEditAppearanceImageTool } from "./tools/editAppearanceImageTool.js";
 import { createSwapOutfitTool } from "./tools/swapOutfitTool.js";
 import { createGenerateReferenceImageTool } from "./tools/generateReferenceImageTool.js";
-import { createRecommendDirectionsTool } from "./tools/recommendDirectionsTool.js";
-import { createSuggestUnconstrainedDirectionsTool } from "./tools/suggestUnconstrainedDirectionsTool.js";
-import { createAdversarialReviewTool } from "./tools/adversarialReviewTool.js";
-import { createRecommendWardrobeTool } from "./tools/recommendWardrobeTool.js";
+import { createDualSourceRecommendationAgentTools, type AgentRecommendationExecutor } from "./tools/dualSourceRecommendationTools.js";
 import type { VisionAnalysisProvider } from "./providers/vision/types.js";
 import type { ImageEditProvider } from "./providers/imageEdit/types.js";
 import type { ClothingSwapProvider } from "./providers/clothing/types.js";
 import type { TextToImageProvider } from "./providers/textToImage/types.js";
-import type { TextPlanningProvider } from "./providers/textPlanning/types.js";
-import type { FreeRecommendationProvider } from "./providers/freeRecommendation/types.js";
-import type { AdversarialReviewProvider } from "./providers/adversarialReview/types.js";
 
 export interface AppearanceAgentDeps {
   model: ReturnType<typeof createDeepSeekModel>;
@@ -22,9 +16,8 @@ export interface AppearanceAgentDeps {
   imageEditProvider: ImageEditProvider;
   clothingSwapProvider: ClothingSwapProvider;
   textToImageProvider: TextToImageProvider;
-  textPlanningProvider: TextPlanningProvider;
-  freeRecommendationProvider: FreeRecommendationProvider;
-  adversarialReviewProvider: AdversarialReviewProvider;
+  /** Injected by an authorized conversation entrypoint; never raw A/B access. */
+  recommendationExecutor?: AgentRecommendationExecutor;
 }
 
 /**
@@ -46,10 +39,8 @@ export function createAppearanceAgent(deps: AppearanceAgentDeps): Agent {
       "生成换装效果图时调用 swap-outfit 工具。" +
       "如果只是需要展示一个风格/发型/服装概念的示意图（不基于用户本人照片，不是个性化效果图），才调用 generate-reference-image 工具，" +
       "并且必须明确告知用户这只是风格示意图、不是他本人的效果图。" +
-      "涉及穿搭推荐时，必须调用 recommend-wardrobe；它是固定流程共用的系统衣柜入口。不得在工具结果之外自行编造衣服、品牌、公式或单品 ID。" +
-      "如果用户明确要求更大胆/更全面的建议（不只是目录内的保守方案），调用 suggest-unconstrained-directions 获取不受限制的建议，" +
-      "但这些建议未经验证，绝对不能直接展示给用户——必须紧接着调用 adversarial-review-recommendations，把这两组结果一起传进去做对抗式审查，" +
-      "只有 verdict=accept 的自由建议才可以呈现给用户，reject 的要说明被否决的原因，needs_professional_review 的要建议用户咨询专业人士。" +
+      "涉及推荐时，只能调用 recommend-style-directions、recommend-hairstyles 或 recommend-wardrobe。" +
+      "不得自行编造候选、直接访问目录、A/B 通道、diff 或 reviewer；每个推荐工具只接受已授权的 planId。" +
       "不要评判性描述用户外貌，不要做医学诊断。",
     model: deps.model,
     tools: {
@@ -57,10 +48,7 @@ export function createAppearanceAgent(deps: AppearanceAgentDeps): Agent {
       "edit-appearance-image": createEditAppearanceImageTool(deps.imageEditProvider),
       "swap-outfit": createSwapOutfitTool(deps.clothingSwapProvider),
       "generate-reference-image": createGenerateReferenceImageTool(deps.textToImageProvider),
-      "recommend-appearance-directions": createRecommendDirectionsTool(deps.textPlanningProvider),
-      "suggest-unconstrained-directions": createSuggestUnconstrainedDirectionsTool(deps.freeRecommendationProvider),
-      "adversarial-review-recommendations": createAdversarialReviewTool(deps.adversarialReviewProvider),
-      "recommend-wardrobe": createRecommendWardrobeTool(),
+      ...createDualSourceRecommendationAgentTools(deps.recommendationExecutor),
     },
   });
 }

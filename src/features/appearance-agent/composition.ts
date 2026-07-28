@@ -244,9 +244,6 @@ function getAppearanceAgentDeps(): AppearanceAgentDeps {
     imageEditProvider: getImageEditProvider(),
     clothingSwapProvider: getClothingSwapProvider(),
     textToImageProvider: getTextToImageProvider(),
-    textPlanningProvider: getTextPlanningProvider(),
-    freeRecommendationProvider: getFreeRecommendationProvider(),
-    adversarialReviewProvider: getAdversarialReviewProvider(),
   });
 }
 
