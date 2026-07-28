@@ -118,7 +118,8 @@ export function createDualSourceRecommendationTools(deps: {
         renderProvider: input.renderProvider,
         renderModel: input.renderModel,
       });
-      return run(adapter, persistence, {
+      const computationKey = input.computationKey;
+      const result = await run(adapter, persistence, {
         ...input,
         domain: "hairstyle",
         recalled: recalled.candidates,
@@ -128,6 +129,17 @@ export function createDualSourceRecommendationTools(deps: {
         catalogAvailable: input.catalogAvailable,
         selectedStyleId: input.selectedStyleId,
       }, candidateStore);
+      if (recalled.catalogCoverage === "partial") {
+        await persistence.recordCatalogGap({
+          planId: input.planId,
+          domain: "hairstyle",
+          generation: input.generation,
+          computationKey,
+          conceptItemId: input.selectedStyleId,
+          reason: "incomplete_hairstyle_relation_coverage",
+        });
+      }
+      return result;
     },
 
     async recommendWardrobe(input: SharedToolInput & {

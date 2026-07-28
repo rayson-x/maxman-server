@@ -40,3 +40,39 @@ test("the three public domain tools use one adapter and enforce upstream waiting
   assert.deepEqual(calls.slice(0, 2).sort(), ["style:A", "style:B"]);
   assert.equal(persisted.length, 1);
 });
+
+test("underfed hairstyle relations create a catalog gap instead of claiming catalog verification", async () => {
+  const adapter = createDualSourceProviderAdapter({
+    contextByteBudget: 200_000,
+    maxMainCandidates: 3,
+    async invoke(request) {
+      return request.channel === "B"
+        ? request.systemContext!.candidates.map((candidate) => ({ nameZh: candidate.candidate.nameZh, rationale: "目录支持" }))
+        : [];
+    },
+  });
+  const gaps: unknown[] = [];
+  const tools = createDualSourceRecommendationTools({
+    adapter,
+    persistence: {
+      persist: async () => ({ id: "comparison" }),
+      recordCatalogGap: async (input: unknown) => { gaps.push(input); return { id: "gap" }; },
+    } as never,
+  });
+  await tools.recommendHairstyles({
+    ...common,
+    selectedStyleId: "american-workwear",
+    commonInput: { ...common.commonInput, selectedUpstream: { styleId: "american-workwear" } },
+    hairSignals: { hairline: "normal", volume: "medium" },
+    renderProvider: "ark",
+    renderModel: "seedream",
+  });
+  assert.deepEqual(gaps, [{
+    planId: "p",
+    domain: "hairstyle",
+    generation: 1,
+    computationKey: "key",
+    conceptItemId: "american-workwear",
+    reason: "incomplete_hairstyle_relation_coverage",
+  }]);
+});

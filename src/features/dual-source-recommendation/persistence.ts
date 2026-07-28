@@ -190,6 +190,43 @@ export function createDualSourceRecommendationPersistence(prisma: PrismaClient) 
       return choice;
     },
 
+    async recordCatalogGap(input: {
+      planId: string;
+      domain: string;
+      generation: number;
+      computationKey: string;
+      conceptItemId: string;
+      reason: string;
+    }) {
+      const comparison = await prisma.recommendationComparisonLog.findUnique({
+        where: {
+          planId_domain_generation_computationKey: {
+            planId: input.planId,
+            domain: input.domain,
+            generation: input.generation,
+            computationKey: input.computationKey,
+          },
+        },
+        select: { id: true },
+      });
+      const gap = await prisma.catalogGap.upsert({
+        where: { domain_conceptItemId: { domain: input.domain, conceptItemId: input.conceptItemId } },
+        create: {
+          comparisonId: comparison?.id ?? null,
+          domain: input.domain,
+          conceptItemId: input.conceptItemId,
+          reason: input.reason,
+        },
+        update: { comparisonId: comparison?.id ?? undefined, reason: input.reason },
+      });
+      await prisma.assetGenerationQueue.upsert({
+        where: { gapId: gap.id },
+        create: { gapId: gap.id, status: "queued", priority: 0 },
+        update: {},
+      });
+      return gap;
+    },
+
     async recordOutcome(input: {
       comparisonId: string;
       exposureId?: string;
