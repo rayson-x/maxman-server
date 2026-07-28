@@ -16,6 +16,14 @@ export type DualSourceProviderRequest = {
 };
 
 export type RawProviderCandidate = { nameZh: string; rationale: string; hardConflict?: boolean };
+export type RawProviderResponse = {
+  candidates: RawProviderCandidate[];
+  provider?: string;
+  model?: string;
+  modelVersion?: string;
+  latencyMs?: number;
+  cost?: number;
+};
 
 function conceptId(domain: RecommendationDomain, nameZh: string): string {
   return `concept:${domain}:${createHash("sha256").update(nameZh.trim().toLocaleLowerCase("zh-CN")).digest("hex").slice(0, 20)}`;
@@ -30,7 +38,7 @@ export function createDualSourceProviderAdapter(options: {
   contextByteBudget: number;
   maxMainCandidates: number;
   channelTimeoutMs?: number;
-  invoke(request: DualSourceProviderRequest): Promise<RawProviderCandidate[]>;
+  invoke(request: DualSourceProviderRequest): Promise<RawProviderCandidate[] | RawProviderResponse>;
 }) {
   const engine = new DualSourceRecommendationEngine(options);
   return {
@@ -46,15 +54,16 @@ export function createDualSourceProviderAdapter(options: {
       return engine.recommend({
         ...input,
         runChannel: async (invocation) => {
-          const raw = await options.invoke({
+          const response = await options.invoke({
             channel: invocation.channel,
             domain: invocation.domain,
             commonInput: invocation.commonInput,
             ...(invocation.systemContext ? { systemContext: invocation.systemContext } : {}),
           });
+          const raw = Array.isArray(response) ? { candidates: response } : response;
           const allowedB = new Map((invocation.systemContext?.candidates ?? []).map((row) => [row.candidate.nameZh, row]));
           return {
-            candidates: raw.map((candidate, index) => {
+            candidates: raw.candidates.map((candidate, index) => {
               const recalled = invocation.channel === "B"
                 ? allowedB.get(candidate.nameZh)
                 : allByName.get(candidate.nameZh);
@@ -71,6 +80,11 @@ export function createDualSourceProviderAdapter(options: {
                 hardConflict: candidate.hardConflict === true,
               };
             }),
+            provider: raw.provider,
+            model: raw.model,
+            modelVersion: raw.modelVersion,
+            latencyMs: raw.latencyMs,
+            cost: raw.cost,
           };
         },
       });

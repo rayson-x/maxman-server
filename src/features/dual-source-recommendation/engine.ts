@@ -25,6 +25,8 @@ export type CommonRecommendationInput = {
   /** Original authorized assets only; generated previews and target images are excluded by contract. */
   originalAssetRefs: string[];
   selectedUpstream: Record<string, string>;
+  /** Versioned, authorized structured facts sent identically to both channels. */
+  userContext?: Record<string, unknown>;
   model: { provider: string; model: string; temperature: number; tokenLimit: number };
 };
 
