@@ -27,6 +27,20 @@ export type HairSignals = {
 
 export type ConstraintStrength = "strong" | "moderate" | "none" | "deferred";
 
+/**
+ * 用户造型时**实际可动用**的发量前提（Available Volume Premise，定义见根仓库 CONTEXT.md）。
+ *
+ * `own_hair` —— 只算用户自己的头发，由 HairSignals 推导。
+ * `ample`    —— 用户已显式授权外部补充发量（假发），发量支撑与发际线暴露两维不再是限制。
+ *
+ * 这个区分是「假发」在系统里的全部表达方式：**假发改变前提，不绕过约束**。
+ * 所以这里没有第二套规则，只有同一个函数的两个前提；下游的 applyHairConstraint 一无所知。
+ *
+ * 注意 `ample` **只**放宽这两维。脸型适配不在本函数内，且假发改变不了脸型——
+ * 放宽它只会产出永远无法转化成假发方案的候选。
+ */
+export type AvailableVolumePremise = "own_hair" | "ample";
+
 export type HairConstraint = {
   strength: ConstraintStrength;
   /** 排除掉的 requiresHairVolume 档位 */
@@ -50,6 +64,19 @@ const NO_CONSTRAINT: HairConstraint = {
   needsCloudFallback: false,
 };
 
+/**
+ * 前提为 ample 时的约束。发际线信号在这里**完全不被读取**，所以也不存在需要云端兜底的
+ * 不确定性——`needsCloudFallback` 为 false 不是省略，是「没有东西要兜底」。
+ */
+const AMPLE_PREMISE: HairConstraint = {
+  strength: "none",
+  excludeVolumeRequirements: [],
+  requireCoversForehead: false,
+  rationale: "在补充发量的前提下，发量支撑与发际线位置都不再限制发型选择。",
+  evidenceBasis: "none",
+  needsCloudFallback: false,
+};
+
 function isReceded(h: HairlineSignal): boolean {
   return h === "high" || h === "receding";
 }
@@ -60,8 +87,16 @@ function isReceded(h: HairlineSignal): boolean {
  * 注意 `volume: thin` 单独出现时**返回无约束**——这不是遗漏，是实测结论：
  * 短发者会被误判为 thin（02-square 即为误判例），据此排除高发量需求发型
  * 会误伤大量短发用户。
+ *
+ * `premise` 缺省为 `own_hair`，即本函数原有的唯一行为；传 `ample` 表示用户已授权补充发量。
  */
-export function computeHairConstraint(signals: HairSignals): HairConstraint {
+export function computeHairConstraint(
+  signals: HairSignals,
+  premise: AvailableVolumePremise = "own_hair",
+): HairConstraint {
+  // 前提已充足时不读任何发量/发际线信号——信号只用来推断用户**自身**的发量。
+  if (premise === "ample") return AMPLE_PREMISE;
+
   const { hairline, volume, selfReportedHairLossConcern, selfReportedVolume } = signals;
 
   // 刘海遮挡：本地测不到发际线，交云端语义判断或依赖自报
