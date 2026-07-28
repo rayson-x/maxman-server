@@ -589,6 +589,8 @@ model TargetImage {
 /// 有两次必须的同步用户选择（选发型、选穿搭），物理上不可能连续执行。
 enum JobType {
   initial_analysis
+  hairstyle_recommendation
+  wardrobe_recommendation
   outfit_preview_generation
   plan_materialization
   stage_unlock_generation

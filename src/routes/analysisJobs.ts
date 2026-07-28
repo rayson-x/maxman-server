@@ -112,6 +112,8 @@ export async function registerAnalysisJobRoutes(app: FastifyInstance): Promise<v
         jobType: {
           in: [
             "initial_analysis",
+            "hairstyle_recommendation",
+            "wardrobe_recommendation",
             "user_regeneration",
             "outfit_preview_generation",
             "stage_unlock_generation",
@@ -278,6 +280,62 @@ export async function registerAnalysisJobRoutes(app: FastifyInstance): Promise<v
     });
   });
 
+  /**
+   * Feature-flagged second waiting point. This stays a worker job so the
+   * multi-modal calls are never performed in the API process.
+   */
+  app.post("/plans/:planId/hairstyle-recommendations", async (req, reply) => {
+    const user = requireUser(req);
+    if (!env.server.dualSourceRecommendationEnabled) {
+      return reply.code(409).send({ error: "dual_source_recommendation_disabled" });
+    }
+    const idempotencyKey = idempotencyKeyFrom(req);
+    if (!idempotencyKey) return reply.code(400).send({ error: "valid Idempotency-Key header is required" });
+    const { planId } = req.params as { planId: string };
+    const plan = await prisma.appearancePlan.findFirst({ where: { id: planId, userId: user.id, status: "active" } });
+    if (!plan) return reply.code(404).send({ error: "方案不存在" });
+    if (!plan.selectedStyle) return reply.code(422).send({ error: "style_not_selected", message: "请先选定风格方向" });
+    const capacity = await checkGenerationCapacity(user.id);
+    if (!capacity.ok) return reply.code(429).send({ error: "rate_limited", retryAfterSeconds: capacity.retryAfterSeconds });
+    const job = await jobs.create({ userId: user.id, planId, jobType: "hairstyle_recommendation", idempotencyKey });
+    if (jobs.isTerminal(job.status)) return reply.send({ jobId: job.id, status: job.status, reused: true });
+    const enqueued = await enqueueCreatedJob(
+      QUEUE_NAMES.textAnalysis,
+      "hairstyle_recommendation",
+      job,
+      { userId: user.id, planId },
+    );
+    if (!enqueued.ok) return reply.code(503).send({ error: "queue_unavailable", jobId: job.id, retryable: true });
+    return reply.code(202).send({ jobId: job.id, status: job.status });
+  });
+
+  /** Third waiting point: system wardrobe recommendation needs both selections. */
+  app.post("/plans/:planId/wardrobe-recommendations", async (req, reply) => {
+    const user = requireUser(req);
+    if (!env.server.dualSourceRecommendationEnabled) {
+      return reply.code(409).send({ error: "dual_source_recommendation_disabled" });
+    }
+    const idempotencyKey = idempotencyKeyFrom(req);
+    if (!idempotencyKey) return reply.code(400).send({ error: "valid Idempotency-Key header is required" });
+    const { planId } = req.params as { planId: string };
+    const plan = await prisma.appearancePlan.findFirst({ where: { id: planId, userId: user.id, status: "active" } });
+    if (!plan) return reply.code(404).send({ error: "方案不存在" });
+    if (!plan.selectedStyle) return reply.code(422).send({ error: "style_not_selected", message: "请先选定风格方向" });
+    if (!plan.selectedHairstyleId) return reply.code(422).send({ error: "hairstyle_not_selected", message: "请先选定发型方向" });
+    const capacity = await checkGenerationCapacity(user.id);
+    if (!capacity.ok) return reply.code(429).send({ error: "rate_limited", retryAfterSeconds: capacity.retryAfterSeconds });
+    const job = await jobs.create({ userId: user.id, planId, jobType: "wardrobe_recommendation", idempotencyKey });
+    if (jobs.isTerminal(job.status)) return reply.send({ jobId: job.id, status: job.status, reused: true });
+    const enqueued = await enqueueCreatedJob(
+      QUEUE_NAMES.textAnalysis,
+      "wardrobe_recommendation",
+      job,
+      { userId: user.id, planId },
+    );
+    if (!enqueued.ok) return reply.code(503).send({ error: "queue_unavailable", jobId: job.id, retryable: true });
+    return reply.code(202).send({ jobId: job.id, status: job.status });
+  });
+
   /** tasks 7.4：选定发型后触发穿搭预览 */
   app.post("/plans/:planId/outfit-previews", async (req, reply) => {
     const user = requireUser(req);
@@ -293,6 +351,12 @@ export async function registerAnalysisJobRoutes(app: FastifyInstance): Promise<v
     if (!plan.selectedHairstyleId) {
       // 决策 3：两步约束选择——穿搭候选集由已选发型过滤，没选发型就无从生成
       return reply.code(422).send({ error: "hairstyle_not_selected", message: "请先选定发型方向，穿搭候选会依据它筛选" });
+    }
+    if (env.server.dualSourceRecommendationEnabled && !plan.selectedOutfitId) {
+      return reply.code(422).send({
+        error: "outfit_not_selected",
+        message: "请先从双源穿搭候选中选择一个方案，再请求本人预览",
+      });
     }
 
     const capacity = await checkGenerationCapacity(user.id);
