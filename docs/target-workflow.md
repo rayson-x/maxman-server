@@ -5,6 +5,30 @@
 ⚠ 推荐环节（§2 的 B5-B7）以 `specs/pluggable-style-recommendation.md` 为准。
 回答一个问题：用户进来之后，系统按什么顺序做判断、每一步调用哪个 tool。
 
+## 双源推荐分阶段 rollout（当前实现）
+
+当 `DUAL_SOURCE_RECOMMENDATION_ENABLED=1` 时，推荐路径由本文件较早的“风格—发型原子选择”
+描述切换为下面的三个等待点；旧图仅描述关闭开关时的兼容路径。
+
+```text
+initial_analysis：输入审核 → 客户端测量规范化 → recommend-style-directions
+  → 用户选择风格
+hairstyle_recommendation：recommend-hairstyles（必须带已选风格）
+  → 用户选择发型
+wardrobe_recommendation：recommend-wardrobe（必须带已选风格 + 发型）
+  → 用户选择穿搭
+outfit_preview_generation：只消费已选穿搭；未精确校准则保留文字、跳过本人预览
+```
+
+三者都通过同一内部 `DualSourceRecommendationEngine`：A/B 接收相同原始用户资产和
+版本化结构化输入，只有 B 接收完整、紧凑的部署目录投影。公开边界只有
+`recommend-style-directions`、`recommend-hairstyles`、`recommend-wardrobe`；A/B、diff、
+reviewer 与目录 provider 均不应直接暴露给流程或对话调用方。高 diff 在用户结果和 exposure
+写入后异步进入 `dual_source_reviewer` 队列，不改变已返回候选。
+
+隐私边界：对照记录只保存版本引用、结构化候选和调用元数据，不保存照片、签名 URL、原始
+prompt 或 transcript。撤回人脸处理同意会通过 `all_photos` 删除同时清除可识别推荐对照链。
+
 ---
 
 ## 0. 三条贯穿全局的设计原则
