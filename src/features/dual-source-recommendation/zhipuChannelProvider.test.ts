@@ -43,3 +43,23 @@ test("wardrobe recommendation without a full-body photo forbids visual-proportio
     assert.match(buildDualSourceProviderPrompt(request), /没有全身照.*不得声称观察到身材比例/);
   }
 });
+
+test("B receives compact wardrobe slots and asset readiness, never local asset paths", () => {
+  const prompt = buildDualSourceProviderPrompt({
+    channel: "B",
+    domain: "wardrobe",
+    commonInput,
+    systemContext: {
+      candidates: [{
+        stableId: "formula-1",
+        bytes: 1,
+        candidate: { id: "formula-1", canonicalId: "formula-1", rank: 1, nameZh: "通勤公式", rationale: "结构说明", systemSupported: true, hardConflict: false },
+        projection: { slots: [{ slot: "top", min: 1, max: 1, eligibleItemCount: 9, displayAssetCount: 9, tryOnReadyCount: 0 }] },
+      }],
+      rules: [],
+    },
+  });
+  assert.match(prompt, /eligibleItemCount/);
+  assert.match(prompt, /tryOnReadyCount/);
+  assert.doesNotMatch(prompt, /localPath|wardrobe-items\/v1/);
+});

@@ -37,7 +37,12 @@ export function buildDualSourceProviderPrompt(request: DualSourceProviderRequest
   }
   if (request.channel === "B") {
     base.push(
-      `【系统候选投影】${JSON.stringify(request.systemContext?.candidates.map((row) => ({ id: row.stableId, nameZh: row.candidate.nameZh, rationale: row.candidate.rationale })) ?? [])}`,
+      `【系统候选投影】${JSON.stringify(request.systemContext?.candidates.map((row) => ({
+        id: row.stableId,
+        nameZh: row.candidate.nameZh,
+        rationale: row.candidate.rationale,
+        projection: row.projection,
+      })) ?? [])}`,
       `【系统规则投影】${JSON.stringify(request.systemContext?.rules ?? [])}`,
       "B 通道只能从系统候选投影中选择候选名称，不得创造未列出的系统 ID。",
     );

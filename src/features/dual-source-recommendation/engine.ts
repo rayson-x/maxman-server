@@ -18,6 +18,8 @@ export type RecalledCandidate = {
   /** Byte size of the compact projection, not a full research document. */
   bytes: number;
   candidate: DomainCandidate;
+  /** Domain-specific compact system context, supplied to B only. */
+  projection?: Record<string, unknown>;
 };
 
 export type CommonRecommendationInput = {

@@ -4,11 +4,12 @@ import { projectRuntimeHairstyleCatalog } from "../recommendation-catalog/runtim
 import type { HairSignals } from "../appearance-agent/rules/hairConstraints.js";
 import type { RecalledCandidate } from "./engine.js";
 
-function compact(candidate: RecalledCandidate["candidate"]): RecalledCandidate {
+function compact(candidate: RecalledCandidate["candidate"], projection?: Record<string, unknown>): RecalledCandidate {
   return {
     stableId: candidate.canonicalId,
-    bytes: Buffer.byteLength(JSON.stringify(candidate), "utf8"),
+    bytes: Buffer.byteLength(JSON.stringify({ candidate, projection }), "utf8"),
     candidate,
+    ...(projection ? { projection } : {}),
   };
 }
 
@@ -67,10 +68,18 @@ export function recallRuntimeWardrobe(input: { selectedStyleId: string }): Recal
         nameZh: string;
         compositionLogic: string;
         sourceSeasonScene: string;
-        slots: Array<{ slot: string; min: number; max: number }>;
+        slots: Array<{ slot: string; min: number; max: number; allowedItemIds: string[] }>;
       }>;
     }>;
   };
+  const assets = recommendationCatalogSnapshot.wardrobeAssets as unknown as {
+    items: Array<{
+      wardrobeItemId: string;
+      displayStatus?: string;
+      virtualTryOn?: { status?: string };
+    }>;
+  };
+  const assetByItemId = new Map(assets.items.map((asset) => [asset.wardrobeItemId, asset]));
   const profile = profiles.profiles.find((row) => row.styleId === input.selectedStyleId);
   if (!profile) throw new Error(`No deployed wardrobe profile for selected style ${input.selectedStyleId}`);
   return profile.formulaTemplates
@@ -82,6 +91,21 @@ export function recallRuntimeWardrobe(input: { selectedStyleId: string }): Recal
       rationale: formula.compositionLogic,
       systemSupported: true,
       hardConflict: false,
+    }, {
+      seasonScene: formula.sourceSeasonScene,
+      slots: formula.slots.map((slot) => {
+        const slotAssets = slot.allowedItemIds
+          .map((itemId) => assetByItemId.get(itemId))
+          .filter((asset): asset is NonNullable<typeof asset> => Boolean(asset));
+        return {
+          slot: slot.slot,
+          min: slot.min,
+          max: slot.max,
+          eligibleItemCount: slot.allowedItemIds.length,
+          displayAssetCount: slotAssets.filter((asset) => asset.displayStatus === "ready_local_asset" || asset.displayStatus === "ready_public_asset").length,
+          tryOnReadyCount: slotAssets.filter((asset) => asset.virtualTryOn?.status === "ready").length,
+        };
+      }),
     }))
     .sort((a, b) => a.stableId.localeCompare(b.stableId));
 }

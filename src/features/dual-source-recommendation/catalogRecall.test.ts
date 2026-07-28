@@ -30,4 +30,10 @@ test("wardrobe recall requires the selected style and submits every formula for 
   assert.equal(recalled.length, 8);
   assert.ok(recalled.every((row) => row.stableId.startsWith("of-clean-fit-")));
   assert.ok(recalled.every((row) => !JSON.stringify(row).includes("sourceUrl")));
+  const projection = recalled[0]!.projection as {
+    slots: Array<{ slot: string; min: number; max: number; eligibleItemCount: number; displayAssetCount: number; tryOnReadyCount: number }>;
+  };
+  assert.ok(projection.slots.length > 0);
+  assert.ok(projection.slots.every((slot) => slot.eligibleItemCount > 0 && slot.displayAssetCount >= 0));
+  assert.ok(!JSON.stringify(projection).includes("localPath"));
 });
