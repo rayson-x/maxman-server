@@ -162,3 +162,63 @@
 - [x] 13.9 **打分维度缺失导致分阶段机制静默失效** — 编排器起初没给 `MaterializeTaskSpec.dimensions`，而缺省时任务**直接判 optional**。后果比"少个字段"严重得多：四阶段 `coreCount` 全为 0，而 `unlockRule` 是「完成所有 core 才解锁」，core=0 时该条件**空真**，四个阶段立刻全部解锁，分阶段推进整体塌掉——且 UI 上完全看不出来。新增 `data/taskDimensions.ts` 从目录已有字段确定性推导七维度（visualBenefit←visualBenefitLevel、credibility←evidenceBasis、acceptance←用户问卷的 domainAcceptance、reversibility/risk←同名字段、timeCost/moneyCost←解析 estTime/estCostRange）。**只推导不编造**；各档位数值标注为初始校准待产品校准。21 项测试通过，重点覆盖单位陷阱（「2-4 周」若被当成 4 分钟，一个月的任务会被判成低成本落到阶段 0 让用户当天做）。实测结果：core 数 2/3/2/0，阶段 0 active 其余 locked
 - [x] 13.10 **S5 非幂等** — `materializePlanStep` 只 create 从不清理。这比"重跑重复"严重：它被 `runWithSingleRetry` 包着，**一次中途失败后的重试就把任务插两遍**。实测重跑后阶段 0 从 4 个变 8 个，同一方法同时以 core 和 optional 各出现一次，用户看到自相矛盾的清单。修法是只删 `pending`、保留 `done`/`skipped`/`replaced`（它们承载用户已做过的事，删掉等于抹掉进度还会断开 `ChangeManifestEntry.sourceTaskId` 追溯链），重建时按 (stageId, domain, title) 跳过已保留项；保留的 core 计入名额以维持「每阶段最多 maxCore 个 core」。11 项测试通过，含「已完成任务重跑后仍为 done」与「追溯链未断」
 - [x] 13.11 HTTP 全链路冒烟测试 — `scripts/smoke-http-flow.sh`，**只用 curl 打真实端点**，走 HTTP→队列→worker→编排器→step 全程。与 `test-e2e-flow.ts` 的分工是刻意的：那个直接调 step 函数，因此**测不出编排层缺失**（它曾经全绿而 HTTP 链路是断的）。覆盖 8 节 29 项断言：会话/问卷/同意/预签名直传/faceMetrics 校验/脸型确认/意向两层审核（含真实 LLM）/异步分析全程/两步约束选择（含"非候选不可绕过"）/穿搭降级/S5 落地。⚠ 会产生真实图片费用（3 张约 ¥0.6）
+
+## 14. 出图"一眼假"归因与修复
+
+> 起因：用户反馈生成图非常不真实。查下来**主因不是 provider 能力**——SeedEdit 的身份/纹理
+> 保持是达标的（同一张源图的输出里胡茬、毛孔、衬衫褶皱、背景光线全部保留），
+> 失败集中在**我们喂给它的 prompt** 与**评估用的输入**。
+
+- [x] 14.1 **评估输入本身是 AI 生成的假图** — `test-fixtures/faces/*.jpg` 由 `scripts/generate-test-faces.ts` 用文生图造的（`high_aes_general_v21_L`，prompt「证件照风格…纯白背景」）：平板蓝底、无方向性影棚光、皮肤已被磨过一轮。编辑模型会保留输入的摄影特性，输入假则输出必假。**至今未在真实照片上验证过出图效果**——这仍是最大的未知项，优先级高于以下任何一条
+- [x] 14.2 **阶段目标图的 prompt 里没有任何可渲染内容** — `buildTargetImageInput` 把 core 任务的 `changeDescription` 编号串联当 prompt，而 core 里混着护肤/口腔/体味/体态这些**非视觉领域**。实测阶段 1 发出去的是「1.早晚温和洁面 + 保湿… 2.控油与出油管理… 3.建议咨询皮肤科…」共 183 字符（供应商建议 ≤120），没有一条画得出来——模型唯一能做的就是通用磨皮，这正是 App 里那张最假的图的来源
+- [x] 14.3 **可渲染性改为方法级属性** — 新增 `CandidateTaskCatalog.renderDescription`（+ `StageTask` / `ChangeManifestEntry` 同名字段，S5 预写、完成时带进账本）。**为空即表示画不出来**，目标图不收。判定按方法而非领域：指甲清理也属于 `face_grooming`，但正面照里看不见。`buildTargetImageInput` 相应改为 `renderDescription: { not: null }` 过滤，并新增 `hasRenderableChange`；为 false 时 `targetImageService` **跳过生成**（`finalStatus: "skipped"`）而不是硬出一张磨皮图白烧额度
+- [x] 14.4 **目标图改取 core + 可渲染的 optional** — 原来只取 core。但 S5 把「落实选定发型/穿搭」落成了 optional，而这恰是全阶段唯一可渲染的两条：只取 core 会让阶段 1-3 过滤后为空、目标图从阶段 1 起永远消失。目标图是激励物，宁可在用户跳过 optional 时重算
+- [x] 14.5 **`visualDirection` 是没校验的 LLM 自由文本** — 实测「三七侧分短发」被描述成「左侧头发剃短至耳下，右侧头发留长至肩膀附近」：名字是常规侧分、描述是极端不对称剪裁，图像模型忠实照画，产出鬓角剃光+两侧长发披到下巴的怪造型。改为 `OBJECTIVE_HAIRSTYLE_ATTRIBUTES` 里给 15 个规范发型各写一条 `renderDescription`，`buildRenderInstruction` 命中属性表时用表里的描述，只有表外（用户自报）造型才退回模型描述
+- [x] 14.6 **prompt 预算重构 + 四组 A/B 定稿** — 原先 75 字符的身份后缀吃掉 ≤120 预算的约 68%，造型描述只剩 30 余字。四组对照（同源图、同 seed=42）：
+      - OLD（LLM 描述 + 长后缀）：发型错，怪造型
+      - B（规范描述 + 短正向 + 18 条全量 negative）：发型对，但**表情漂成微笑、皮肤最塑料、脸变窄**
+      - A（规范描述 + 旧长后缀）：发型对，略微笑，中等
+      - **C（规范描述 + 含"表情"的正向约束 + 只反磨皮的 negative）：发型对、中性表情保住、胡茬与皮肤纹理都在** ← 定稿
+      两条实测结论：**「表情」必须显式写进正向约束**（旧版与 B 都没写，模型自己加了微笑）；**否定式不宜堆量**——18 条塞进 `negative_prompt` 会稀释每项权重，身份属性用正向断言比反向否定有效得多。落地为 `identityConstraint(changeScope)` + 精简版 `NEGATIVE_PROMPT`（仅磨皮/塑料感/CG 感/换背景/改表情）。发型 prompt 最长 55 字符，目标图 ≤71 字符，均在预算内
+- [x] 14.7 `ImageEditInput` 增加 `negativePrompt`，volcengine / stepfun / qwen 三个 provider 均已接线（此前 `negative_prompt` 恒为 `""`，完全没用过）
+- [ ] 14.8 **待办：真实照片验证** — 上述所有结论都是在合成证件照上得到的。需要一张真实手机自拍重跑，才能判断绝对真实度，也才能决定要不要动 `scale`（当前硬编码 0.5，从未调过）或换 provider
+
+## 15. 穿搭协调过滤修复（决策 2 实际从未生效）
+
+> 起因：用户质疑「风格 + 穿搭的选择在什么地方进行的，没做还是流程顺序不对」。
+> 查下来比"顺序不对"更具体：**协调层的机器造好了、数据备好了、接线断了**。
+
+- [x] 15.1 **id 空间串了** — `AppearancePlan.selectedHairstyleId` 存的是
+      `RecommendationCandidate.id`（`selectCandidate` 写入），而编排器拿它去
+      `styleProfileEntry.findUnique({ id })`。实测三个真实方案：该 id 在候选表命中 1、
+      在风格表命中 0。后果是 `hairstyle` 恒为 null → `coordinationAvailable` 恒为 false
+      → `checkCompatibility()` 在主流程**一次都没被调用过**，穿搭协调 100% 落回 LLM
+      主观判断——正是决策 2 明令禁止的模式（"协调性必须编码在数据里，不能靠 LLM
+      判断审美"）。而向量数据其实早就填满了：12 发型 + 5 穿搭，四轴无一为空
+- [x] 15.2 **两处死代码** — 同一段里查出的 5 套带向量 `outfits` 从未被使用；
+      `catalogVariants` 参数从应用模块一路铺到 provider 签名，但编排器不传、provider 不读
+- [x] 15.3 **误导性归因** — `partialResult.coordination.reason` 写的是"没有可信风格向量"，
+      而真实原因是 id 对不上。改为区分两种情况：解析不到风格库（模型自创造型）
+      vs 有向量但无兼容条目
+- [x] 15.4 修复：新增 `resolveStyleEntryByName` / `toStyleVector`（styleProfile.ts），
+      按候选名解析回风格表取四轴；用 `checkCompatibility` 筛出兼容穿搭集合，
+      经 `catalogVariants` 传给 provider；provider prompt 改为
+      「**只能从这些里挑**，不要自创集合外的组合」，集合为空才退回主观判断并如实标记
+- [x] 15.5 实测验证：「微碎盖」[正式4 成熟4 张扬4 打理4] → 兼容 4/5，
+      被排除的是「轻正装」[正式9]（差值 5 > 阈值 3），符合直觉
+
+### 待办（本轮方向已定，需先出 spec）
+
+- [x] 15.6 客户端补测算维度：**视觉年轻程度**用几何 + 像素代理信号计算（法令纹深度、
+      眼下暗度、额纹对比度、皮肤纹理方差、太阳穴凹陷、发际线高度），不输出年龄数字；
+      新增**颧骨遮盖需求**判定；顺带修掉失效的饱满度分类器（阈值错，15/15 全判 lean）。
+      实现见 `client/lib/face/youthfulness.ts` 与 client openspec
+      `add-style-layer-and-face-signals`。
+      ⚠ 原方案还含「看上去的性别倾向」（fWHR 等二态性指标），**已按产品决策撤销**——
+      它不改变推荐结果，却把无法辩护的结论摆给用户看
+- [ ] 15.7 新增「大风格」基础选择层，用四轴把 风格 → 发型 → 穿搭 串成一条约束链
+      （现在发型是从全库按脸型+发量筛，风格只体现在候选名字里）
+- [ ] 15.8 LLM 调用改为 tool call 封装，为后续引入内部向量数据库辅助推荐留接缝
+- [ ] 15.9 **不做族裔分类**：分类偏差与合规风险高，且它想解决的两件事都有更稳替代——
+      身份保持交给 SeedEdit 本身（实测胡茬毛孔均保留）+ negative prompt 保护约束，
+      真正影响推荐的肤色与发质可直接测量，无需先给人贴族裔标签

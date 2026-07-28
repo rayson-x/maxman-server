@@ -1,4 +1,5 @@
 import type { MaterializeTaskSpec } from "../steps/materializePlan.js";
+import { findObjectiveHairstyleAttributes } from "../features/appearance-agent/data/objectiveHairstyleAttributes.js";
 
 /**
  * 把用户选定的发型与穿搭变成两条阶段任务。
@@ -40,6 +41,10 @@ export function buildSelectedStyleTaskSpecs(input: SelectedStylesInput): Materia
       // 用户自己选的方向，证据基础是自报而非视觉实测
       evidenceBasis: "self_reported",
       changeDescription: `已按选定方向调整发型：${input.hairstyle.nameZh}`,
+      // 发型用属性表里的规范渲染描述，表外（用户自报）才退回目录描述
+      renderDescription:
+        findObjectiveHairstyleAttributes(input.hairstyle.nameZh)?.renderDescription
+        ?? `把发型改成${input.hairstyle.nameZh}`,
       rationale: input.hairstyle.description,
     },
     {
@@ -48,6 +53,7 @@ export function buildSelectedStyleTaskSpecs(input: SelectedStylesInput): Materia
       applicableStageRange: ["stage1"],
       evidenceBasis: "self_reported",
       changeDescription: `已按选定方向调整穿搭：${input.outfit.nameZh}`,
+      renderDescription: `换成${input.outfit.nameZh}这套穿搭`,
       rationale: input.outfit.description,
     },
   ];

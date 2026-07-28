@@ -57,6 +57,14 @@ export type JobPayload = {
 
 export type OrchestratorResult = { status: string; detail?: Record<string, unknown> };
 
+function seasonForDate(date: Date | null | undefined): "春" | "夏" | "秋" | "冬" {
+  const month = (date ?? new Date()).getMonth() + 1;
+  if (month >= 3 && month <= 5) return "春";
+  if (month >= 6 && month <= 8) return "夏";
+  if (month >= 9 && month <= 11) return "秋";
+  return "冬";
+}
+
 export function createJobOrchestrator(container: AppContainer) {
   const prisma: PrismaClient = container.prisma;
   const jobs = createAnalysisJobRepository(prisma);
@@ -358,6 +366,25 @@ export function createJobOrchestrator(container: AppContainer) {
         hairstyleProvider: container.providers.hairstyleRecommendation,
         outfitProvider: container.providers.outfitRecommendation,
       });
+      const selectedStyleId = (plan.selectedStyle as { id?: unknown } | null)?.id;
+      let systemWardrobe = null;
+      if (typeof selectedStyleId === "string") {
+        try {
+          systemWardrobe = outfitApp.recommendWardrobe({
+            heightCm: profileForOutfit?.heightCm ?? null,
+            weightKg: profileForOutfit?.weightKg ?? null,
+            faceShape: profileForOutfit?.confirmedFaceShape ?? null,
+            hairVolume: (visionForOutfit?.hairSignals as { volume?: string } | null)?.volume ?? null,
+            hairlineSignal: (visionForOutfit?.hairSignals as { hairline?: string } | null)?.hairline ?? null,
+            budgetTier: profileForOutfit?.budgetTier ?? null,
+            scene: eventForOutfit?.eventType ?? (plan.track === "long_term" ? "日常" : null),
+            season: seasonForDate(eventForOutfit?.eventDate),
+          }, { selectedStyleIds: [selectedStyleId], requestedLookCount: 3, includeSupply: true });
+        } catch {
+          // 旧首轮的自由风格 id 尚未映射到 41 个系统风格时，不让它阻断既有预览流程。
+          systemWardrobe = null;
+        }
+      }
       const outfitView = await outfitApp.recommendOutfits({
         userId: p.userId,
         planId: p.planId,
@@ -423,6 +450,8 @@ export function createJobOrchestrator(container: AppContainer) {
       }
       await jobs.mergePartialResult(p.jobId, {
         outfit: {
+          // 用户可先看系统衣柜主搭/备选与槽位替换，再决定是否进入现有的真人预览候选。
+          systemWardrobe,
           mode: s4b.data.mode,
           previews: s4b.data.previews,
           degradedNotice: s4b.data.degradedNotice,

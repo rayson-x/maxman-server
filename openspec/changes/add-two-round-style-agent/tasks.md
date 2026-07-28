@@ -23,7 +23,8 @@
 
 ## 2. faceMetrics schema 放行客户端新增维度
 
-- [x] 2.1 `schemas/intake.ts` 的 `faceMetricsSchema` 放行：视觉年轻程度、面部性别倾向、颧骨遮盖需求
+- [x] 2.1 `schemas/intake.ts` 的 `faceMetricsSchema` 放行：视觉年轻程度、颧骨遮盖需求
+      （原计划含「面部性别倾向」，按产品决策撤销，客户端已删除该维度）
 - [x] 2.2 保持"结构必需、取值枚举约束"的既有口径，未知字段仍被剥离
 
 ## 3. 两轮合一 + 风格层

@@ -142,20 +142,15 @@ export const faceMetricsSchema = z.object({
     hairline: z.object({ value: z.enum(["normal", "high", "receding", "occluded"]) }).optional(),
     hairVolume: z.object({ value: z.enum(["thin", "medium", "thick"]) }).optional(),
     /**
-     * 以下三项是客户端测量的方向性信号，不是对实际年龄或性别的判定。
+     * 以下两项是客户端测量的方向性信号，不是对实际年龄的判定。
+     * （原有 facialGenderTendency 已移除：实测阈值把男性脸判成偏柔和，
+     *   标定不可靠，与其留一个会误导下游的字段不如不要。）
      * 统一沿用 Classification<T> 的可选 value / confidence / evidence 形状，
      * 让服务端只接受受限枚举、仍可在测量局部失败时降级。
      */
     visualYouthfulness: z
       .object({
         value: z.enum(["low", "medium", "high"]),
-        confidence: z.enum(["low", "medium", "high"]).optional(),
-        evidence: z.record(z.string(), z.number()).optional(),
-      })
-      .optional(),
-    facialGenderTendency: z
-      .object({
-        value: z.enum(["masculine", "balanced", "soft"]),
         confidence: z.enum(["low", "medium", "high"]).optional(),
         evidence: z.record(z.string(), z.number()).optional(),
       })

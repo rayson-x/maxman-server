@@ -129,6 +129,11 @@ model AppearanceProfile {
   /// 决策 5：用户对客户端几何测量出的脸型的确认/修正。
   /// 用户修正值优先于计算值用于所有下游过滤。
   confirmedFaceShape String?
+  /// 这次确认是针对**哪张正面照**做的。
+  /// 没有它，确认值就是永久粘住的：用户换一张照片、测量结果变了，旧确认值仍然
+  /// 压着新测量，而客户端显示的是新测量 —— 于是客户端说长脸、agent 说椭圆，
+  /// 两边永远对不上（实测复现）。分析时只有 id 相符才采用确认值。
+  confirmedFaceShapePhotoId String?
 
   /// 现状满意度四档（来自首屏 satisfaction 页）。用途是**方案节奏**：
   /// 意愿强则把见效快的动作排前。与 track 正交——track 表示有无具体场合。
@@ -336,6 +341,12 @@ model CandidateTaskCatalog {
   /// 决策 7：阶段落位依据，如 ["stage0","stage1"]
   applicableStageRange String[]
   visualBenefitLevel   String?
+  /// 送往图生图的渲染文案。**为空 = 这个方法在正面照里画不出来**，目标图不收它。
+  /// 与 description 分开：description 是给用户看的建议（含括号补充、否定式、
+  /// 破折号解释），直接喂图像模型会让 prompt 超长且指令跟随变差——实测阶段 0
+  /// 的 prompt 因此长到 152 字符（供应商建议 ≤120）。
+  /// 判定按方法而非领域：指甲清理属于 face_grooming，但正面照里看不见。
+  renderDescription    String?
   /// 调研标注「不建议纳入」的方法（如 Mewing、下颌线训练器）设 false，
   /// 规则引擎永不选取，仅保留记录与原因
   isRecommended        Boolean       @default(true)
@@ -478,6 +489,8 @@ model StageTask {
   sortOrder          Int        @default(0)
   /// 任务生成时预写，完成时原样写入 ChangeManifestEntry，不再调 LLM
   changeDescription  String?
+  /// 目标图用的渲染文案，S5 从目录/选定造型预写。为空表示这条画不出来。
+  renderDescription  String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -505,6 +518,8 @@ model ChangeManifestEntry {
   sourceTaskId       String?            @unique
   domain             String
   changeDescription  String
+  /// 目标图用的渲染文案（自 StageTask 原样带过来）。为空表示这条画不出来。
+  renderDescription  String?
   methodSummary      String?
   verificationStatus VerificationStatus @default(unverified)
   verifiedAt         DateTime?

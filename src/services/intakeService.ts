@@ -137,12 +137,31 @@ export async function saveFullQuestionnaire(
   return { contradictions };
 }
 
-/** tasks 3.7：脸型确认。决策 5——用户修正值优先于客户端计算值 */
+/**
+ * tasks 3.7：脸型确认。决策 5——用户修正值优先于客户端计算值。
+ *
+ * 同时记下**这次确认是针对哪张正面照**。不记的话确认值会永久粘住：
+ * 用户换一张照片、测量结果变了，分析仍用旧确认值覆盖，而客户端显示的是新测量，
+ * 于是客户端说长脸、agent 说椭圆（实测复现过）。
+ */
 export async function confirmFaceShape(prisma: PrismaClient, userId: string, faceShape: string): Promise<void> {
+  const latestFront = await prisma.userPhoto.findFirst({
+    where: { userId, photoType: "front", deletionStatus: "active" },
+    orderBy: { uploadedAt: "desc" },
+    select: { id: true },
+  });
   await prisma.appearanceProfile.upsert({
     where: { userId },
-    create: { userId, domainSelections: [], confirmedFaceShape: faceShape },
-    update: { confirmedFaceShape: faceShape },
+    create: {
+      userId,
+      domainSelections: [],
+      confirmedFaceShape: faceShape,
+      confirmedFaceShapePhotoId: latestFront?.id ?? null,
+    },
+    update: {
+      confirmedFaceShape: faceShape,
+      confirmedFaceShapePhotoId: latestFront?.id ?? null,
+    },
   });
 }
 

@@ -26,6 +26,8 @@ export type AnalyzeVisionOutput = {
     confidence: string | null;
     evidence: Record<string, number>;
     source: "client_mediapipe" | "unavailable";
+    /** 有确认值但它针对的是另一张照片，本次用的是实测值 */
+    confirmationStale?: boolean;
   };
   /** 供第 6 节发型约束规则使用的信号 */
   hairSignals: HairSignals;
@@ -72,7 +74,7 @@ function extractClientSignals(faceMetrics: unknown): Record<string, unknown> {
   if (!classification || typeof classification !== "object" || Array.isArray(classification)) return {};
 
   // `raw` 可能包含 478 点 landmark；它只用于客户端展示，既不需要也不应送入模型。
-  const allowed = ["visualYouthfulness", "facialGenderTendency", "cheekboneCoverageNeed"];
+  const allowed = ["visualYouthfulness", "cheekboneCoverageNeed"];
   return Object.fromEntries(
     allowed.flatMap((key) => {
       const value = (classification as Record<string, unknown>)[key];
@@ -111,10 +113,23 @@ export const analyzeVisionStep: Step<AnalyzeVisionInput, AnalyzeVisionOutput> = 
       selfReportedVolume: profile?.selfReportedHairVolume ?? undefined,
     };
 
-    // 用户确认过的脸型优先于计算值（决策 5）
-    if (profile?.confirmedFaceShape) {
-      geometry.faceShape = profile.confirmedFaceShape;
+    /*
+     * 用户确认过的脸型优先于计算值（决策 5）—— **但只在确认针对的是这张照片时**。
+     *
+     * 确认值存在 profile 上、永久保留；照片却可以换。原来无条件覆盖的后果是：
+     * 用户换一张照片重新测出 oblong，客户端显示「长脸」，而分析仍被旧的 oval
+     * 覆盖，agent 照实说「椭圆形」—— 两边永远对不上，且没有任何提示。
+     * 现在照片不匹配就视为确认已过期，回落到本张照片的实测值。
+     */
+    const confirmationMatchesPhoto =
+      profile?.confirmedFaceShape != null
+      && profile.confirmedFaceShapePhotoId === photo.id;
+    if (confirmationMatchesPhoto) {
+      geometry.faceShape = profile!.confirmedFaceShape;
       geometry.confidence = "user_confirmed";
+    } else if (profile?.confirmedFaceShape) {
+      // 如实标注：有确认值但不是针对这张照片，用的是实测值
+      geometry.confirmationStale = true;
     }
 
     return {

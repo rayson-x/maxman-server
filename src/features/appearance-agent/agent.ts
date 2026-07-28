@@ -7,6 +7,7 @@ import { createGenerateReferenceImageTool } from "./tools/generateReferenceImage
 import { createRecommendDirectionsTool } from "./tools/recommendDirectionsTool.js";
 import { createSuggestUnconstrainedDirectionsTool } from "./tools/suggestUnconstrainedDirectionsTool.js";
 import { createAdversarialReviewTool } from "./tools/adversarialReviewTool.js";
+import { createRecommendWardrobeTool } from "./tools/recommendWardrobeTool.js";
 import type { VisionAnalysisProvider } from "./providers/vision/types.js";
 import type { ImageEditProvider } from "./providers/imageEdit/types.js";
 import type { ClothingSwapProvider } from "./providers/clothing/types.js";
@@ -45,7 +46,7 @@ export function createAppearanceAgent(deps: AppearanceAgentDeps): Agent {
       "生成换装效果图时调用 swap-outfit 工具。" +
       "如果只是需要展示一个风格/发型/服装概念的示意图（不基于用户本人照片，不是个性化效果图），才调用 generate-reference-image 工具，" +
       "并且必须明确告知用户这只是风格示意图、不是他本人的效果图。" +
-      "审美与风格判断由固定管道中的推荐 provider 负责；当前对话 agent 没有生产级推荐工具，不得自行发明审美规则或评分。" +
+      "涉及穿搭推荐时，必须调用 recommend-wardrobe；它是固定流程共用的系统衣柜入口。不得在工具结果之外自行编造衣服、品牌、公式或单品 ID。" +
       "如果用户明确要求更大胆/更全面的建议（不只是目录内的保守方案），调用 suggest-unconstrained-directions 获取不受限制的建议，" +
       "但这些建议未经验证，绝对不能直接展示给用户——必须紧接着调用 adversarial-review-recommendations，把这两组结果一起传进去做对抗式审查，" +
       "只有 verdict=accept 的自由建议才可以呈现给用户，reject 的要说明被否决的原因，needs_professional_review 的要建议用户咨询专业人士。" +
@@ -59,6 +60,7 @@ export function createAppearanceAgent(deps: AppearanceAgentDeps): Agent {
       "recommend-appearance-directions": createRecommendDirectionsTool(deps.textPlanningProvider),
       "suggest-unconstrained-directions": createSuggestUnconstrainedDirectionsTool(deps.freeRecommendationProvider),
       "adversarial-review-recommendations": createAdversarialReviewTool(deps.adversarialReviewProvider),
+      "recommend-wardrobe": createRecommendWardrobeTool(),
     },
   });
 }

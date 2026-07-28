@@ -14,6 +14,7 @@ try {
     if (existing) { skipped += 1; continue; }
     await prisma.candidateTaskCatalog.create({ data: {
       domain: e.domain, methodName: e.methodName, description: e.description,
+      renderDescription: e.renderDescription,
       evidenceBasis: e.evidenceBasis, estTime: e.estTime, estCostRange: e.estCostRange,
       reversibility: e.reversibility, riskLevel: e.riskLevel, riskNote: e.riskNote,
       applicableStageRange: e.applicableStageRange, visualBenefitLevel: e.visualBenefitLevel,

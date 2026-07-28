@@ -14,6 +14,7 @@ export type PreviewCandidate = {
 import { persistGeneratedImage } from "../lib/generatedImagePersistence.js";
 import { createGeneratedAssetService } from "../services/generatedAssetService.js";
 import { createPhotoAccessService } from "../services/photoAccessService.js";
+import { NEGATIVE_PROMPT } from "../services/targetImageService.js";
 
 /**
  * S4 / S4' 效果图生成（tasks 5.6/5.7）。
@@ -121,6 +122,8 @@ export const renderPreviewsStep: Step<RenderPreviewsInput, RenderPreviewsOutput>
         const result = await deps.providers.imageEdit.edit({
           imageUrl: baselineUrl,
           instruction: candidate.renderInstruction,
+          // 身份/写实的否定式约束走 negative_prompt，不再占正向长度预算
+          negativePrompt: NEGATIVE_PROMPT,
           seed: plan?.generationSeed,
         });
         await recordWorkflowRun(deps.prisma, {

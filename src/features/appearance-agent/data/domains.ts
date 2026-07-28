@@ -42,6 +42,29 @@ export function isStyleDomain(d: string): boolean {
   return (STYLE_DOMAINS as readonly string[]).includes(d);
 }
 
+/**
+ * 正面照里**能作为一次离散图像编辑画出来**的领域。
+ *
+ * 只有这三个：发型、穿搭、面部修饰（胡须/眉形/鼻毛这类轮廓可见的改动）。
+ *
+ * 其余领域刻意排除，原因不是"不重要"而是"画不出来"：
+ *   - skincare / dental / body_odor：护肤流程、口腔护理、体味管理没有可渲染的
+ *     离散视觉目标。把「早晚温和洁面 + 保湿」当图像编辑指令喂给 SeedEdit，
+ *     模型唯一能做的就是通用磨皮——这正是目标图"一眼假"的主因（实测 183 字符
+ *     的 prompt 里三条全是护肤流程，产出一张塑料感磨皮图）。
+ *   - fitness / posture：体型变化与身份保持约束直接冲突（我们明确要求
+ *     不改胖瘦、不加减肌肉），渲染出来只会是另一个人。
+ */
+export const VISUALLY_RENDERABLE_DOMAINS = [
+  "hairstyle",
+  "outfit",
+  "face_grooming",
+] as const;
+
+export function isVisuallyRenderableDomain(d: string): boolean {
+  return (VISUALLY_RENDERABLE_DOMAINS as readonly string[]).includes(d);
+}
+
 /** 给用户看的中文名。仅用于展示，判定一律用上面的英文 key */
 export const DOMAIN_LABELS_ZH: Record<Domain, string> = {
   hairstyle: "发型",

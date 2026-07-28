@@ -6,6 +6,7 @@ import { createStageProgressionService } from "../services/stageProgressionServi
 import { createPhotoAccessService } from "../services/photoAccessService.js";
 import { QUEUE_NAMES } from "../lib/queues.js";
 import { enqueueCreatedAnalysisJob } from "../services/analysisJobEnqueueService.js";
+import { reviewUserFreeText } from "../services/freeTextReview.js";
 
 const statusUpdateSchema = z.object({
   status: z.enum(["pending", "done", "skipped", "blocked", "replaced"]),
@@ -17,6 +18,7 @@ const styleHairstyleSelectionSchema = z.object({
   styleId: z.string().regex(/^[a-z0-9][a-z0-9_-]{1,39}$/),
   candidateId: z.string().min(1),
 });
+const customStyleDirectionSchema = z.object({ text: z.string().trim().min(2).max(200) });
 
 const selectableStyleDirectionSchema = z.object({
   id: z.string().regex(/^[a-z0-9][a-z0-9_-]{1,39}$/),
@@ -26,6 +28,14 @@ const selectableStyleDirectionSchema = z.object({
 });
 
 export type SelectableStyleDirection = z.infer<typeof selectableStyleDirectionSchema>;
+
+function seasonForDate(date: Date | null | undefined): "春" | "夏" | "秋" | "冬" {
+  const month = (date ?? new Date()).getMonth() + 1;
+  if (month >= 3 && month <= 5) return "春";
+  if (month >= 6 && month <= 8) return "夏";
+  if (month >= 9 && month <= 11) return "秋";
+  return "冬";
+}
 
 /** 只信任最新成功首轮任务里 tool schema 已验证过的风格方向。 */
 export function findSelectableStyleDirection(
@@ -199,6 +209,45 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
   });
 
   /**
+   * 不需要等待出图的系统衣柜入口。它和 workflow / Agent 使用同一个 JSON 目录匹配器；
+   * JSON 是系统内容，数据库只用于读取当前用户档案与已选风格。
+   */
+  app.get("/plans/:planId/wardrobe-recommendation", async (req, reply) => {
+    const user = requireUser(req);
+    const { planId } = req.params as { planId: string };
+    const plan = await prisma.appearancePlan.findFirst({ where: { id: planId, userId: user.id } });
+    if (!plan) return reply.code(404).send({ error: "方案不存在" });
+    const styleId = (plan.selectedStyle as { id?: unknown } | null)?.id;
+    if (typeof styleId !== "string") {
+      return reply.code(422).send({ error: "style_not_selected", message: "请先选择一个风格方向" });
+    }
+    const [profile, event] = await Promise.all([
+      prisma.appearanceProfile.findUnique({ where: { userId: user.id } }),
+      prisma.event.findUnique({ where: { userId: user.id } }),
+    ]);
+    const recommender = createRecommendationApplication({
+      prisma,
+      hairstyleProvider: app.container.providers.hairstyleRecommendation,
+      outfitProvider: app.container.providers.outfitRecommendation,
+    });
+    try {
+      return reply.send(recommender.recommendWardrobe({
+        heightCm: profile?.heightCm ?? null,
+        weightKg: profile?.weightKg ?? null,
+        faceShape: profile?.confirmedFaceShape ?? null,
+        budgetTier: profile?.budgetTier ?? null,
+        scene: event?.eventType ?? (plan.track === "long_term" ? "日常" : null),
+        season: seasonForDate(event?.eventDate),
+      }, { selectedStyleIds: [styleId], requestedLookCount: 3, includeSupply: true }));
+    } catch {
+      return reply.code(422).send({
+        error: "style_not_in_system_wardrobe",
+        message: "当前选择的自由风格尚未映射到系统衣柜，请从系统风格中重新选择",
+      });
+    }
+  });
+
+  /**
    * 用户从预览候选里选定发型/穿搭（决策 3 的两步约束选择）。
    *
    * 这个端点此前**完全缺失**：`selectedHairstyleId` 只被 `planRevisionService`
@@ -328,6 +377,97 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
       return reply.code(code).send({ error: result.reason, message });
     }
     return reply.send({ ok: true, styleId, candidateId: result.candidateId, nameZh: result.nameZh });
+  });
+
+  /**
+   * 自定义风格方向（方案 A：与固定的 3-4 个方向**并列**，不是替代）。
+   *
+   * 走的是和 `POST /intake/hair-intent` **同一条双层审核链路**
+   * （见 services/freeTextReview.ts）——自由文本要驱动下游出图，不能直接透传。
+   *
+   * 通过后**追加进首轮结果的 styleRecommendations**，而不是另开一条选择通道：
+   * `select-style-direction` 的合法性判定以"首轮提供过什么"为唯一依据，
+   * 另开通道等于绕过它。
+   */
+  app.post("/plans/:planId/custom-style-direction", async (req, reply) => {
+    const user = requireUser(req);
+    const { planId } = req.params as { planId: string };
+    const { text } = customStyleDirectionSchema.parse(req.body);
+    const trimmed = text.trim();
+
+    const plan = await prisma.appearancePlan.findFirst({ where: { id: planId, userId: user.id } });
+    if (!plan) return reply.code(404).send({ error: "方案不存在" });
+
+    const job = await prisma.analysisJob.findFirst({
+      where: {
+        userId: user.id,
+        planId,
+        jobType: "initial_analysis",
+        status: { in: ["completed", "completed_partial"] },
+      },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, partialResult: true },
+    });
+    if (!job) {
+      return reply.code(422).send({
+        error: "no_first_round",
+        message: "还没有完成分析，无法追加风格方向",
+      });
+    }
+
+    const review = await reviewUserFreeText(trimmed, app.log);
+    if (!review.accepted) {
+      return reply.code(review.status).send({
+        accepted: false,
+        reason: review.reason,
+        category: review.category,
+        message: review.message,
+        ...(review.layer ? { layer: review.layer } : {}),
+        ...(review.reviewUnavailable ? { reviewUnavailable: true } : {}),
+      });
+    }
+
+    /*
+     * 用户自述的方向**必须可辨识**：下游展示时要标注它不是我们的推荐，
+     * 效果仅供参考（与 hair-intent 的 labelAsUserSpecified 同一口径）。
+     */
+    const direction = {
+      id: "custom-user-specified",
+      nameZh: trimmed.length <= 12 ? trimmed : `${trimmed.slice(0, 11)}…`,
+      description: trimmed.slice(0, 240),
+      rationale: "你自己描述的方向。不在我们的推荐库内，效果仅供参考",
+    };
+
+    const existing = (job.partialResult ?? {}) as Record<string, unknown>;
+    const offered = Array.isArray(existing.styleRecommendations)
+      ? (existing.styleRecommendations as unknown[])
+      : [];
+    // 覆盖同 id 的旧自述方向，避免用户改了几次就攒出一堆
+    const merged = [
+      ...offered.filter((d) => (d as { id?: string })?.id !== direction.id),
+      direction,
+    ];
+
+    await prisma.$transaction([
+      prisma.analysisJob.update({
+        where: { id: job.id },
+        data: { partialResult: { ...existing, styleRecommendations: merged } as never },
+      }),
+      prisma.conversationDecision.create({
+        data: {
+          planId,
+          decisionKind: "custom_style_direction_submitted",
+          payload: { text: trimmed, secondLayerReviewed: review.secondLayerReviewed } as never,
+        },
+      }),
+    ]);
+
+    return reply.send({
+      accepted: true,
+      style: direction,
+      labelAsUserSpecified: true,
+      secondLayerReviewed: review.secondLayerReviewed,
+    });
   });
 
   /** tasks 8.2/8.3：任务状态更新，完成时自动写账本 */

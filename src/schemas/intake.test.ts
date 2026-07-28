@@ -35,7 +35,6 @@ test("face metrics accept the new bounded style signals and strip unknown fields
   const parsed = faceMetricsSchema.parse({
     classification: {
       visualYouthfulness: { value: "high" },
-      facialGenderTendency: { value: "masculine" },
       cheekboneCoverageNeed: { value: "medium" },
     },
     untrustedExtra: "must not cross the API boundary",
@@ -44,7 +43,6 @@ test("face metrics accept the new bounded style signals and strip unknown fields
   assert.deepEqual(parsed, {
     classification: {
       visualYouthfulness: { value: "high" },
-      facialGenderTendency: { value: "masculine" },
       cheekboneCoverageNeed: { value: "medium" },
     },
   });
@@ -54,7 +52,6 @@ test("face metrics reject unsupported values for new style signals", () => {
   const result = faceMetricsSchema.safeParse({
     classification: {
       visualYouthfulness: { value: "ageless" },
-      facialGenderTendency: { value: "unknown" },
       cheekboneCoverageNeed: { value: "always" },
     },
   });

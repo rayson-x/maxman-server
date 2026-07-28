@@ -1,5 +1,6 @@
 import type { PrismaClient } from "../generated/prisma/client.js";
 import type { JobStatus, JobType } from "../generated/prisma/enums.js";
+import { Prisma } from "../generated/prisma/client.js";
 
 /**
  * AnalysisJob 状态机与仓储（tasks 7.1）。
@@ -41,24 +42,38 @@ export function createAnalysisJobRepository(prisma: PrismaClient) {
   return {
     async create(params: { userId: string; jobType: JobType; planId?: string; stageId?: string; idempotencyKey?: string }) {
       if (params.idempotencyKey) {
-        return prisma.analysisJob.upsert({
-          where: {
-            userId_jobType_idempotencyKey: {
-              userId: params.userId,
-              jobType: params.jobType,
-              idempotencyKey: params.idempotencyKey,
-            },
-          },
-          create: {
-            userId: params.userId,
-            jobType: params.jobType,
-            planId: params.planId,
-            stageId: params.stageId,
-            idempotencyKey: params.idempotencyKey,
-            status: "created",
-          },
-          update: {},
-        });
+        const key = {
+          userId: params.userId,
+          jobType: params.jobType,
+          idempotencyKey: params.idempotencyKey,
+        };
+        try {
+          return await prisma.analysisJob.upsert({
+            where: { userId_jobType_idempotencyKey: key },
+            create: { ...key, planId: params.planId, stageId: params.stageId, status: "created" },
+            update: {},
+          });
+        } catch (error) {
+          /*
+           * upsert 对**并发插入**不是原子的：两个请求都查不到、都走 create，
+           * 一个撞唯一约束 → P2002 → 500。
+           *
+           * 这不是边缘情况——React 严格模式下 effect 必然跑两次，
+           * 于是每个浏览器首次分析都会打出一次 500，客户端随即降级到模拟数据，
+           * 用户看到一份"成功"的假方案。实测复现率 100%。
+           * 幂等键的语义本就是"同一个键只应有一个 job"，撞了就把已存在那条读回来。
+           */
+          if (
+            error instanceof Prisma.PrismaClientKnownRequestError
+            && error.code === "P2002"
+          ) {
+            const existing = await prisma.analysisJob.findUnique({
+              where: { userId_jobType_idempotencyKey: key },
+            });
+            if (existing) return existing;
+          }
+          throw error;
+        }
       }
       return prisma.analysisJob.create({
         data: {

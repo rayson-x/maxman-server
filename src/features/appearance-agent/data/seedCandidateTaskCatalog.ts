@@ -28,6 +28,8 @@ export type SeedCatalogEntry = {
   visualBenefitLevel: "low" | "medium" | "high";
   isRecommended: boolean;
   exclusionReason?: string;
+  /** 送往图生图的渲染文案。留空 = 正面照里画不出来，目标图不收 */
+  renderDescription?: string;
 };
 
 export const CANDIDATE_TASK_CATALOG_SEED: SeedCatalogEntry[] = [
@@ -44,6 +46,7 @@ export const CANDIDATE_TASK_CATALOG_SEED: SeedCatalogEntry[] = [
     applicableStageRange: ["stage0"],
     visualBenefitLevel: "medium",
     isRecommended: true,
+    renderDescription: "把胡须剃净，下颌线与颊线边界清晰"
   },
   {
     domain: "face_grooming",
@@ -58,6 +61,7 @@ export const CANDIDATE_TASK_CATALOG_SEED: SeedCatalogEntry[] = [
     applicableStageRange: ["stage0"],
     visualBenefitLevel: "medium",
     isRecommended: true,
+    renderDescription: "眉毛边缘杂毛清理干净，眉形保持原样"
   },
   {
     domain: "face_grooming",

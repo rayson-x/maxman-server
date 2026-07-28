@@ -137,6 +137,8 @@ export function createStageProgressionService(prisma: PrismaClient) {
                 sourceTaskId: task.id,
                 domain: task.domain,
                 changeDescription: description,
+                // 渲染文案原样带到账本：后续阶段的目标图要拿它拼 prompt
+                renderDescription: task.renderDescription,
                 // 决策 13：自报完成默认 unverified，等 progress_recheck 校准
                 verificationStatus: "unverified",
               },
@@ -238,39 +240,63 @@ export function createStageProgressionService(prisma: PrismaClient) {
       });
       if (!baseline) return null;
 
-      // 已完成账本：本阶段之前所有阶段的条目（含本阶段已完成的）
+      // 已完成账本：本阶段之前所有阶段的条目（含本阶段已完成的）。
+      // **只取视觉可渲染领域**：护肤/口腔/体味/健身的条目进 prompt 只会让
+      // 模型去"泛泛地把人修好看"，产出磨皮图（见 VISUALLY_RENDERABLE_DOMAINS）。
       const completedEntries = await prisma.changeManifestEntry.findMany({
-        where: { planId, verificationStatus: { not: "rolled_back" } },
+        where: {
+          planId,
+          verificationStatus: { not: "rolled_back" },
+          // 判定按**方法**而非领域：指甲清理也属于 face_grooming，
+          // 但正面照里看不见。有渲染文案才画得出来。
+          renderDescription: { not: null },
+        },
         orderBy: { createdAt: "asc" },
       });
 
-      // 本阶段 core 任务的计划变化（尚未完成但已计划）。
-      // **只取 core**：core 集合同时定义解锁条件与目标图内容，两者一致；
-      // 否则用户跳过/替换 optional 任务就要重算图。
+      /**
+       * 本阶段尚未完成但已计划的变化。
+       *
+       * 取 core **加上**可渲染领域的 optional，而不是只取 core。
+       * 原来的理由是「core 同时定义解锁条件与目标图内容」，但实测下来
+       * S5 把「落实选定发型/穿搭」落成了 optional，而这恰恰是全阶段唯一
+       * 视觉可渲染的两条：只取 core 的话，阶段 1-3 的 core 全是护肤/体态/
+       * 健身，过滤后为空 → 目标图从阶段 1 起永远不出现。
+       * 目标图是激励物，宁可在用户跳过 optional 时重算，也不能让它消失。
+       */
       const coreTasks = await prisma.stageTask.findMany({
-        where: { stageId, priority: "core", status: { notIn: ["done", "replaced"] } },
-        orderBy: { sortOrder: "asc" },
+        where: {
+          stageId,
+          status: { notIn: ["done", "replaced"] },
+          renderDescription: { not: null },
+        },
+        orderBy: [{ priority: "asc" }, { sortOrder: "asc" }],
       });
 
-      const plannedChanges = coreTasks.map((t) => {
-        if (t.taskType === "guided_selection" && t.styleTag) {
-          const opts = (t.candidateOptions ?? []) as { styleTag: string; changeDescription: string }[];
-          return opts.find((o) => o.styleTag === t.styleTag)?.changeDescription ?? t.changeDescription ?? t.title;
-        }
-        return t.changeDescription ?? t.title;
-      });
+      // 送给图像模型的是 renderDescription（渲染文案），不是 changeDescription
+      // （给用户看的建议文案）。guided_selection 的候选文案同理。
+      const plannedChanges = coreTasks.map((t) => t.renderDescription!).filter(Boolean);
+
+      const renderable = [
+        ...completedEntries.map((e) => e.renderDescription!),
+        ...plannedChanges,
+      ];
 
       return {
         baselinePhotoId: baseline.id,
         baselineStorageKey: baseline.storageKey,
         // 决策 4：per-user 固定 seed，保证四阶段图像是同一个人的连续演变
         seed: plan.generationSeed,
-        completedChanges: completedEntries.map((e) => e.changeDescription),
+        completedChanges: completedEntries.map((e) => e.renderDescription!),
         plannedChanges,
         /** 合并后的指令列表。编号列表格式实测比逗号串联效果更好 */
-        instruction: [...completedEntries.map((e) => e.changeDescription), ...plannedChanges]
-          .map((c, i) => `${i + 1}.${c}`)
-          .join(" "),
+        instruction: renderable.map((c, i) => `${i + 1}.${c}`).join(" "),
+        /**
+         * 本阶段有没有值得出图的视觉变化。
+         * false 时调用方应当**跳过生成**而不是硬出一张——没有可渲染的改变时
+         * 模型只会返回一张磨皮版原图，既费额度又误导用户。
+         */
+        hasRenderableChange: renderable.length > 0,
         stageIndex: stage.stageIndex,
       };
     },

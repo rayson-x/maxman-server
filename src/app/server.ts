@@ -54,7 +54,10 @@ export async function buildApp({ container, logger = true }: BuildAppOptions): P
       "http://127.0.0.1:3000",
     ],
     credentials: true,
-    allowedHeaders: ["Content-Type", "X-Device-Session"],
+    // Idempotency-Key 是建 job 的必需头（analysisJobs.ts 缺了就 400）。
+    // 不列进来的话浏览器预检直接拒绝，整条生成链路在 Web 端不可用 ——
+    // Node 侧的 E2E 不走预检，测不出这个。
+    allowedHeaders: ["Content-Type", "X-Device-Session", "Idempotency-Key"],
   });
 
   app.decorate("container", container);

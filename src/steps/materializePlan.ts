@@ -55,6 +55,12 @@ export type MaterializeTaskSpec = {
   applicableStageRange: string[];
   evidenceBasis: "visual_detected" | "self_reported" | "general_best_practice";
   changeDescription: string;
+  /**
+   * 目标图用的渲染文案。留空 = 这条在正面照里画不出来，不进图生图 prompt。
+   * 与 changeDescription 分开：后者是给用户看的建议（含括号补充、否定式、
+   * 破折号解释），直接喂图像模型会让 prompt 超长、指令跟随变差。
+   */
+  renderDescription?: string;
   estTime?: string;
   estCost?: string;
   rationale?: string;
@@ -191,6 +197,7 @@ export const materializePlanStep: Step<MaterializePlanInput, MaterializePlanOutp
             estCost: spec.estCost,
             rationale: spec.rationale,
             changeDescription: spec.changeDescription,
+            renderDescription: spec.renderDescription,
             sortOrder: order,
           },
         });
