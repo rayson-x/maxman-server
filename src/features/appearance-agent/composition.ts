@@ -112,8 +112,10 @@ export function getImageEditProvider(): ImageEditProvider {
     //   Seedream 4.0  比 SeedEdit 基准还差（墙面漂移 18-22）
     //   Seedream 5.0 lite  质感最好，但会自作主张把正脸转成侧脸构图——结构不可控
     //   Seedream 4.5  发丝质感和皮肤保真度最好，且两款测试都保持正脸构图 → 定为默认
-    // ⚠ 代价：方舟是三套凭证里最新接入的一套（ARK_API_KEY，与视觉智能的 AK/SK 分开），
-    // 未在生产流量下跑过；15 款 renderDescription 仍是按 SeedEdit 校准的，需要重校一轮。
+    // 15 款 renderDescription 已按 Seedream 4.5 重校（11 款原样通过、4 款改措辞），
+    // 且 prompt 结构随之改为「约束前置 + 带发型名」——见 composeEditInstruction。
+    // ⚠ 方舟是三套凭证里最新接入的一套（ARK_API_KEY，与视觉智能的 AK/SK 是分开的两套），
+    // 尚未在生产流量下跑过。
     "ark",
   ));
 }
