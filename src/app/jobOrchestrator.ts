@@ -2,6 +2,7 @@ import type { AppContainer } from "./container.js";
 import type { AgentWeatherContext } from "../features/appearance-agent/weather/types.js";
 import { photoModerationWhere } from "../lib/photoModerationGate.js";
 import { env } from "../config/env.js";
+import { QUEUE_NAMES } from "../lib/queues.js";
 import type { PrismaClient } from "../generated/prisma/client.js";
 import { createAnalysisJobRepository } from "../repositories/analysisJobRepository.js";
 import { createTargetImageService } from "../services/targetImageService.js";
@@ -207,7 +208,15 @@ export function createJobOrchestrator(container: AppContainer) {
   const planRevision = createPlanRevisionService(prisma);
   const photoAccess = createPhotoAccessService(prisma);
   const dualSourceWorkflow = env.server.dualSourceRecommendationEnabled
-    ? createDualSourceWorkflowApplication(prisma)
+    ? createDualSourceWorkflowApplication(prisma, {
+        enqueueReviewer: async (comparisonId) => {
+          const queue = container.queues.queues[QUEUE_NAMES.textAnalysis];
+          if (!queue) throw new Error("reviewer_queue_unavailable");
+          await queue.add("dual_source_reviewer", { comparisonId }, {
+            jobId: `dual-source-reviewer:${comparisonId}`,
+          });
+        },
+      })
     : null;
   const deps: StepDeps = { prisma, providers: container.providers };
 

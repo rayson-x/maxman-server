@@ -4,6 +4,7 @@ import { createQueueWorker, createRedisConnection, QUEUE_NAMES, QUEUE_CONFIG, ty
 import { createJobOrchestrator, type JobPayload } from "./app/jobOrchestrator.js";
 import { createWorkerJobProcessor } from "./app/workerProcessor.js";
 import { createDataDeletionService } from "./services/dataDeletionService.js";
+import { createDualSourceReviewer } from "./features/dual-source-recommendation/reviewer.js";
 
 /**
  * Worker 进程入口（tasks 1.7）。与 API 进程分离，独立扩容。
@@ -42,9 +43,17 @@ for (const name of requested) {
  */
 const orchestrator = createJobOrchestrator(container);
 const deletion = createDataDeletionService(container.prisma);
+const dualSourceReviewer = createDualSourceReviewer(container.prisma);
 
 /** job.name 即 jobType（路由投递时以 jobType 命名，见 routes/analysisJobs.ts） */
 async function dispatch(job: Job): Promise<unknown> {
+  if (job.name === "dual_source_reviewer") {
+    const comparisonId = (job.data as { comparisonId?: unknown } | null)?.comparisonId;
+    if (typeof comparisonId !== "string" || comparisonId.length === 0) {
+      throw new Error("invalid dual_source_reviewer payload");
+    }
+    return dualSourceReviewer.review(comparisonId);
+  }
   const payload = job.data as JobPayload;
   const jobType = job.name as Parameters<typeof orchestrator.run>[0];
   if (!payload?.jobId) {
