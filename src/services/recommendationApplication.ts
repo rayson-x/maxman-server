@@ -14,6 +14,8 @@ import {
 import { computeHairConstraint, applyHairConstraint, type HairSignals } from "../features/appearance-agent/rules/hairConstraints.js";
 import { applySemanticHairlineVisibility, type StructuredSemanticAnalysis } from "../features/appearance-agent/analysis/semanticAnalysis.js";
 import { recordWorkflowRun } from "../steps/types.js";
+import { recommendWardrobe } from "../features/wardrobe-recommendation/recommend.js";
+import type { RecommendWardrobeRequest, WardrobeProfile } from "../features/wardrobe-recommendation/types.js";
 
 /**
  * 推荐能力的唯一对外入口。
@@ -408,8 +410,14 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       // 名字来自这张表，渲染描述也应当来自这张表；只有表外（用户自报）的
       // 造型才退回模型描述。
       const attrs = findObjectiveHairstyleAttributes(c.nameZh);
+      /*
+       * **不把发型名写进指令。** 实测「把发型改成微碎盖：额前碎发盖住发际线…」
+       * 在真人长发照上产出渐变背头、额头全露——与描述相反。模型不认这些中文
+       * 发型名，会映射到错误先验，且名称的先验压倒后面的描述（加反向词也压不住）；
+       * 同一条描述去掉名称立刻正确。名字只用于给用户展示。
+       */
       const direction = attrs?.renderDescription ?? c.visualDirection;
-      head = `把发型改成${c.nameZh}：${direction}`;
+      head = `把这个人的发型改成：${direction}`;
     } else {
       head = `换成这套穿搭：${c.visualDirection}`;
     }
@@ -770,6 +778,14 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
   }
 
   return {
+    /**
+     * JSON 系统衣柜的唯一应用层入口。目录不是用户数据，不落库；固定流程和 Agent
+     * 都从同一套已审核的风格 → 公式 → 槽位排序获取结果。
+     */
+    recommendWardrobe(profile: WardrobeProfile, request: RecommendWardrobeRequest) {
+      return recommendWardrobe(profile, request);
+    },
+
     async recommendHairstyles(command: {
       userId: string;
       planId: string;
@@ -963,7 +979,6 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       });
       return { ok: true, candidateId: candidate.id, nameZh: candidate.nameZh };
     },
-
 
     /** 原子选定首轮提供的一个风格—发型组合，避免短暂写入跨风格状态。 */
     async selectStyleAndHairstyle(command: {

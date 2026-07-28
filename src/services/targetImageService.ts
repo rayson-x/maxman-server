@@ -17,15 +17,43 @@ import { createPhotoAccessService } from "./photoAccessService.js";
  */
 
 /**
- * 附加到每条生成指令后的保留约束。
+ * 保留约束 + 写实约束。
  *
- * 为什么写在指令里而不是靠后置检查：实测发现给 img2img 加入体型描述词会让模型
+ * 为什么用提示词钉边界而不是靠后置检查：实测给 img2img 加入体型描述词会让模型
  * 连脸一起重新生成（身份漂移加剧）。既然模型对提示词敏感，就用提示词把边界钉住，
  * 而不是生成完再检查——后者只能发现问题，不能避免问题，且每次重试都是 ¥0.2。
+ *
+ * **为什么拆成正向 / 反向两段**：原先是一条 75 字符的后缀全拼在正向 prompt 里，
+ * 而 SeedEdit 建议正向 ≤120 字符，于是约束吃掉约 68% 的预算，真正要画的造型描述
+ * 只剩 30 余字——指令跟随随之变差（要"纹理前刺"给了个大背头）。
+ * 而且那 75 字符里有 4 处否定式，扩散类编辑模型对正向否定处理很弱。
+ * 现在：否定式进 `negative_prompt`，正向只留一句短约束 + 写实措辞。
  */
-export const IDENTITY_PRESERVATION_SUFFIX =
-  "保持这个人的脸型、五官比例、骨骼轮廓、肤色、身高与体型完全不变，只改变指定的部分。" +
-  "不要改变性别、年龄或种族特征。不要添加或减少肌肉、不要改变身材胖瘦。";
+
+/**
+ * 正向身份约束。**"表情"这一项是实测出来的关键**：不写它，SeedEdit 会把
+ * 源图的中性表情改成微笑（A/B 四组对照里，写了表情的那组是唯一保住中性表情、
+ * 且胡茬与皮肤纹理都还在的）。
+ *
+ * `changeScope` 指明"只改什么"，比笼统的"只改指定部分"更能约束模型的改动范围。
+ */
+export function identityConstraint(changeScope: string): string {
+  return `保持同一个人的脸型、五官与表情不变，只改${changeScope}`;
+}
+
+/** 多领域目标图用的通用版本（一次可能同时改发型与穿搭） */
+export const IDENTITY_PRESERVATION_SUFFIX = identityConstraint("指定部分");
+
+/**
+ * 反向 prompt。**只放"假"的表现，不放身份属性**。
+ *
+ * 实测教训：把脸型/五官/肤色/性别/年龄等 18 条否定式全塞进 negative_prompt，
+ * 出图反而比留在正向时更塑料、表情也漂了——项数一多每一项的权重就被稀释，
+ * 而"要保住什么"对编辑模型来说正向断言比反向否定有效得多。
+ * 身份靠 `identityConstraint` 正向钉，这里只负责压掉磨皮/CG 感。
+ */
+export const NEGATIVE_PROMPT =
+  "磨皮，皮肤过度光滑，塑料质感，过度美颜，CG 感，3D 渲染感，换背景，改变表情";
 
 export type QualityCheckResult = {
   passed: boolean;
@@ -112,6 +140,21 @@ export function createTargetImageService(prisma: PrismaClient, providers: AppCon
         return { ok: false, reason: "缺少基准照片或阶段不存在", attempts: 0, stageStillUnlocked: true };
       }
 
+      // 没有视觉可渲染的变化就不生成。硬出一张的结果是"磨皮版原图"：
+      // 白烧一次额度，还让用户以为方案的效果就是把皮肤修一下。
+      if (!input.hasRenderableChange) {
+        await recordWorkflowRun(prisma, {
+          jobId: params.jobId, planId: params.planId, stepName: "target_image_generation",
+          finalStatus: "skipped", latencyMs: Date.now() - t0,
+        });
+        return {
+          ok: false,
+          reason: "本阶段没有可渲染的外观变化（护肤/健身这类任务画不出来），跳过出图",
+          attempts: 0,
+          stageStillUnlocked: true,
+        };
+      }
+
       const plan = await prisma.appearancePlan.findUnique({ where: { id: params.planId } });
       if (!plan) {
         return { ok: false, reason: "方案不存在", attempts: 0, stageStillUnlocked: true };
@@ -137,6 +180,7 @@ export function createTargetImageService(prisma: PrismaClient, providers: AppCon
           const result = await providers.imageEdit.edit({
             imageUrl: baselineUrl,
             instruction,
+            negativePrompt: NEGATIVE_PROMPT,
             seed: input.seed,
           });
           const persisted = await persistGeneratedImage({
