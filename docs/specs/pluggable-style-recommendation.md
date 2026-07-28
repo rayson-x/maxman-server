@@ -2,7 +2,7 @@
 
 当前实施方案（LLM-first）· 关联 OpenSpec 变更 `add-pluggable-style-recommendation`
 
-本文是推荐能力的技术依据。`target-workflow.md` 与 OpenSpec 与本文保持一致。
+本文是推荐能力的技术依据。`../target-workflow.md` 与 OpenSpec 与本文保持一致。
 
 ---
 

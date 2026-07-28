@@ -1,11 +1,11 @@
-> 范围：仅 `server/` 目录。客户端任务由客户端团队在 `docs/mvp-web-ui-design.md` 及其独立清单中跟踪。
+> 范围：仅 `server/` 目录。客户端任务在 `client/openspec/` 中独立跟踪（活规格见 `client/openspec/specs/`）。
 > 依赖：`add-appearance-agent-foundation`（provider 层已验证可用）已完成，本清单在其之上构建。
 
 ## 0. 前置阻塞项
 - [~] 0.1 `ImageModerationProvider` 供应商选型 — **本地 MVP 阶段搁置**（不接真实内容安全服务，S1 只跑确定性红线规则）。上线前必须补，届时首选阿里云内容安全（`ALIYUN_GREEN_*` 配置位已预留，新用户 31 天内每日 3000 张免费额度）
 - [~] 0.2 `TextModerationProvider` 供应商选型 — 同上搁置
 - [x] 0.3 风格向量维度、协调阈值、双审美评分结构 — 落地为 `src/features/appearance-agent/data/styleProfile.ts`（四维向量 + 阈值 ≤3 + `femaleAppeal`/`maleSelfAppeal` 各带 source/confidence/rationale + 兼容组合生成 + 落差暴露判定）。数据本体故意留空待调研填充，不放占位假数据
-- [→] 0.4 生产风格数据：发型 20-30 条 + 穿搭品类 30-50 条 — **调研计划已委派 subagent 编写**，产出 `docs/style-data-research-plan.md`，后续由其他 agent 按计划执行
+- [→] 0.4 生产风格数据：发型 20-30 条 + 穿搭品类 30-50 条 — **调研计划已委派 subagent 编写**，产出物最终落在根 `docs/`（china-mens-style-catalog-research.md 等一组研究底稿）与 `client/data/style-annotation/`，并非原计划的单一 style-data-research-plan.md
 - [x] 0.5 领域词库 — 落地为 `src/features/appearance-agent/data/domainLexicon.ts`。采用「敏感部位 × 物理改变动词」共现判定而非整短语匹配（中文允许任意插入与近义替换，整短语匹配漏放率高）；含 `VISUAL_EFFECT_ONLY` 白名单确保"显小脸/显高穿搭"这类核心业务不被误杀；18/18 行为测试通过
 - [x] 0.6 对话 API 形态 — **多轮，但只存结构化决策摘要，不存对话原文**。跨轮需要记住的是"已确认的决策"（选了什么风格、拒绝了哪个方向及原因），而方案当前状态本来就在 `AppearancePlan` 里；不存原文同时规避了对话内容的隐私删除负担
 
