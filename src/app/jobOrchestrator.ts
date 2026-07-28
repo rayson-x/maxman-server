@@ -16,7 +16,7 @@ import { materializePlanStep, type MaterializeTaskSpec } from "../steps/material
 import { runWithSingleRetry, type StepContext, type StepDeps } from "../steps/types.js";
 import { isCatalogDomain, isStyleDomain } from "../features/appearance-agent/data/domains.js";
 import { deriveTaskDimensions } from "../features/appearance-agent/data/taskDimensions.js";
-import { findObjectiveHairstyleAttributes } from "../features/appearance-agent/data/objectiveHairstyleAttributes.js";
+import { findObjectiveHairstyleAttributes, type WigCraftTier } from "../features/appearance-agent/data/objectiveHairstyleAttributes.js";
 import { deriveWigOptions, type WigMatchableCandidate, type WigOptionOutcome } from "../features/appearance-agent/rules/wigOptions.js";
 import { buildSelectedStyleTaskSpecs } from "../services/selectedStyleTaskService.js";
 import { verifyProgressStep } from "../steps/verifyProgress.js";
@@ -1078,11 +1078,37 @@ export function createJobOrchestrator(container: AppContainer) {
           include: { set: true },
         }),
       ]);
+      /*
+       * 达成路径：选定的发型可能是**靠补充发量才能达成**的那一批。这个事实产生于首轮分析，
+       * 所以从那次 job 的结果里取回来，随任务一起落进变更清单——否则用户会以为剪个头发
+       * 就能变成效果图里的样子。取不到就当普通发型处理（fail closed 的自然结果）。
+       */
+      const priorAnalysisForWig = await prisma.analysisJob.findFirst({
+        where: {
+          userId: p.userId,
+          planId: p.planId,
+          jobType: "initial_analysis",
+          status: { in: ["completed", "completed_partial"] },
+        },
+        orderBy: { createdAt: "desc" },
+        select: { partialResult: true },
+      });
+      const wigAchievement = (
+        priorAnalysisForWig?.partialResult as { wigOptions?: WigOptionsView | null } | null
+      )?.wigOptions?.options.find((o) => o.candidateId === plan.selectedHairstyleId);
+
       let selectedStyleSpecs: MaterializeTaskSpec[];
       try {
         selectedStyleSpecs = buildSelectedStyleTaskSpecs({
           hairstyle: selectedHairstyle
-            ? { kind: selectedHairstyle.set.kind, nameZh: selectedHairstyle.nameZh, description: selectedHairstyle.description }
+            ? {
+                kind: selectedHairstyle.set.kind,
+                nameZh: selectedHairstyle.nameZh,
+                description: selectedHairstyle.description,
+                achievement: wigAchievement
+                  ? { tier: wigAchievement.tier, label: wigAchievement.achievementLabel }
+                  : undefined,
+              }
             : null,
           outfit: selectedOutfit
             ? { kind: selectedOutfit.set.kind, nameZh: selectedOutfit.nameZh, description: selectedOutfit.description }
@@ -1340,7 +1366,7 @@ export type JobOrchestrator = ReturnType<typeof createJobOrchestrator>;
 type WigOptionsView = {
   open: boolean;
   closedReason: string | null;
-  options: { candidateId: string; nameZh: string; tier: string; achievementLabel: string }[];
+  options: { candidateId: string; nameZh: string; tier: WigCraftTier; achievementLabel: string }[];
   /** 属性表未标注、需要人补依据的款式名。见 WIG-005 */
   annotationGaps: string[];
 };
