@@ -5,7 +5,7 @@ import type {
   CandidateVerificationStatus,
 } from "../generated/prisma/enums.js";
 import { createPhotoAccessService } from "./photoAccessService.js";
-import { identityConstraint } from "./targetImageService.js";
+import { identityConstraint, composeEditInstruction } from "./targetImageService.js";
 import { reviewFreeInput } from "../features/appearance-agent/data/domainLexicon.js";
 import {
   OBJECTIVE_HAIRSTYLE_ATTRIBUTES,
@@ -411,19 +411,29 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       // 造型才退回模型描述。
       const attrs = findObjectiveHairstyleAttributes(c.nameZh);
       /*
-       * **不把发型名写进指令。** 实测「把发型改成微碎盖：额前碎发盖住发际线…」
-       * 在真人长发照上产出渐变背头、额头全露——与描述相反。模型不认这些中文
-       * 发型名，会映射到错误先验，且名称的先验压倒后面的描述（加反向词也压不住）；
-       * 同一条描述去掉名称立刻正确。名字只用于给用户展示。
+       * **发型名要写进指令，但这一条随 provider 而变，别照抄旧结论。**
+       *
+       * SeedEdit 3.0 上必须去掉名字：「把发型改成微碎盖：额前碎发盖住发际线…」
+       * 在真人长发照上产出渐变背头、额头全露——名称的错误先验压倒了后面的描述，
+       * 反向词也压不住，去掉名字立刻正确。
+       *
+       * Seedream 4.5 上结论**反过来**（对照实验 `--variants N0,N1,N2`）：
+       *   - 只给描述（N0）→ 韩式逗号刘海丢掉逗号钩的形状
+       *   - 名 + 描述（N1）→ 3 款里 2 款最准，逗号钩清晰可见
+       *   - 只给名（N2）→ 2/3 偏离，说明厘米级描述仍有不可替代的信息量
+       * 它认得这些中文发型名，名称是有效锚点，描述负责细化。
        */
-      const direction = attrs?.renderDescription ?? c.visualDirection;
-      head = `把这个人的发型改成：${direction}`;
-    } else {
-      head = `换成这套穿搭：${c.visualDirection}`;
+      const direction = attrs
+        ? `改成${c.nameZh}，${attrs.renderDescription}`
+        : // 表外（用户自报）造型没有校准过的描述，只能退回模型的自由文本。
+          // 此时不加名字——名字同样来自模型，两个未校验的信号叠加只会放大错误。
+          c.visualDirection;
+      return composeEditInstruction("头发", direction);
     }
-    // 正向只留一句含"表情"的身份约束（实测缺了表情模型会自己加微笑），
-    // 反磨皮的否定式走 NEGATIVE_PROMPT，两边都不挤占造型描述的长度预算。
-    return `${head} ${identityConstraint(kind === "hairstyle" ? "头发" : "服装")}`;
+    head = `换成这套穿搭：${c.visualDirection}`;
+    // 穿搭沿用句尾约束：它改的是躯干区域，实测不触发发型那种头部转向漂移，
+    // 没有证据支持改结构，就不跟着改。
+    return `${head} ${identityConstraint("服装")}`;
   }
 
   /**

@@ -15,6 +15,7 @@ import {
   getHairstyleRecommendationProvider,
   getOutfitRecommendationProvider,
   getPlanMaterializationProvider,
+  getWeatherContextService,
 } from "../features/appearance-agent/composition.js";
 import type { VisionAnalysisProvider } from "../features/appearance-agent/providers/vision/types.js";
 import type { ImageEditProvider } from "../features/appearance-agent/providers/imageEdit/types.js";
@@ -25,6 +26,7 @@ import type { FreeRecommendationProvider } from "../features/appearance-agent/pr
 import type { AdversarialReviewProvider } from "../features/appearance-agent/providers/adversarialReview/types.js";
 import type { StyleRecommendationProvider } from "../features/appearance-agent/providers/styleRecommendation/types.js";
 import type { PlanMaterializationProvider } from "../features/appearance-agent/providers/planMaterialization/types.js";
+import type { WeatherContextService } from "../features/appearance-agent/weather/types.js";
 
 /**
  * 应用级组装根（tasks 1.6）。
@@ -54,6 +56,11 @@ export type AppContainer = {
     outfitRecommendation: ReturnType<typeof getOutfitRecommendationProvider>;
     planMaterialization: PlanMaterializationProvider;
   };
+  /**
+   * 城市级天气上下文。`withProviders: false` 时为 undefined——
+   * 调用方必须按"拿不到就降级"处理，见 jobOrchestrator 的 resolveWeatherContext。
+   */
+  weatherContext?: WeatherContextService;
   shutdown: () => Promise<void>;
 };
 
@@ -100,6 +107,9 @@ export function createContainer(opts: ContainerOptions = {}): AppContainer {
     prisma,
     queues,
     providers,
+    // 与 providers 同一个门控：build() 会打外部 HTTP（Open-Meteo），
+    // 纯 CRUD 测试不该因此产生网络依赖。
+    weatherContext: withProviders ? getWeatherContextService() : undefined,
     shutdown: async () => {
       await queues.close();
       await prisma.$disconnect();

@@ -1,4 +1,5 @@
 import type { AppContainer } from "./container.js";
+import type { AgentWeatherContext } from "../features/appearance-agent/weather/types.js";
 import { photoModerationWhere } from "../lib/photoModerationGate.js";
 import { env } from "../config/env.js";
 import type { PrismaClient } from "../generated/prisma/client.js";
@@ -57,12 +58,145 @@ export type JobPayload = {
 
 export type OrchestratorResult = { status: string; detail?: Record<string, unknown> };
 
-function seasonForDate(date: Date | null | undefined): "春" | "夏" | "秋" | "冬" {
+type Season = "春" | "夏" | "秋" | "冬";
+
+function seasonForDate(date: Date | null | undefined): Season {
   const month = (date ?? new Date()).getMonth() + 1;
   if (month >= 3 && month <= 5) return "春";
   if (month >= 6 && month <= 8) return "夏";
   if (month >= 9 && month <= 11) return "秋";
   return "冬";
+}
+
+export type SeasonBasis = "forecast" | "live_apparent" | "live_actual" | "monthly_normal" | "calendar";
+
+/**
+ * 按**目标日期当地的真实气温**定季节，而不是日历月份。
+ *
+ * 这是收集省/市的全部意义所在：北京 10 月和广州 10 月按日历都是「秋」，
+ * 实际是 15°C 与 28°C——同一句「适合秋季」的穿搭建议对其中一个必然是错的。
+ * `recommendWardrobe` 的打分只吃一个粗粒度 season 字符串（`recommend.ts:17`
+ * 按 `item.usage.seasons.includes(profile.season)` 加 18 分），所以要让天气
+ * 影响用户可见的输出，就得改这个入参本身，而不只是往 prompt 里塞天气。
+ *
+ * **取温必须对齐目标日期，不能一律用"今天"。** 这个坑是实跑时才暴露的：
+ * 最初实现无条件优先用实时体感，于是「10 月的活动」在 7 月查询时拿到 32°C，
+ * 判成夏——给三个月后的秋季活动推了夏装。所以按目标日期分三档：
+ *
+ *   1. 目标日在预报窗口内 → 用该日预报的当日均温（(min+max)/2）
+ *   2. 目标日就是最近几天但预报里没有 → 用实时体感/气温
+ *   3. 目标日更远（或无活动日期但实时不可用）→ 用**目标月**的历史均温
+ *
+ * 体感优先于实测气温，因为穿衣决策看的是体感（风和湿度都算进去了）；
+ * 但体感只有"现在"有，所以它只在第 2 档生效。
+ *
+ * 温度分档用中国气象习惯（日均温）：<10°C 冬，≥22°C 夏，中间是过渡季。
+ * **过渡季无法只靠温度区分春秋**——15°C 可能是升温中的春也可能是降温中的秋，
+ * 方向信息只有月份有，所以这一档用目标月份给方向。
+ */
+export function seasonFromWeather(
+  weather: AgentWeatherContext | undefined,
+  eventDate: Date | null | undefined,
+  now: Date = new Date(),
+): { season: Season; basis: SeasonBasis } {
+  const target = eventDate ?? now;
+  const targetMonth = target.getMonth() + 1;
+  const calendar = seasonForDate(target);
+  if (!weather) return { season: calendar, basis: "calendar" };
+
+  const live = weather.live;
+  const liveUsable = live?.status !== "unavailable";
+  const dayMs = 24 * 60 * 60 * 1000;
+  const daysAhead = Math.floor((target.getTime() - now.getTime()) / dayMs);
+
+  // ① 预报窗口内：用目标日自己的预报，而不是今天的实时值
+  const targetKey = target.toISOString().slice(0, 10);
+  const forecast = liveUsable ? live.daily.find((d) => d.date === targetKey) : undefined;
+
+  const monthly = weather.historical?.months.find((m) => m.month === targetMonth);
+
+  const picked: { tempC: number; basis: Exclude<SeasonBasis, "calendar"> } | null = forecast
+    ? { tempC: (forecast.tempMinC + forecast.tempMaxC) / 2, basis: "forecast" }
+    : // ② 目标日在两天内才认实时值——再远就与"现在"无关了
+      daysAhead <= 1 && liveUsable && typeof live.apparentTempC === "number"
+      ? { tempC: live.apparentTempC, basis: "live_apparent" }
+      : daysAhead <= 1 && liveUsable && typeof live.currentTempC === "number"
+        ? { tempC: live.currentTempC, basis: "live_actual" }
+        : // ③ 远期：目标月的历史均温
+          typeof monthly?.typicalMeanC === "number"
+          ? { tempC: monthly.typicalMeanC, basis: "monthly_normal" }
+          : null;
+
+  if (!picked) return { season: calendar, basis: "calendar" };
+  if (picked.tempC < 10) return { season: "冬", basis: picked.basis };
+  if (picked.tempC >= 22) return { season: "夏", basis: picked.basis };
+
+  /*
+   * 过渡带（10-22°C）：温度本身分不出春秋，需要**升温还是降温**这个方向信号。
+   * 有历史月度数据时就用相邻月均温的差来定；比硬编码「上半年算春」准得多。
+   *
+   * 硬编码版本的实际错例：广州 1 月均温约 14°C 落在过渡带，按「月份≤7 判春」
+   * 得到「春」——而那是广州全年最冷的月份，方向上离冬更近。用 12 月→1 月的
+   * 降温趋势判「秋」，穿衣重量上才对。
+   *
+   * 拿不到相邻月数据时才回落到月份切分。
+   */
+  const prevMonth = targetMonth === 1 ? 12 : targetMonth - 1;
+  const prevMean = weather.historical?.months.find((m) => m.month === prevMonth)?.typicalMeanC;
+  const thisMean = monthly?.typicalMeanC;
+  const trend =
+    typeof prevMean === "number" && typeof thisMean === "number" ? thisMean - prevMean : null;
+
+  if (trend !== null && trend !== 0) {
+    return { season: trend > 0 ? "春" : "秋", basis: picked.basis };
+  }
+  return { season: targetMonth <= 7 ? "春" : "秋", basis: picked.basis };
+}
+
+/**
+ * 把用户自报的省/市解析成城市级天气上下文，供穿搭推荐用。
+ *
+ * **必须永不抛错。** 天气是纯增益上下文：拿不到就退回原来的行为（prompt 里
+ * 【天气】为空对象），绝不能把一条本来能跑通的推荐链路变成会失败的链路。
+ * 三种拿不到的情况都同等对待：
+ *   - 用户没填省市（`intake` 里两者是可选且必须成对出现）
+ *   - 容器没装天气服务（`withProviders: false`）
+ *   - Open-Meteo 解析/取数失败或超时
+ *
+ * ⚠ `build()` 内部对历史与实时是 `allSettled`，单边失败会返回 `historical: null`
+ * 或 `live.status: "unavailable"`，那属于**部分可用**，照常传下去——
+ * 让模型看到"实时不可用但月度均温在"，比整块丢掉更有用。
+ *
+ * 超时上限刻意设得比 provider 默认更紧：这一步挂住会直接拖长用户等待，
+ * 而它的价值远低于主链路。
+ */
+const WEATHER_RESOLVE_TIMEOUT_MS = 6000;
+
+async function resolveWeatherContext(
+  weatherContext: AppContainer["weatherContext"],
+  profile: { province?: string | null; city?: string | null } | null,
+  log?: (msg: string, detail?: unknown) => void,
+): Promise<AgentWeatherContext | undefined> {
+  const province = profile?.province?.trim();
+  const city = profile?.city?.trim();
+  if (!weatherContext || !province || !city) return undefined;
+
+  try {
+    return await Promise.race<AgentWeatherContext>([
+      weatherContext.build({ province, city }),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error(`weather resolve timeout ${WEATHER_RESOLVE_TIMEOUT_MS}ms`)), WEATHER_RESOLVE_TIMEOUT_MS),
+      ),
+    ]);
+  } catch (error) {
+    // 记录但不上抛。天气缺失不构成部分成功缺口——它不是用户要的产物。
+    log?.("天气上下文解析失败，按无天气继续", {
+      province,
+      city,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return undefined;
+  }
 }
 
 export function createJobOrchestrator(container: AppContainer) {
@@ -361,6 +495,19 @@ export function createJobOrchestrator(container: AppContainer) {
       // （那份数据为空，会导致零候选并卡住 /materialize）
       const profileForOutfit = await prisma.appearanceProfile.findUnique({ where: { userId: p.userId } });
       const eventForOutfit = await prisma.event.findUnique({ where: { userId: p.userId } });
+      // 天气按用户自报的省/市解析。失败/未填一律得到 undefined，不影响后续。
+      const weatherForOutfit = await resolveWeatherContext(
+        container.weatherContext,
+        profileForOutfit,
+        (msg, detail) => console.warn(`[job ${p.jobId}] ${msg}`, detail ?? ""),
+      );
+      // 季节按真实气温定，拿不到天气才回落日历。basis 记进日志便于核对
+      // 「为什么给我推的是夏装」这类问题。
+      const seasonForOutfit = seasonFromWeather(weatherForOutfit, eventForOutfit?.eventDate);
+      console.info(
+        `[job ${p.jobId}] 季节判定 ${seasonForOutfit.season}（依据 ${seasonForOutfit.basis}）`,
+        weatherForOutfit ? { city: `${weatherForOutfit.province}${weatherForOutfit.city}` } : {},
+      );
       const outfitApp = createRecommendationApplication({
         prisma,
         hairstyleProvider: container.providers.hairstyleRecommendation,
@@ -378,10 +525,10 @@ export function createJobOrchestrator(container: AppContainer) {
             hairlineSignal: (visionForOutfit?.hairSignals as { hairline?: string } | null)?.hairline ?? null,
             budgetTier: profileForOutfit?.budgetTier ?? null,
             scene: eventForOutfit?.eventType ?? (plan.track === "long_term" ? "日常" : null),
-            season: seasonForDate(eventForOutfit?.eventDate),
+            season: seasonForOutfit.season,
           }, { selectedStyleIds: [selectedStyleId], requestedLookCount: 3, includeSupply: true });
         } catch {
-          // 旧首轮的自由风格 id 尚未映射到 41 个系统风格时，不让它阻断既有预览流程。
+          // 旧首轮的自由风格 id 尚未映射到系统风格时，不让它阻断既有预览流程。
           systemWardrobe = null;
         }
       }
@@ -405,6 +552,13 @@ export function createJobOrchestrator(container: AppContainer) {
           eventType: eventForOutfit?.eventType ?? (plan.track === "long_term" ? "日常" : null),
           eventDate: eventForOutfit?.eventDate ?? null,
         },
+        /*
+         * 天气：12 条月度均温摘要 + 实时/预报。此前 provider prompt 里
+         * `【天气】` 恒为 `{}`——整套天气模块（Open-Meteo 接入、36 个月历史缓存、
+         * 上下文装配）都实现了，但没有任何生产调用方传值，而用户已经在填省市。
+         * 未填省市或解析失败时仍是 undefined，行为与接线前一致。
+        */
+        weather: weatherForOutfit,
         budgetTier: profileForOutfit?.budgetTier ?? null,
         // 有全身照才传，纯文字路径不签发照片地址
         fullBodyPhotoStorageKey: fullBody?.storageKey,
