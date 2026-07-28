@@ -1,0 +1,2198 @@
+{
+  "datasetVersion": "mens-style-cn-v0.2",
+  "targetMarket": "中国大陆 18–26 岁男性",
+  "status": "editorial_seed",
+  "warning": "style tag 仅证明中国市场语言或官方目录中存在相应视觉方向，不代表男性或女性偏好；所有吸引力结论必须来自目标人群评分。网络来源图片仅作 research_only，不得直接用于公开评分页。",
+  "ratingSchema": {
+    "scale": {
+      "min": 1,
+      "max": 7,
+      "missingAllowed": true
+    },
+    "allowAiSeed": false,
+    "dimensions": [
+      {
+        "id": "formality",
+        "nameZh": "正式度",
+        "lowAnchorZh": "非常休闲",
+        "highAnchorZh": "非常正式",
+        "questionZh": "只看这套完整造型，它在正式工作、面试或正式社交中显得多正式？",
+        "raterRole": "all_eligible"
+      },
+      {
+        "id": "maturity",
+        "nameZh": "视觉成熟度",
+        "lowAnchorZh": "偏年轻轻松",
+        "highAnchorZh": "偏成熟稳重",
+        "questionZh": "这套造型传达的视觉成熟感有多强？不要猜人物实际年龄。",
+        "raterRole": "all_eligible"
+      },
+      {
+        "id": "expressiveness",
+        "nameZh": "张扬度",
+        "lowAnchorZh": "低存在感",
+        "highAnchorZh": "强烈表达",
+        "questionZh": "这套造型有多容易引起注意或表达鲜明个性？",
+        "raterRole": "all_eligible"
+      },
+      {
+        "id": "maintenance_cost",
+        "nameZh": "维护成本",
+        "lowAnchorZh": "几乎无需额外维护",
+        "highAnchorZh": "高频时间、服务或费用投入",
+        "questionZh": "长期维持相近效果需要多少时间、频率、专业服务和费用？",
+        "raterRole": "all_eligible"
+      },
+      {
+        "id": "male_self_appeal",
+        "nameZh": "男性自我吸引力",
+        "lowAnchorZh": "完全不想作为自己的目标形象",
+        "highAnchorZh": "非常想作为自己的目标形象",
+        "questionZh": "如果这是你的目标造型，你有多愿意采用？",
+        "raterRole": "male_self"
+      },
+      {
+        "id": "female_appeal",
+        "nameZh": "女性视角吸引力",
+        "lowAnchorZh": "完全没有吸引力",
+        "highAnchorZh": "非常有吸引力",
+        "questionZh": "只看这套完整造型，它对你有多大吸引力？",
+        "raterRole": "female_view"
+      }
+    ]
+  },
+  "sourceStrengthLegend": {
+    "A": "中国大陆官方品牌、官方活动或原作者页面明确使用该名称或给出稳定视觉结构",
+    "B": "中国市场权威媒体或官方目录支持该方向，具体边界含研究整理",
+    "C": "高信誉时尚编辑或社交语境辅助命名，必须通过目标用户验证"
+  },
+  "families": [
+    {
+      "id": "minimal-urban",
+      "nameZh": "简约都市",
+      "nameEn": "Minimal Urban",
+      "description": "以低装饰、干净配色、合适版型和城市日常为稳定基底；允许从极普通到精致质感的多个具体标签。",
+      "avoidConflatingWith": [
+        "不以品牌价格定义",
+        "不等于全身黑",
+        "不把人物长相和身材当成风格"
+      ],
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "city-casual",
+      "nameZh": "城市松弛与日韩休闲",
+      "nameEn": "City Casual and East Asian Relaxed",
+      "description": "以宽松比例、轻层次和城市生活单品为核心，容纳大陆语境中的 City Boy、日系松弛和韩系简约等标签。",
+      "avoidConflatingWith": [
+        "不把所有宽松穿搭都叫 City Boy",
+        "日韩是影响语境而非人物身份"
+      ],
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "street-subculture",
+      "nameZh": "街头与亚文化",
+      "nameEn": "Street and Subculture",
+      "description": "以街头运动、图案、宽松轮廓、青年音乐或亚文化符号形成较高表达度的方向。",
+      "avoidConflatingWith": [
+        "不等于堆满 Logo",
+        "不把亚文化身份从服装反推给人",
+        "美式街头不等于美式复古工装"
+      ],
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "retro-workwear",
+      "nameZh": "复古工装",
+      "nameEn": "Retro Workwear",
+      "description": "从工装、军装、牛仔和日系美式传统中提取耐用材质与历史轮廓。",
+      "avoidConflatingWith": [
+        "不等于做旧越多越好",
+        "不等于现代户外机能",
+        "不要求成熟脸或胡须"
+      ],
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "sport-terrace",
+      "nameZh": "运动与球衣文化",
+      "nameEn": "Sport and Terrace Culture",
+      "description": "从运动服、球衣、训练服和看台文化进入日常穿搭，覆盖运动休闲、复古运动和 Blokecore。",
+      "avoidConflatingWith": [
+        "不等于专业比赛装备",
+        "球衣日常穿搭与球队身份分开记录"
+      ],
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "outdoor-functional",
+      "nameZh": "户外与城市机能",
+      "nameEn": "Outdoor Functional",
+      "description": "以真实功能、轻户外、城市技术面料和徒步来源单品构成，从日常轻量到高功能分层。",
+      "avoidConflatingWith": [
+        "不把无用途挂件当机能",
+        "Gorpcore 不等于 Techwear",
+        "城市穿搭不代表具备专业户外安全性能"
+      ],
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "smart-preppy",
+      "nameZh": "通勤、正装与学院",
+      "nameEn": "Smart, Tailored and Preppy",
+      "description": "以通勤、剪裁、正装和学院单品形成从 Smart Casual 到成套西装的正式度连续谱。",
+      "avoidConflatingWith": [
+        "不把成熟感当实际年龄",
+        "不以阶层身份定义审美",
+        "老钱风与 Clean Fit 不是同义词"
+      ],
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "contemporary-chinese",
+      "nameZh": "东方与中国本土",
+      "nameEn": "Contemporary Chinese",
+      "description": "把中国服饰结构、工艺、文化图形或本土青年品牌语言转译到当代日常男装。",
+      "avoidConflatingWith": [
+        "不靠模特外貌判断",
+        "不等于影视古装",
+        "当代中式与大字 Logo 国潮分开"
+      ],
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "avant-dark",
+      "nameZh": "先锋暗黑",
+      "nameEn": "Avant-Garde and Dark",
+      "description": "通过解构比例、黑暗色调、金属五金、朋克或哥特线索建立高表现度长尾。",
+      "avoidConflatingWith": [
+        "不把全黑自动标为暗黑",
+        "朋克、哥特和亚比允许重叠但不互为同义词"
+      ],
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "resort-leisure",
+      "nameZh": "度假休闲",
+      "nameEn": "Resort Leisure",
+      "description": "针对海边、旅行、炎热天气和低正式度社交的轻量穿搭。",
+      "avoidConflatingWith": [
+        "不作为全国全年日常基线",
+        "不等于花衬衫加短裤的单一公式"
+      ],
+      "datasetVersion": "mens-style-cn-v0.2"
+    }
+  ],
+  "styles": [
+    {
+      "id": "clean-fit",
+      "nameZh": "Clean Fit",
+      "nameEn": "Clean Fit",
+      "aliases": [
+        "干净穿搭",
+        "克制合身",
+        "Cleanfit"
+      ],
+      "familyId": "minimal-urban",
+      "description": "用基础款、低饱和配色、低 Logo 密度和不过紧也不松垮的合适版型形成干净俐落的完整造型。用户所写 clann 应规范为 Clean Fit。",
+      "visualPrinciples": [
+        "黑白灰、深蓝、米色等低饱和大色块",
+        "肩线、裤长和腰线有意识但不过度贴身",
+        "一个以内低调配饰焦点",
+        "材质与剪裁承担主要信息"
+      ],
+      "requiredOutfitExamples": [
+        "素色短夹克 + 纯色内搭 + 直筒西裤 + 德训鞋",
+        "针织 Polo + 深色直筒裤 + 简洁皮鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-classic-three-seven-side-back",
+        "hair-cn-natural-short-cover",
+        "hair-cn-textured-short-side-part"
+      ],
+      "avoidConflatingWith": [
+        "Normcore 可故意普通，Clean Fit 更强调版型完成度",
+        "Quiet Luxury 还强调无 Logo 高质感叙事",
+        "Clean Boy 含理容和整体呈现，不是独立服装结构"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "新华网：男性穿搭需求出现 Clean Fit、City Boy 等细分",
+          "url": "https://www.news.cn/fashion/20260630/e45bd4e435f649b5a57bf03e8591d2b2/c.html",
+          "publisher": "新华网",
+          "accessedAt": "2026-07-26",
+          "evidenceRole": "market_context"
+        },
+        {
+          "title": "Vogue Hong Kong：Clean Fit 的基础款、合身剪裁与低饱和定义",
+          "url": "https://www.voguehk.com/zh/article/vogue-man/clean-fit-ideas/",
+          "publisher": "Vogue Hong Kong",
+          "accessedAt": "2026-07-26",
+          "evidenceRole": "definition_reference"
+        }
+      ],
+      "mvpTier": "core",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "clean-boy",
+      "nameZh": "Clean Boy",
+      "nameEn": "Clean Boy Aesthetic",
+      "aliases": [
+        "干净男生感",
+        "清爽男友感"
+      ],
+      "familyId": "minimal-urban",
+      "description": "大陆社交语境中的整体呈现标签：Clean Fit 式服装加清爽理容、整洁发型和轻配饰。它不应只靠衣服判定，也不能作为女性偏好的替代变量。",
+      "visualPrinciples": [
+        "服装低装饰且整洁",
+        "发型轮廓清楚、无明显油腻或凌乱效果",
+        "鞋和包保持低视觉噪声",
+        "整体呈现亲近而非炫耀"
+      ],
+      "requiredOutfitExamples": [
+        "纯色针织 + 牛仔裤 + 白色低帮鞋",
+        "浅色衬衫 + 卡其裤 + 简洁运动鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-flat-buzz",
+        "hair-cn-micro-part-cover",
+        "hair-cn-natural-middle-part",
+        "hair-cn-natural-short-cover",
+        "hair-cn-round-buzz",
+        "hair-cn-short-chestnut-crop",
+        "hair-cn-textured-short-side-part"
+      ],
+      "avoidConflatingWith": [
+        "不是 Clean Fit 的同义词",
+        "不是年龄、卫生或性格判断",
+        "不能因为人物面貌清秀就自动赋值"
+      ],
+      "sourceStrength": "C",
+      "sourceRefs": [
+        {
+          "title": "大陆作者自发布：打工 Clean Boy 穿搭语境",
+          "url": "https://www.bilibili.com/video/BV1Un9GYxEFu/",
+          "publisher": "山白的穿搭日志",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "新华网：男性从功能刚需转向悦己与精细理容",
+          "url": "https://www.news.cn/fashion/20260630/e45bd4e435f649b5a57bf03e8591d2b2/c.html",
+          "publisher": "新华网",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "research",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "model-off-duty",
+      "nameZh": "男模下班感",
+      "nameEn": "Model Off-Duty",
+      "aliases": [
+        "男模感",
+        "模特私服感",
+        "Off-Duty Model"
+      ],
+      "familyId": "minimal-urban",
+      "description": "真实存在的时尚媒体与街拍术语，描述模特在秀场或工作之外的私服呈现。作为用户可选的风格原型使用：重点观察松弛基础款、受控比例和一个时装焦点，不把模特身材、人物吸引力或街拍环境当成服装定义。",
+      "visualPrinciples": [
+        "简单上衣与直筒或宽腿下装",
+        "一件有质感的外套",
+        "舒适鞋履与一个焦点配饰",
+        "松弛但裤长、肩线和层次受控"
+      ],
+      "requiredOutfitExamples": [
+        "皮夹克 + 素 T + 直筒牛仔 + 短靴",
+        "宽松风衣 + 针织 + 宽腿牛仔 + 复古跑鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-four-six-side-sweep",
+        "hair-cn-low-ponytail",
+        "hair-cn-medium-natural-layers",
+        "hair-cn-medium-relaxed-texture",
+        "hair-cn-shoulder-straight",
+        "hair-cn-shoulder-wave",
+        "hair-cn-textured-slick-back"
+      ],
+      "avoidConflatingWith": [
+        "男模身材不是必要条件",
+        "不是所有明星机场造型",
+        "与 Clean Fit 可重叠但允许更松、更有时装焦点"
+      ],
+      "sourceStrength": "C",
+      "sourceRefs": [
+        {
+          "title": "Vogue：Model Off-Duty 的可观察服装模式",
+          "url": "https://www.vogue.com/article/model-off-duty-looks-coach",
+          "publisher": "Vogue",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "GQ：男模感的同色系与合适版型",
+          "url": "https://www.gq.com/story/how-to-look-like-a-male-model-this-fall",
+          "publisher": "GQ",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "taxonomyStatus": "selectable_style_archetype",
+      "userSelectable": true,
+      "replacementStyleIds": [
+        "clean-fit",
+        "old-money-quiet-luxury",
+        "avant-tailoring",
+        "american-streetwear"
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "editorial-male-model",
+      "nameZh": "男模时装感",
+      "nameEn": "Editorial Male-Model",
+      "aliases": [
+        "男模风格",
+        "男模时装风",
+        "编辑大片男模感"
+      ],
+      "familyId": "avant-dark",
+      "description": "作为用户可选的时装灵感原型，强调设计师剪裁、明确廓形、材质与层次控制，以及服装、鞋履、配饰和理容构成的高完成度整体。它不以模特职业、身高、脸、影棚、修图或高价品牌本身定义，也不要求用户整套复制秀场造型。",
+      "visualPrinciples": [
+        "至少一个清晰的设计师剪裁或轮廓焦点",
+        "材质、内外层次和配色有受控的整体关系",
+        "鞋履与配饰服务于廓形，而非无关堆叠",
+        "可迁移为日常可购买单品与合适版型"
+      ],
+      "requiredOutfitExamples": [
+        "短结构外套 + 低领针织或素内搭 + 高腰宽直裤 + 简洁皮鞋",
+        "解构西装外套 + 同色层次内搭 + 垂坠长裤 + 低调金属配饰"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-four-six-side-sweep",
+        "hair-cn-medium-relaxed-texture",
+        "hair-cn-textured-slick-back"
+      ],
+      "avoidConflatingWith": [
+        "不把长腿、瘦高身材、脸或职业当作风格证据",
+        "不把影棚、姿势、修图或高价品牌本身当作服装结构",
+        "与男模下班感不同：前者强调时装化完整造型，后者强调松弛私服",
+        "与先锋解构剪裁可重叠，但不要求每套都高度解构"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "Feng Chen Wang SS23 官方系列：解构、层次与完整男装造型",
+          "url": "https://fengchenwang.com/pages/ss23-collection",
+          "publisher": "Feng Chen Wang",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "上海时装周 PRONOUNCE 官方发布：当代男装衣橱与手工传统",
+          "url": "https://www.shanghaifashionweek.com/page/shfw/releaseExhibition/3117?language=en",
+          "publisher": "Shanghai Fashion Week",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "taxonomyStatus": "selectable_style_archetype",
+      "userSelectable": true,
+      "mvpTier": "research",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "normcore",
+      "nameZh": "常服极简",
+      "nameEn": "Normcore",
+      "aliases": [
+        "普通感穿搭",
+        "反潮流基础款"
+      ],
+      "familyId": "minimal-urban",
+      "description": "有意使用普通、易获得、低识别度的日常基础款，重点是不过度表达，而不是追求昂贵或精致身份。",
+      "visualPrinciples": [
+        "普通圆领 T 或卫衣",
+        "直筒牛仔或基础休闲裤",
+        "常见运动鞋",
+        "几乎无装饰焦点"
+      ],
+      "requiredOutfitExamples": [
+        "灰色卫衣 + 蓝色直筒牛仔 + 普通白鞋",
+        "白 T + 卡其裤 + 低帮帆布鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-natural-middle-part",
+        "hair-cn-natural-short-cover",
+        "hair-cn-round-buzz"
+      ],
+      "avoidConflatingWith": [
+        "Clean Fit 更强调俐落和质感",
+        "Quiet Luxury 更强调材料与精致",
+        "不等于衣服不合身或不整洁"
+      ],
+      "sourceStrength": "C",
+      "sourceRefs": [
+        {
+          "title": "GQ 对 Normcore 与 -core 命名的回顾",
+          "url": "https://www.gq.com.tw/article/core-normcore-blokecore",
+          "publisher": "GQ Taiwan",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "city-boy",
+      "nameZh": "City Boy",
+      "nameEn": "City Boy",
+      "aliases": [
+        "城市男孩",
+        "日系 City Boy"
+      ],
+      "familyId": "city-casual",
+      "description": "由日系杂志语境传播到大陆的宽松城市休闲：大一号上装、工装/军裤或宽裤、帽子和复古运动鞋，强调松弛生活感。",
+      "visualPrinciples": [
+        "上装和裤装都偏宽但保留层次",
+        "条纹、牛津纺、针织、工装等常服单品",
+        "帽子、托特包或轻量外套",
+        "低到中等配色对比"
+      ],
+      "requiredOutfitExamples": [
+        "宽松条纹衬衫 + 白 T + 军裤 + 复古跑鞋",
+        "宽松 Polo + 工装裤 + 棒球帽 + 托特包"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-micro-part-cover",
+        "hair-cn-natural-middle-part",
+        "hair-cn-natural-short-cover"
+      ],
+      "avoidConflatingWith": [
+        "不是所有 Oversize",
+        "Clean Fit 的版型更收束",
+        "美式街头通常图案和运动/说唱信号更强"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "新华网：中国男性穿搭语境中的 City Boy",
+          "url": "https://www.news.cn/fashion/20260630/e45bd4e435f649b5a57bf03e8591d2b2/c.html",
+          "publisher": "新华网",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "WGSN x CHIC：City Boy 关键单品与边界",
+          "url": "https://www.ghmcaa.com/ft/xxshow.asp?id=77",
+          "publisher": "粤港澳服装服饰协会",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "core",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "japanese-relaxed",
+      "nameZh": "日系松弛",
+      "nameEn": "Japanese Relaxed Casual",
+      "aliases": [
+        "日系宽松",
+        "日杂休闲"
+      ],
+      "familyId": "city-casual",
+      "description": "大陆常用的影响标签，以自然面料、宽松分层、低饱和配色和日常包帽构成；不对应模特国籍。",
+      "visualPrinciples": [
+        "棉麻或有自然质感的面料",
+        "宽松衬衫/夹克与宽直裤",
+        "低饱和大地或蓝灰色",
+        "轻量层次和生活化配件"
+      ],
+      "requiredOutfitExamples": [
+        "棉质宽衬衫 + 宽直裤 + 帆布鞋",
+        "针织开衫 + 白 T + 军裤 + 托特包"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-four-six-side-sweep",
+        "hair-cn-free-small-braids",
+        "hair-cn-half-up",
+        "hair-cn-long-wolf-tail",
+        "hair-cn-low-bun",
+        "hair-cn-low-ponytail",
+        "hair-cn-medium-natural-layers",
+        "hair-cn-medium-relaxed-texture",
+        "hair-cn-natural-middle-part",
+        "hair-cn-natural-short-cover",
+        "hair-cn-short-wolf-tail",
+        "hair-cn-shoulder-straight",
+        "hair-cn-shoulder-wave"
+      ],
+      "avoidConflatingWith": [
+        "City Boy 是更具体的杂志化公式",
+        "Ametora 有更明确的美式传统/学院来源",
+        "不能从人物脸判断日系"
+      ],
+      "sourceStrength": "C",
+      "sourceRefs": [
+        {
+          "title": "澎湃新闻：日本男装中的 AMEKAJI/AMETORA 语境",
+          "url": "https://www.thepaper.cn/newsDetail_forward_5272474",
+          "publisher": "澎湃新闻",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "CROQUIS 官方：日常、多场合、当代与松弛线索",
+          "url": "https://www.croquis.com.cn/t/story/3",
+          "publisher": "CROQUIS",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "korean-clean",
+      "nameZh": "韩系简约",
+      "nameEn": "Korean Clean Casual",
+      "aliases": [
+        "韩系男友风",
+        "韩系极简"
+      ],
+      "familyId": "city-casual",
+      "description": "大陆常用影响标签：黑白灰或同色系，短或合体上装配宽松下装，外套轮廓干净，以材质和比例取胜。",
+      "visualPrinciples": [
+        "黑白灰或同色系",
+        "上短/合体、下宽的比例",
+        "宽松衬衫或外套",
+        "配件数量克制"
+      ],
+      "requiredOutfitExamples": [
+        "短夹克 + 素针织 + 宽腿长裤 + 简洁运动鞋",
+        "全黑内搭 + 质感外套 + 直筒裤"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-four-six-side-sweep",
+        "hair-cn-micro-part-cover",
+        "hair-cn-natural-middle-part",
+        "hair-cn-natural-short-cover",
+        "hair-cn-three-seven-fringe-part"
+      ],
+      "avoidConflatingWith": [
+        "不是人物国籍判断",
+        "Clean Fit 不要求韩系比例",
+        "韩系街头和韩系简约应分开标注"
+      ],
+      "sourceStrength": "C",
+      "sourceRefs": [
+        {
+          "title": "Vogue Hong Kong：韩系简约日常穿搭法则",
+          "url": "https://www.voguehk.com/zh/article/fashion/korean-idols-minimalist-wardrobe/",
+          "publisher": "Vogue Hong Kong",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "Vogue Hong Kong：韩国男士同色系与材质层次",
+          "url": "https://www.voguehk.com/zh/article/celebrity/son-heung-min-style-file/",
+          "publisher": "Vogue Hong Kong",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "core",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "soft-youthful",
+      "nameZh": "柔和青年休闲",
+      "nameEn": "Soft Youthful Casual",
+      "aliases": [
+        "柔和少年感",
+        "轻软男友感"
+      ],
+      "familyId": "city-casual",
+      "description": "柔和纹理、浅或低对比配色、轻量层次和较低攻击性的青年休闲；“少年感”只描述视觉印象，不指实际年龄。",
+      "visualPrinciples": [
+        "柔和针织或棉质",
+        "浅灰、米白、浅蓝等低对比配色",
+        "圆润边缘与轻量层次",
+        "没有强硬五金或大图案"
+      ],
+      "requiredOutfitExamples": [
+        "浅色针织 + 白 T + 浅蓝牛仔 + 白鞋",
+        "柔软开衫 + 纯色上衣 + 直筒裤"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-medium-natural-layers",
+        "hair-cn-micro-part-cover",
+        "hair-cn-natural-middle-part",
+        "hair-cn-natural-short-cover",
+        "hair-cn-round-buzz",
+        "hair-cn-short-chestnut-crop",
+        "hair-cn-strand-texture-short",
+        "hair-cn-three-seven-fringe-part"
+      ],
+      "avoidConflatingWith": [
+        "不等于幼态",
+        "Clean Boy 还包含理容整洁",
+        "不限定日韩标签"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "CROQUIS 官方品牌故事：玩味、少年感与当代日常",
+          "url": "https://www.croquis.com.cn/t/story/3",
+          "publisher": "CROQUIS",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "core",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "urban-commuter",
+      "nameZh": "都市通勤休闲",
+      "nameEn": "Urban Commuter Casual",
+      "aliases": [
+        "青年通勤",
+        "城市通勤"
+      ],
+      "familyId": "city-casual",
+      "description": "在工作日体面和下班后舒适之间取平衡，以夹克、Polo、针织和休闲西裤为核心，不要求成套西装。",
+      "visualPrinciples": [
+        "一件结构清楚的外层",
+        "内搭和裤装保持舒适",
+        "低 Logo 与中低对比配色",
+        "鞋履可在皮鞋和简洁运动鞋之间"
+      ],
+      "requiredOutfitExamples": [
+        "短夹克 + Polo + 休闲西裤 + 德训鞋",
+        "针织衫 + 衬衫 + 直筒裤 + 乐福鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-classic-three-seven-side-back",
+        "hair-cn-textured-short-side-part",
+        "hair-cn-three-seven-fringe-part"
+      ],
+      "avoidConflatingWith": [
+        "Smart Casual 更强调正式/休闲混合规则",
+        "New Business 更靠近现代西装体系",
+        "不等于办公室制服"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "海澜之家官方商城：POWER YOUNG、休闲西服、Polo 与夹克",
+          "url": "https://www.hlamall.cn/wxmall/product/list?menuId=596",
+          "publisher": "海澜之家",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "PEACEBIRD 男装官方目录：Smart Casual 与多场景品类",
+          "url": "https://shop.peacebird.com/collections/men",
+          "publisher": "PEACEBIRD",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "core",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "american-streetwear",
+      "nameZh": "美式街头",
+      "nameEn": "American Streetwear",
+      "aliases": [
+        "美潮",
+        "美式潮流"
+      ],
+      "familyId": "street-subculture",
+      "description": "以宽松 T/卫衣、牛仔或工装下装、球鞋、棒球帽和图案焦点构成的街头方向；在数据库中只标视觉结构，不断言穿着者文化身份。",
+      "visualPrinciples": [
+        "宽松运动或工装来源单品",
+        "图案、字标或帽鞋形成焦点",
+        "直筒/宽松牛仔或工装裤",
+        "中高体积球鞋或滑板鞋"
+      ],
+      "requiredOutfitExamples": [
+        "宽松图案 T + 工装裤 + 篮球鞋 + 棒球帽",
+        "连帽卫衣 + 宽牛仔 + 复古运动鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-flat-buzz",
+        "hair-cn-high-bun",
+        "hair-cn-high-ponytail",
+        "hair-cn-strand-texture-short"
+      ],
+      "avoidConflatingWith": [
+        "美式工装更强调耐用材料与历史单品",
+        "City Boy 图案和运动信号更低",
+        "Hip-Hop Street 还需要说唱/篮球比例线索"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "ROARINGWILD 官方系列：Urban Street 与新一代生活态度",
+          "url": "https://roaringwild.com/collections/series-ss2025?page=4",
+          "publisher": "ROARINGWILD",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "SANKUANZ 官方：全球青年街头文化与图案语言",
+          "url": "https://www.sankuanz.com/collections/SS15",
+          "publisher": "SANKUANZ",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "core",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "hip-hop-street",
+      "nameZh": "嘻哈街头",
+      "nameEn": "Hip-Hop Street",
+      "aliases": [
+        "说唱街头",
+        "Hip-Hop 穿搭"
+      ],
+      "familyId": "street-subculture",
+      "description": "借用说唱、篮球和街舞语境中的宽大比例、运动单品、帽饰和首饰焦点；不把音乐偏好从外观反推给用户。",
+      "visualPrinciples": [
+        "宽大上装与宽裤",
+        "篮球/棒球或街舞来源单品",
+        "帽饰、鞋或金属首饰形成焦点",
+        "允许高对比图案"
+      ],
+      "requiredOutfitExamples": [
+        "宽松球衣 + 宽牛仔 + 篮球鞋 + 棒球帽",
+        "图案卫衣 + 工装裤 + 高帮鞋 + 单条链饰"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-flat-buzz",
+        "hair-cn-free-small-braids",
+        "hair-cn-strand-texture-short"
+      ],
+      "avoidConflatingWith": [
+        "不是所有 Oversize 街头",
+        "美式街头可没有明显说唱/篮球信号",
+        "亚比的混搭和五金密度通常更高"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "Nike 中国街舞系列官方商品分类",
+          "url": "https://www.nike.com.cn/w/dance-the-street-collection-4ljlt",
+          "publisher": "Nike 中国",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "SANKUANZ 官方青年街头系列",
+          "url": "https://www.sankuanz.com/collections/SS15",
+          "publisher": "SANKUANZ",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "skate-street",
+      "nameZh": "滑板街头",
+      "nameEn": "Skate Street",
+      "aliases": [
+        "Skater Style",
+        "滑板风"
+      ],
+      "familyId": "street-subculture",
+      "description": "以活动友好的宽松 T、耐磨直筒裤、滑板鞋、帽衫和帽饰形成低到中等装饰的街头分支。",
+      "visualPrinciples": [
+        "宽松但不拖地的上装和裤装",
+        "平底耐磨鞋",
+        "帽衫、工装或牛仔",
+        "图案不必高密度"
+      ],
+      "requiredOutfitExamples": [
+        "宽 T + 直筒工装裤 + 滑板鞋 + 冷帽",
+        "帽衫 + 宽牛仔 + 平底鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-natural-short-cover",
+        "hair-cn-short-wolf-tail"
+      ],
+      "avoidConflatingWith": [
+        "不等于所有美式街头",
+        "必须以可观察服装定义，不要求真的会滑板",
+        "不等于朋克"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "Nike 中国官方分类包含滑板、街舞与街头服装门类",
+          "url": "https://www.nike.com.cn/w/dance-the-street-collection-4ljlt",
+          "publisher": "Nike 中国",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "ROARINGWILD 官方 Urban Street 系列",
+          "url": "https://roaringwild.com/collections/series-ss2025?page=4",
+          "publisher": "ROARINGWILD",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "y2k-street",
+      "nameZh": "Y2K 千禧街头",
+      "nameEn": "Y2K Street",
+      "aliases": [
+        "千禧风",
+        "复古未来街头"
+      ],
+      "familyId": "street-subculture",
+      "description": "把世纪之交的复古未来感转成男性可穿的金属色、科技跑鞋、修身或特殊廓形上装、做旧牛仔和亮眼配饰。",
+      "visualPrinciples": [
+        "银色/金属或透明科技线索",
+        "复古跑鞋或厚底鞋",
+        "做旧牛仔、曲线拼接或数码图形",
+        "一到两个高识别配饰"
+      ],
+      "requiredOutfitExamples": [
+        "银灰短夹克 + 修身上衣 + 做旧宽牛仔 + 千禧跑鞋",
+        "数码图案上衣 + 工装裤 + 金属配饰"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-free-small-braids",
+        "hair-cn-half-up",
+        "hair-cn-high-bun",
+        "hair-cn-high-ponytail",
+        "hair-cn-long-wolf-tail",
+        "hair-cn-micro-part-cover",
+        "hair-cn-short-wolf-tail",
+        "hair-cn-strand-texture-short"
+      ],
+      "avoidConflatingWith": [
+        "不是所有 2000 年代复古运动",
+        "亚比可以吸收 Y2K 但还包含朋克/哥特/原宿混搭",
+        "Y3K 更偏未来想象而非千禧复古"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "Hypebeast x Saucony：Y2K 的金属、透明、科技与复古跑鞋语言",
+          "url": "https://hypebeast.cn/2023/9/house-of-saucony-xiekeyin-invite-only",
+          "publisher": "Hypebeast China",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "新华网：Y2K、Cleanfit 与 Gorpcore 在中国穿搭语境中的区分",
+          "url": "https://www.news.cn/fashion/20250424/b0c3fc2e5b0344bca1418abe9c01d9db/c.html",
+          "publisher": "新华网",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "yabi-subculture",
+      "nameZh": "亚比风",
+      "nameEn": "Yabi Subculture Mix",
+      "aliases": [
+        "亚系混搭",
+        "亚文化混搭",
+        "亚逼（争议旧写法）"
+      ],
+      "familyId": "street-subculture",
+      "description": "大陆网络原生的宽泛亚文化混搭标签，常把朋克、哥特、原宿、Y2K、说唱和赛博线索组合到日常造型；名称可能带自称、戏称或贬义，产品前台只用“亚比风”。",
+      "visualPrinciples": [
+        "金属链、铆钉、穿孔感配饰或厚底鞋",
+        "破坏、扎染、复杂图形或浓重色彩",
+        "宽松/不规则层次",
+        "发色、帽饰和服装共同形成高表达度"
+      ],
+      "requiredOutfitExamples": [
+        "破坏图案 T + 不规则宽裤 + 金属链 + 厚底鞋",
+        "高饱和层次上装 + 做旧下装 + 多材质配饰"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-long-wolf-tail",
+        "hair-cn-medium-relaxed-texture",
+        "hair-cn-short-wolf-tail",
+        "hair-cn-strand-texture-short"
+      ],
+      "avoidConflatingWith": [
+        "不是单一历史亚文化",
+        "不等同 Y2K、朋克或哥特",
+        "不能把生活方式、职业、性格或性别表达从穿搭反推给人",
+        "“亚逼”可能冒犯，不作正式标签"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "澎湃新闻人物报道：大陆公众对亚比视觉的当前理解",
+          "url": "https://m.thepaper.cn/newsDetail_forward_32862743",
+          "publisher": "澎湃新闻",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "SANKUANZ 官方：青年街头、军装、朋克五金与非常规表达",
+          "url": "https://www.sankuanz.com/collections/aw20",
+          "publisher": "SANKUANZ",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "research",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "light-yabi",
+      "nameZh": "轻亚风",
+      "nameEn": "Light Yabi",
+      "aliases": [
+        "轻亚比",
+        "日常亚系"
+      ],
+      "familyId": "street-subculture",
+      "description": "把亚比的金属、旧化、条纹、图案或厚底等信号减到一两个，使其能进入校园、逛街和演出等日常场景。",
+      "visualPrinciples": [
+        "基础色或低饱和底色",
+        "一个亚文化焦点",
+        "轮廓仍可日常活动",
+        "避免全身多元素竞争"
+      ],
+      "requiredOutfitExamples": [
+        "素 T + 做旧宽裤 + 单条金属链 + 厚底鞋",
+        "条纹针织 + 黑色直筒裤 + 单一朋克配饰"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-half-up",
+        "hair-cn-micro-part-cover",
+        "hair-cn-short-wolf-tail",
+        "hair-cn-strand-texture-short"
+      ],
+      "avoidConflatingWith": [
+        "不是亚比的女性版",
+        "不是所有有一条项链的街头穿搭",
+        "与 Punk-Goth 的历史符号强度不同"
+      ],
+      "sourceStrength": "C",
+      "sourceRefs": [
+        {
+          "title": "澎湃新闻：亚比视觉包含浓重色彩、朋克五金和彩色发型",
+          "url": "https://m.thepaper.cn/newsDetail_forward_32862743",
+          "publisher": "澎湃新闻",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "哔哩哔哩大陆创作者的亚文化日常穿搭样本",
+          "url": "https://www.bilibili.com/video/BV1hg411e7mA/",
+          "publisher": "随遇而安h6（作者自发布）",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "research",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "graphic-street",
+      "nameZh": "图案街头",
+      "nameEn": "Graphic Streetwear",
+      "aliases": [
+        "印花街头",
+        "单焦点街头"
+      ],
+      "familyId": "street-subculture",
+      "description": "以一个主要图案或文字焦点配宽松街头基础单品，作为比美式街头更可控的数据库条目。",
+      "visualPrinciples": [
+        "单一主图案区域",
+        "宽松 T/卫衣或夹克",
+        "直筒/宽裤",
+        "其他配件降低噪声"
+      ],
+      "requiredOutfitExamples": [
+        "图案 T + 纯色宽裤 + 板鞋",
+        "图案卫衣 + 深色直筒裤 + 低帮运动鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-flat-buzz",
+        "hair-cn-natural-short-cover"
+      ],
+      "avoidConflatingWith": [
+        "不是多个 Logo 堆叠",
+        "不要求美式文化符号",
+        "国潮图形需另加 guochao-street 标签"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "ROARINGWILD 官方 Urban Street 系列",
+          "url": "https://roaringwild.com/collections/series-ss2025?page=4",
+          "publisher": "ROARINGWILD",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "SANKUANZ 官方：图案作为青年街头视觉载体",
+          "url": "https://www.sankuanz.com/collections/SS15",
+          "publisher": "SANKUANZ",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "core",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "ametora",
+      "nameZh": "阿美咔叽 / 日系美式传统",
+      "nameEn": "Ametora",
+      "aliases": [
+        "阿美咔叽",
+        "日系美式",
+        "American Traditional via Japan"
+      ],
+      "familyId": "retro-workwear",
+      "description": "日本对美式常春藤、军装、工装、牛仔等传统的再解释，在大陆常作为复古男装语言使用。",
+      "visualPrinciples": [
+        "牛津纺、针织、军装、工装或牛仔来源",
+        "经典而略宽松的比例",
+        "棕、军绿、藏青、靛蓝等低饱和色",
+        "复古鞋靴"
+      ],
+      "requiredOutfitExamples": [
+        "牛津纺衬衫 + 针织背心 + 卡其裤 + 乐福鞋",
+        "军装夹克 + 白 T + 原色牛仔 + 工装靴"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-classic-three-seven-side-back",
+        "hair-cn-four-six-side-sweep",
+        "hair-cn-medium-relaxed-texture",
+        "hair-cn-shoulder-straight",
+        "hair-cn-textured-short-side-part",
+        "hair-cn-textured-slick-back"
+      ],
+      "avoidConflatingWith": [
+        "不是纯美国本土复刻",
+        "City Boy 可借单品但更松弛城市化",
+        "Ivy Preppy 只覆盖学院支系"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "澎湃新闻：AMEKAJI、AMETORA 与日本男装历史",
+          "url": "https://www.thepaper.cn/newsDetail_forward_5272474",
+          "publisher": "澎湃新闻",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "american-workwear",
+      "nameZh": "美式复古工装",
+      "nameEn": "American Heritage Workwear",
+      "aliases": [
+        "复古工装",
+        "美式工装"
+      ],
+      "familyId": "retro-workwear",
+      "description": "以丹宁、帆布、灯芯绒、工装夹克、工装裤和靴类形成强调耐用材质与劳动服来源的复古方向。",
+      "visualPrinciples": [
+        "厚实帆布或丹宁",
+        "多口袋但有真实结构来源",
+        "直筒裤与工装鞋靴",
+        "靛蓝、棕、卡其、军绿"
+      ],
+      "requiredOutfitExamples": [
+        "帆布工装夹克 + 原色牛仔 + 工装靴",
+        "牛仔夹克 + 白 T + 卡其工装裤 + 复古鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-flat-buzz",
+        "hair-cn-textured-slick-back"
+      ],
+      "avoidConflatingWith": [
+        "美式街头更偏运动和图形",
+        "城市机能更强调现代技术面料",
+        "不把做旧程度当唯一标准"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "PEACEBIRD 男装官方目录：牛仔、工装裤与夹克品类",
+          "url": "https://shop.peacebird.com/collections/men",
+          "publisher": "PEACEBIRD",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "澎湃新闻：AMEKAJI 中的劳动者、军装与牛仔分支",
+          "url": "https://www.thepaper.cn/newsDetail_forward_5272474",
+          "publisher": "澎湃新闻",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "core",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "military-vintage",
+      "nameZh": "复古军装混搭",
+      "nameEn": "Military Vintage Mix",
+      "aliases": [
+        "军装复古",
+        "Military Mix"
+      ],
+      "familyId": "retro-workwear",
+      "description": "使用野战夹克、飞行夹克、军裤等历史军装来源轮廓与普通日常单品混搭；去除徽章、军衔和现实武装身份暗示。",
+      "visualPrinciples": [
+        "一件军装来源主单品",
+        "军绿、卡其或深色",
+        "其余单品保持简洁",
+        "结构口袋而非战术挂件堆叠"
+      ],
+      "requiredOutfitExamples": [
+        "军绿野战夹克 + 白 T + 深色牛仔 + 复古跑鞋",
+        "飞行夹克 + 针织 + 军裤 + 短靴"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-flat-buzz",
+        "hair-cn-round-buzz",
+        "hair-cn-textured-slick-back"
+      ],
+      "avoidConflatingWith": [
+        "不使用现实军队徽章或军衔",
+        "Techwear 是现代功能语言",
+        "不等于军迷 Cosplay"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "SANKUANZ 官方 AW20：军装与城市街头混合",
+          "url": "https://www.sankuanz.com/collections/aw20",
+          "publisher": "SANKUANZ",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "澎湃新闻：日系美式军装分支",
+          "url": "https://www.thepaper.cn/newsDetail_forward_5272474",
+          "publisher": "澎湃新闻",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "denim-heritage",
+      "nameZh": "丹宁复古",
+      "nameEn": "Denim Heritage",
+      "aliases": [
+        "牛仔复古",
+        "双丹宁"
+      ],
+      "familyId": "retro-workwear",
+      "description": "以原色、洗水或做旧丹宁为主要材质，可用单件或深浅错开的双丹宁形成历史质感。",
+      "visualPrinciples": [
+        "至少一件丹宁主单品",
+        "直筒或宽直轮廓",
+        "深浅洗水有层次",
+        "其余单品低装饰"
+      ],
+      "requiredOutfitExamples": [
+        "牛仔夹克 + 素 T + 异深浅直筒牛仔 + 皮靴",
+        "丹宁衬衫 + 卡其裤 + 复古鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-medium-relaxed-texture",
+        "hair-cn-shoulder-wave",
+        "hair-cn-textured-slick-back"
+      ],
+      "avoidConflatingWith": [
+        "不是任何牛仔裤穿搭",
+        "Y2K 丹宁需要金属/未来或千禧比例线索",
+        "美式工装可以没有丹宁"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "PEACEBIRD 男装官方目录：牛仔裤、牛仔夹克与丹宁系列",
+          "url": "https://shop.peacebird.com/collections/men",
+          "publisher": "PEACEBIRD",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "blokecore",
+      "nameZh": "复古足球球衣风",
+      "nameEn": "Blokecore",
+      "aliases": [
+        "球衣穿搭",
+        "看台风",
+        "Terrace Style"
+      ],
+      "familyId": "sport-terrace",
+      "description": "以宽松复古足球球衣、直筒牛仔或休闲裤和复古运动鞋构成的日常球衣混搭。",
+      "visualPrinciples": [
+        "足球球衣是主要识别单品",
+        "直筒牛仔/休闲裤",
+        "复古薄底运动鞋",
+        "配件保持球迷或街头语气"
+      ],
+      "requiredOutfitExamples": [
+        "复古足球球衣 + 直筒牛仔 + 薄底运动鞋",
+        "球衣 + 宽松休闲裤 + 棒球帽"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-natural-short-cover",
+        "hair-cn-short-chestnut-crop"
+      ],
+      "avoidConflatingWith": [
+        "不是任意运动球衣",
+        "Basketball Street 的球种与比例不同",
+        "Blokette 是加入明显女性化元素的另一个混合标签"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "阿迪达斯上海球衣热潮派对：官方品牌活动使用 Blokecore",
+          "url": "https://www.gq.com.cn/fashion/news_11310153b02eabc8.html",
+          "publisher": "GQ 男士网 / 阿迪达斯品牌活动",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "新华网：Blokecore 的球衣、牛仔裤与复古球鞋边界",
+          "url": "https://www.news.cn/fashion/20240621/93434417bc634f298a1e154937ab6ac5/c.html",
+          "publisher": "新华网",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "athleisure",
+      "nameZh": "运动休闲",
+      "nameEn": "Athleisure",
+      "aliases": [
+        "运动生活",
+        "通勤运动休闲"
+      ],
+      "familyId": "sport-terrace",
+      "description": "把卫衣、运动上衣、束脚或直筒运动裤、运动鞋用于非训练日常，强调舒适、整洁和可行动。",
+      "visualPrinciples": [
+        "运动来源上装和下装",
+        "配色受控",
+        "Logo 数量克制",
+        "鞋履适合日常步行"
+      ],
+      "requiredOutfitExamples": [
+        "灰阶卫衣 + 同系运动裤 + 运动鞋",
+        "运动夹克 + 素 T + 直筒运动裤"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-flat-buzz",
+        "hair-cn-high-bun",
+        "hair-cn-round-buzz",
+        "hair-cn-short-chestnut-crop"
+      ],
+      "avoidConflatingWith": [
+        "不等于训练时装备",
+        "Retro Sport 需要明确年代感",
+        "Gorpcore 需要户外功能来源"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "李宁官方：男子服装与运动生活系列",
+          "url": "https://lining.com/sportslife/",
+          "publisher": "李宁",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "安踏官方：专业运动、时尚运动与户外运动场景",
+          "url": "https://anta.cn/culture/story",
+          "publisher": "安踏",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "core",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "retro-sport",
+      "nameZh": "复古运动",
+      "nameEn": "Retro Sport",
+      "aliases": [
+        "复古运动套装",
+        "90s Sportswear"
+      ],
+      "familyId": "sport-terrace",
+      "description": "以撞色运动夹克、复古跑鞋、老式训练裤和 1980–2000 年代运动比例形成的怀旧运动方向。",
+      "visualPrinciples": [
+        "撞色或旧式拼接运动上衣",
+        "直筒/束口训练裤",
+        "复古跑鞋",
+        "一到两个年代线索"
+      ],
+      "requiredOutfitExamples": [
+        "撞色运动夹克 + 同系长裤 + 复古跑鞋",
+        "复古卫衣 + 直筒运动裤 + 棒球帽"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-round-buzz",
+        "hair-cn-short-wolf-tail"
+      ],
+      "avoidConflatingWith": [
+        "Athleisure 可没有年代感",
+        "Y2K 还包含科技/金属或千禧视觉",
+        "不使用可识别品牌作为刺激核心"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "李宁官方运动时尚内容中的复古运动主题",
+          "url": "https://lining.com/sportslife/",
+          "publisher": "李宁",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "SANKUANZ 官方 AW16：北京 1990 亚运会与复古运动服",
+          "url": "https://www.sankuanz.com/collections/AW16",
+          "publisher": "SANKUANZ",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "basketball-street",
+      "nameZh": "篮球街头",
+      "nameEn": "Basketball Street",
+      "aliases": [
+        "篮球穿搭",
+        "球场街头"
+      ],
+      "familyId": "sport-terrace",
+      "description": "以篮球球衣、篮球短裤、宽松运动外套和篮球鞋进入日常街头的球种特定分支。",
+      "visualPrinciples": [
+        "篮球球衣或篮球短裤",
+        "高体积篮球鞋",
+        "宽松运动比例",
+        "可叠穿 T 恤或夹克"
+      ],
+      "requiredOutfitExamples": [
+        "篮球球衣 + 白 T + 宽短裤 + 篮球鞋",
+        "运动夹克 + 篮球短裤 + 高帮鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-flat-buzz",
+        "hair-cn-round-buzz"
+      ],
+      "avoidConflatingWith": [
+        "Blokecore 是足球球衣与看台文化",
+        "不等于专业比赛全套",
+        "Hip-Hop Street 可借篮球单品但不以球种为必要条件"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "李宁官方男子篮球与运动生活分类",
+          "url": "https://lining.com/sportslife/",
+          "publisher": "李宁",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "Nike 中国官方街舞/篮球/运动服商品分类",
+          "url": "https://www.nike.com.cn/w/dance-the-street-collection-4ljlt",
+          "publisher": "Nike 中国",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "gorpcore",
+      "nameZh": "山系机能 / Gorpcore",
+      "nameEn": "Gorpcore",
+      "aliases": [
+        "山系穿搭",
+        "户外机能日常化"
+      ],
+      "familyId": "outdoor-functional",
+      "description": "把冲锋衣、防风层、抓绒、功能裤、徒步/越野鞋等真实户外来源单品带入城市日常，强调功能可见性。",
+      "visualPrinciples": [
+        "至少一件明确户外功能外层",
+        "功能裤或耐候下装",
+        "徒步/越野来源鞋履",
+        "抽绳、口袋、压胶等细节有实际用途"
+      ],
+      "requiredOutfitExamples": [
+        "防风外层 + 抓绒 + 功能裤 + 越野鞋",
+        "轻硬壳 + 素内搭 + 尼龙长裤 + 徒步鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-flat-buzz",
+        "hair-cn-short-chestnut-crop"
+      ],
+      "avoidConflatingWith": [
+        "轻户外功能强度更低、颜色更柔和",
+        "Techwear 偏城市未来和模块化",
+        "专业登山装备不自动适合城市造型"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "新华网：中国穿搭语境区分 Gorpcore、Cleanfit 与 Y2K",
+          "url": "https://www.news.cn/fashion/20250424/b0c3fc2e5b0344bca1418abe9c01d9db/c.html",
+          "publisher": "新华网",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "安踏官方：专业、时尚和户外运动场景",
+          "url": "https://anta.cn/culture/story",
+          "publisher": "安踏",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "core",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "light-outdoor",
+      "nameZh": "轻户外通勤",
+      "nameEn": "Light Outdoor Commuter",
+      "aliases": [
+        "轻户外",
+        "城市轻户外"
+      ],
+      "familyId": "outdoor-functional",
+      "description": "用轻量、防晒、防泼水、速干等功能和柔和配色服务通勤、City Walk 与低强度户外，弱化专业装备感。",
+      "visualPrinciples": [
+        "轻量外层与宽松活动版型",
+        "柔和或低饱和颜色",
+        "隐藏口袋、可拆帽等低调功能",
+        "城市鞋履或轻量户外鞋"
+      ],
+      "requiredOutfitExamples": [
+        "轻量防风衣 + 素 T + 速干宽裤 + 运动鞋",
+        "防晒外套 + 直筒功能裤 + 轻徒步鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-natural-short-cover",
+        "hair-cn-short-chestnut-crop"
+      ],
+      "avoidConflatingWith": [
+        "Gorpcore 的户外符号更强",
+        "不把任何尼龙衣服标成轻户外",
+        "性能声明须来自真实产品数据，刺激图只标视觉"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "新华网：轻户外的柔和配色、宽松版型和低调功能",
+          "url": "https://www.news.cn/fashion/20260514/e48cce7cf08a441a87b2684867a322fa/c.html",
+          "publisher": "新华网",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "中国国际时装周：坦博尔城市与户外多场景",
+          "url": "https://www.chinafashionweek.org.cn/xwg/202503/t20250330_4379944.html",
+          "publisher": "中国国际时装周",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "core",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "urban-techwear",
+      "nameZh": "城市科技机能",
+      "nameEn": "Urban Techwear",
+      "aliases": [
+        "城市机能",
+        "Techwear"
+      ],
+      "familyId": "outdoor-functional",
+      "description": "以黑灰技术面料、模块化结构、立体口袋和城市防护感形成未来城市方向；功能细节必须可解释。",
+      "visualPrinciples": [
+        "黑灰或低彩度",
+        "技术面料与几何剪裁",
+        "模块化口袋或可调节结构",
+        "城市运动鞋/机能鞋"
+      ],
+      "requiredOutfitExamples": [
+        "技术面料短夹克 + 功能裤 + 机能鞋",
+        "模块化马甲 + 素内搭 + 尼龙长裤"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-flat-buzz",
+        "hair-cn-strand-texture-short"
+      ],
+      "avoidConflatingWith": [
+        "Gorpcore 来自户外徒步",
+        "无用途带子和挂件不算功能",
+        "暗黑风可以没有任何技术性能"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "PEACEBIRD 官方 Urban Tech 系列",
+          "url": "https://shop.peacebird.com/pages/urban-tech",
+          "publisher": "PEACEBIRD",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "SANKUANZ 官方 AW20：高科技五金与城市防护语言",
+          "url": "https://www.sankuanz.com/collections/aw20",
+          "publisher": "SANKUANZ",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "trail-hiking",
+      "nameZh": "徒步山野",
+      "nameEn": "Trail Hiking",
+      "aliases": [
+        "山野户外",
+        "徒步穿搭"
+      ],
+      "familyId": "outdoor-functional",
+      "description": "以实际徒步活动为主要场景，鞋、裤、外层和背负系统优先满足行动与天气，再评价其造型。",
+      "visualPrinciples": [
+        "徒步鞋或越野鞋",
+        "耐磨/速干裤",
+        "分层外套系统",
+        "实用背包和遮阳帽"
+      ],
+      "requiredOutfitExamples": [
+        "速干底层 + 抓绒 + 防风层 + 徒步裤 + 徒步鞋",
+        "轻外套 + 功能短裤 + 越野鞋 + 小型背包"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-flat-buzz",
+        "hair-cn-round-buzz",
+        "hair-cn-short-chestnut-crop"
+      ],
+      "avoidConflatingWith": [
+        "不是只在城市穿户外品牌的 Gorpcore",
+        "安全性能不能从图片推断",
+        "不等于露营摄影造型"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "安踏官方：户外运动场景与产品集团覆盖",
+          "url": "https://anta.cn/culture/story",
+          "publisher": "安踏",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "中国国际时装周：坦博尔户外、极地与滑雪产品场景",
+          "url": "https://www.chinafashionweek.org.cn/xwg/202503/t20250330_4379944.html",
+          "publisher": "中国国际时装周",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "smart-casual",
+      "nameZh": "商务休闲",
+      "nameEn": "Smart Casual",
+      "aliases": [
+        "精致休闲",
+        "休闲通勤"
+      ],
+      "familyId": "smart-preppy",
+      "description": "把西装、衬衫、针织、休闲裤、牛仔和简洁鞋履按场景混合，正式度低于成套正装但整理完成度高于普通休闲。",
+      "visualPrinciples": [
+        "至少一件结构化或精致单品",
+        "休闲单品保持无破坏或低图案",
+        "鞋履干净",
+        "配色中性且层次清楚"
+      ],
+      "requiredOutfitExamples": [
+        "非成套西装 + 衬衫 + 深色牛仔 + 皮鞋",
+        "针织 Polo + 休闲西裤 + 乐福鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-classic-three-seven-side-back",
+        "hair-cn-four-six-side-sweep",
+        "hair-cn-low-bun",
+        "hair-cn-low-ponytail",
+        "hair-cn-textured-short-side-part",
+        "hair-cn-three-seven-fringe-part"
+      ],
+      "avoidConflatingWith": [
+        "New Business 更接近现代工作套装",
+        "Clean Fit 不要求正式单品",
+        "不等于西装配任意球鞋"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "PEACEBIRD 男装官方目录：Smart Casual",
+          "url": "https://shop.peacebird.com/collections/men",
+          "publisher": "PEACEBIRD",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "海澜之家官方商城：休闲西服、Polo 与商务正装",
+          "url": "https://www.hlamall.cn/wxmall/product/list?menuId=596",
+          "publisher": "海澜之家",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "core",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "new-business",
+      "nameZh": "青年新商务",
+      "nameEn": "New Business Casual",
+      "aliases": [
+        "新职场",
+        "松弛商务"
+      ],
+      "familyId": "smart-preppy",
+      "description": "面向青年工作场景的软结构西装、针织内搭、宽松西裤和简洁鞋履，降低传统正装的僵硬与年龄感。",
+      "visualPrinciples": [
+        "软肩或轻结构外套",
+        "针织/T 恤/开放领替代硬领带",
+        "垂坠或宽直西裤",
+        "正式与休闲鞋均可但保持克制"
+      ],
+      "requiredOutfitExamples": [
+        "软结构西装 + 圆领针织 + 垂坠西裤 + 乐福鞋",
+        "短西装 + 素 T + 直筒裤 + 简洁皮鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-classic-three-seven-side-back",
+        "hair-cn-four-six-side-sweep",
+        "hair-cn-textured-short-side-part",
+        "hair-cn-textured-slick-back",
+        "hair-cn-three-seven-fringe-part"
+      ],
+      "avoidConflatingWith": [
+        "不是成套传统商务正装",
+        "Smart Casual 可没有西装",
+        "Old Money 不以工作场景为必要条件"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "智族 GQ 编辑播客：年轻男士职场新正装与 City Boy",
+          "url": "https://podcasts.apple.com/my/podcast/city-boy-%E5%81%B6%E5%B0%94%E4%B9%9F%E6%83%B3%E5%B0%9D%E5%B0%9D%E8%A5%BF%E8%A3%85%E7%9A%84%E6%BB%8B%E5%91%B3/id1672219307?i=1000627454811",
+          "publisher": "智族 Lab",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "中国国际时装周：杉杉东方绅士多场景男装",
+          "url": "https://www.chinafashionweek.org.cn/xwg/202503/t20250323_4378916.html",
+          "publisher": "中国国际时装周",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "core",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "contemporary-suit",
+      "nameZh": "当代正装",
+      "nameEn": "Contemporary Suiting",
+      "aliases": [
+        "现代西装",
+        "青年正装"
+      ],
+      "familyId": "smart-preppy",
+      "description": "结构明确的成套或近成套西装，通过裤型、内搭和比例现代化，服务面试、仪式和正式工作场景。",
+      "visualPrinciples": [
+        "明确肩线与成套关系",
+        "裤长和腰线准确",
+        "深色或受控配色",
+        "正式鞋履或极简替代鞋"
+      ],
+      "requiredOutfitExamples": [
+        "深色成套西装 + 浅衬衫 + 皮鞋",
+        "现代宽驳领西装 + 素色内搭 + 成套长裤"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-classic-three-seven-side-back",
+        "hair-cn-four-six-side-sweep",
+        "hair-cn-textured-slick-back"
+      ],
+      "avoidConflatingWith": [
+        "Black Tie 是更高礼仪级别",
+        "New Business 更软、更休闲",
+        "不把西装自动等同成熟或高地位"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "海澜之家官方商城：先锋经典商务正装",
+          "url": "https://www.hlamall.cn/wxmall/product/list?menuId=596",
+          "publisher": "海澜之家",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "中国国际时装周：现代男装与东方绅士",
+          "url": "https://www.chinafashionweek.org.cn/xwg/202503/t20250323_4378916.html",
+          "publisher": "中国国际时装周",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "ivy-preppy",
+      "nameZh": "常春藤学院",
+      "nameEn": "Ivy Preppy",
+      "aliases": [
+        "学院风",
+        "美式学院"
+      ],
+      "familyId": "smart-preppy",
+      "description": "以牛津纺衬衫、针织背心/开衫、Polo、卡其裤、乐福鞋和校队来源外套构成的学院传统。",
+      "visualPrinciples": [
+        "衬衫、Polo 或针织层",
+        "卡其/灰/藏青裤装",
+        "乐福鞋或简洁复古鞋",
+        "条纹、徽章等信号控制在一处"
+      ],
+      "requiredOutfitExamples": [
+        "牛津纺衬衫 + V 领针织 + 卡其裤 + 乐福鞋",
+        "Polo + 灰色直筒裤 + 德训鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-natural-middle-part",
+        "hair-cn-textured-short-side-part",
+        "hair-cn-three-seven-fringe-part"
+      ],
+      "avoidConflatingWith": [
+        "Ametora 包含更广的军装和工装",
+        "Old Money 带阶层想象和材料叙事",
+        "叛逆学院需额外朋克/破坏标签"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "澎湃新闻：AMETORA/常春藤风格来源",
+          "url": "https://www.thepaper.cn/newsDetail_forward_5272474",
+          "publisher": "澎湃新闻",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "新华网：叛逆学院与正统学院单品边界",
+          "url": "https://www.news.cn/fashion/20260205/1fc71cbde1fe46e9995461495563a031/c.html",
+          "publisher": "新华网",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "old-money-quiet-luxury",
+      "nameZh": "老钱风 / 静奢",
+      "nameEn": "Old Money / Quiet Luxury",
+      "aliases": [
+        "老钱风",
+        "Quiet Luxury",
+        "静奢风"
+      ],
+      "familyId": "smart-preppy",
+      "description": "用无显著 Logo、传统精致单品、低调颜色和优质感材料制造克制的上层休闲想象。数据库只标可观察视觉，不把财富或阶层当事实。",
+      "visualPrinciples": [
+        "低调中性色",
+        "Polo、针织、风衣、精致休闲裤",
+        "无大 Logo",
+        "材料和合体剪裁承担价值感"
+      ],
+      "requiredOutfitExamples": [
+        "针织 Polo + 米色长裤 + 乐福鞋",
+        "藏青针织 + 风衣 + 灰色西裤 + 皮鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-classic-three-seven-side-back",
+        "hair-cn-four-six-side-sweep",
+        "hair-cn-textured-short-side-part"
+      ],
+      "avoidConflatingWith": [
+        "财富、家庭和阶层不可从衣服推断",
+        "Clean Fit 可使用普通材料",
+        "Ivy Preppy 更偏学院符号"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "新华网：中国男性穿搭语境中的老钱风",
+          "url": "https://www.news.cn/fashion/20260630/e45bd4e435f649b5a57bf03e8591d2b2/c.html",
+          "publisher": "新华网",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "Vogue Hong Kong：Old Money 男装与 Quiet Luxury 边界",
+          "url": "https://www.voguehk.com/zh/article/man-culture/old-money-fashion/",
+          "publisher": "Vogue Hong Kong",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "contemporary-chinese-style",
+      "nameZh": "当代中式",
+      "nameEn": "Contemporary Chinese Style",
+      "aliases": [
+        "新中式男装",
+        "现代中式"
+      ],
+      "familyId": "contemporary-chinese",
+      "description": "把中式立领、侧向门襟、平面剪裁、传统材质或工艺转译为夹克、西装、衬衫和长裤等当代日常单品。",
+      "visualPrinciples": [
+        "一到两个结构性中式线索",
+        "现代夹克/西装/衬衫/长裤载体",
+        "克制图形和配色",
+        "日常比例而非舞台古装"
+      ],
+      "requiredOutfitExamples": [
+        "平整领口侧向结构夹克 + 素内搭 + 直筒长裤",
+        "改良立领衬衫 + 宽直西裤 + 简洁鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-four-six-side-sweep",
+        "hair-cn-high-ponytail",
+        "hair-cn-low-bun",
+        "hair-cn-medium-relaxed-texture",
+        "hair-cn-textured-slick-back"
+      ],
+      "avoidConflatingWith": [
+        "不是影视古装或汉服复原",
+        "不是只印龙凤图案",
+        "不因品牌或人物国籍自动赋值"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "SANKUANZ SS26 官方：把中国式剪裁融入西装、教练夹克和飞行夹克",
+          "url": "https://www.sankuanz.com/",
+          "publisher": "SANKUANZ",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "新华网：极简新中式进入日常穿搭",
+          "url": "https://www3.xinhuanet.com/fashion/20260317/bd6a35cb80fb41d4be867d80eab54b83/c.html",
+          "publisher": "新华网",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "core",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "eastern-gentleman",
+      "nameZh": "东方绅士",
+      "nameEn": "Eastern Gentleman",
+      "aliases": [
+        "东方商务",
+        "中式绅装"
+      ],
+      "familyId": "contemporary-chinese",
+      "description": "在西装、礼仪男装和商务外套中加入东方留白、传统工艺或结构细节，正式度高于日常当代中式。",
+      "visualPrinciples": [
+        "西装/大衣/正式长裤为基底",
+        "低密度东方结构或工艺焦点",
+        "深色、中性色或传统色点缀",
+        "整体利落而非符号堆叠"
+      ],
+      "requiredOutfitExamples": [
+        "现代西装 + 东方结构内搭 + 成套长裤",
+        "长外套 + 立领衬衫 + 直筒西裤"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-classic-three-seven-side-back",
+        "hair-cn-four-six-side-sweep",
+        "hair-cn-textured-slick-back"
+      ],
+      "avoidConflatingWith": [
+        "当代中式可更休闲",
+        "不等于 Dandy 雅痞",
+        "不把东方气质从人物面貌推断"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "中国国际时装周：杉杉“东方绅士”男装系列",
+          "url": "https://www.chinafashionweek.org.cn/xwg/202503/t20250323_4378916.html",
+          "publisher": "中国国际时装周",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "新华网：东方美学从秀场转为职场与社交语言",
+          "url": "https://www.xinhuanet.com/20260330/841178228f064246b0c67f9241d056a4/c.html",
+          "publisher": "新华网",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "guochao-street",
+      "nameZh": "国潮街头",
+      "nameEn": "Guochao Streetwear",
+      "aliases": [
+        "中国潮流街头",
+        "本土图形街头"
+      ],
+      "familyId": "contemporary-chinese",
+      "description": "中国本土街头品牌以中文、传统图形、地方文化或青年文化为图案/叙事焦点的街头分支。",
+      "visualPrinciples": [
+        "街头基础轮廓",
+        "一个明确的中国本土图形或文字焦点",
+        "运动/工装下装",
+        "当代鞋帽配件"
+      ],
+      "requiredOutfitExamples": [
+        "本土图形 T + 宽工装裤 + 板鞋",
+        "中文图案卫衣 + 直筒牛仔 + 复古鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-american-front-spike",
+        "hair-cn-flat-buzz",
+        "hair-cn-strand-texture-short"
+      ],
+      "avoidConflatingWith": [
+        "不是所有中国品牌",
+        "当代中式主要依靠结构/工艺",
+        "避免挪用宗教或民族神圣符号"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "ROARINGWILD 官方：本土 Urban Street 与新一代",
+          "url": "https://roaringwild.com/collections/series-ss2025?page=4",
+          "publisher": "ROARINGWILD",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "SANKUANZ 官方：青年文化与东方表达",
+          "url": "https://www.sankuanz.com/collections/SS22",
+          "publisher": "SANKUANZ",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "avant-tailoring",
+      "nameZh": "先锋解构剪裁",
+      "nameEn": "Avant-Garde Tailoring",
+      "aliases": [
+        "解构男装",
+        "先锋剪裁"
+      ],
+      "familyId": "avant-dark",
+      "description": "通过非常规领口、比例、叠层、性别化轮廓转换或结构重组改变西装、外套和长裤的常规阅读。",
+      "visualPrinciples": [
+        "至少一个明确结构变形",
+        "剪裁仍可读且非随机堆叠",
+        "受控配色让轮廓成为焦点",
+        "可加入不对称或非常规比例"
+      ],
+      "requiredOutfitExamples": [
+        "无传统驳领西装 + 非对称内层 + 宽直裤",
+        "解构长外套 + 素内搭 + 结构长裤"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-medium-relaxed-texture",
+        "hair-cn-short-wolf-tail",
+        "hair-cn-textured-slick-back"
+      ],
+      "avoidConflatingWith": [
+        "不是尺码过大或衣服穿错",
+        "Darkwear 可使用常规剪裁",
+        "当代中式只有出现明确文化结构才加标签"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "SANKUANZ SS26 官方：非常规西装、平面剪裁与比例挑战",
+          "url": "https://www.sankuanz.com/",
+          "publisher": "SANKUANZ",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "SANKUANZ AW16 官方：清洁剪裁与夸张体积的平衡",
+          "url": "https://www.sankuanz.com/collections/AW16",
+          "publisher": "SANKUANZ",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "research",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "darkwear",
+      "nameZh": "暗黑穿搭",
+      "nameEn": "Darkwear",
+      "aliases": [
+        "暗黑系",
+        "全黑层次"
+      ],
+      "familyId": "avant-dark",
+      "description": "以黑、炭灰和低明度层次，结合皮革、涂层、结构外套或金属细节形成深色高表达方向。",
+      "visualPrinciples": [
+        "低明度同色层次",
+        "至少两种材质差异",
+        "结构外套或裤型",
+        "金属/亮面焦点受控"
+      ],
+      "requiredOutfitExamples": [
+        "黑色结构夹克 + 炭灰内搭 + 黑宽裤 + 厚底鞋",
+        "黑皮外套 + 素 T + 涂层长裤 + 短靴"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-short-wolf-tail",
+        "hair-cn-strand-texture-short",
+        "hair-cn-textured-slick-back"
+      ],
+      "avoidConflatingWith": [
+        "全黑基础款不自动算暗黑",
+        "Techwear 需要功能结构",
+        "Punk-Goth 需要更明确历史符号"
+      ],
+      "sourceStrength": "A",
+      "sourceRefs": [
+        {
+          "title": "SANKUANZ AW20 官方：黑色、金属、皮革与城市防护造型",
+          "url": "https://www.sankuanz.com/collections/aw20",
+          "publisher": "SANKUANZ",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "research",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "punk-goth",
+      "nameZh": "朋克 / 哥特",
+      "nameEn": "Punk / Goth",
+      "aliases": [
+        "朋克暗黑",
+        "哥特摇滚"
+      ],
+      "familyId": "avant-dark",
+      "description": "合并为研究层入口，覆盖铆钉、别针、链条、破坏针织、皮革、厚底靴和宗教建筑式黑暗浪漫等历史亚文化线索；数据充足后再拆朋克与哥特。",
+      "visualPrinciples": [
+        "金属五金或破坏结构",
+        "皮革、格纹、黑色或深色",
+        "厚底靴/军靴",
+        "至少一个明确亚文化历史线索"
+      ],
+      "requiredOutfitExamples": [
+        "皮夹克 + 破坏 T + 黑直筒裤 + 铆钉靴",
+        "黑长外套 + 层次衬衫 + 厚底靴 + 单一银饰"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-medium-relaxed-texture",
+        "hair-cn-short-wolf-tail",
+        "hair-cn-textured-slick-back"
+      ],
+      "avoidConflatingWith": [
+        "亚比是大陆宽泛混搭伞词",
+        "Y2K 可无朋克/哥特历史线索",
+        "不从衣服推断政治立场、生活方式或性别身份"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "澎湃新闻：朋克的机车皮衣、马丁靴、铆钉与链条线索",
+          "url": "https://m.thepaper.cn/baijiahao_16320286",
+          "publisher": "澎湃新闻",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "SANKUANZ AW20 官方：金属五金、涂鸦皮革与破坏丹宁",
+          "url": "https://www.sankuanz.com/collections/aw20",
+          "publisher": "SANKUANZ",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "research",
+      "datasetVersion": "mens-style-cn-v0.2"
+    },
+    {
+      "id": "resort-relaxed",
+      "nameZh": "度假松弛",
+      "nameEn": "Resort Relaxed",
+      "aliases": [
+        "海边度假风",
+        "夏日度假"
+      ],
+      "familyId": "resort-leisure",
+      "description": "用轻薄开放领衬衫、亚麻/棉质上衣、短裤或轻长裤和凉鞋/轻鞋服务炎热天气、海边和旅行社交。",
+      "visualPrinciples": [
+        "轻薄透气面料",
+        "开放领或敞开层次",
+        "短裤或轻垂坠长裤",
+        "低到中等印花密度"
+      ],
+      "requiredOutfitExamples": [
+        "开放领衬衫 + 素内搭 + 短裤 + 凉鞋",
+        "亚麻衬衫 + 轻长裤 + 乐福鞋"
+      ],
+      "compatibleHairstyleIds": [
+        "hair-cn-medium-relaxed-texture",
+        "hair-cn-natural-middle-part",
+        "hair-cn-natural-short-cover"
+      ],
+      "avoidConflatingWith": [
+        "不把全国夏季日常都叫度假",
+        "City Boy 可使用短裤但不要求度假场景",
+        "高密度热带印花只是可选分支"
+      ],
+      "sourceStrength": "B",
+      "sourceRefs": [
+        {
+          "title": "CROQUIS 官方：多场合、高兼容度与松弛日常",
+          "url": "https://www.croquis.com.cn/t/story/3",
+          "publisher": "CROQUIS",
+          "accessedAt": "2026-07-26"
+        },
+        {
+          "title": "PEACEBIRD 男装官方目录：夏季、短裤、衬衫与 Long Weekend",
+          "url": "https://shop.peacebird.com/collections/men",
+          "publisher": "PEACEBIRD",
+          "accessedAt": "2026-07-26"
+        }
+      ],
+      "mvpTier": "extended",
+      "datasetVersion": "mens-style-cn-v0.2"
+    }
+  ]
+}

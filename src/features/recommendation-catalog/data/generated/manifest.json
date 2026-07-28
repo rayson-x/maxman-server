@@ -1,0 +1,93 @@
+{
+  "manifestVersion": "recommendation-catalog-snapshot-v1",
+  "builtAt": "2026-07-28T09:27:38.342Z",
+  "sources": {
+    "styles": {
+      "fileName": "styles-cn.json",
+      "datasetVersion": "mens-style-cn-v0.2",
+      "sha256": "207b41a232d6f7afb0af84bac0909c4fcd0bfa38b4e4fea8cffa35a280d15003",
+      "snapshotSha256": "c58aeaaed689c15d260c952bf8ef4be490edce5135ccb2d4664bb831047be4dc"
+    },
+    "hairstyles": {
+      "fileName": "hairstyles-cn.json",
+      "datasetVersion": "content-sha256:0673136aedba24bb6546fc92e1ebb8cad9eb0446d426d9950c943d95878b9fb6",
+      "sha256": "035a12ad4cd443e7c5487d8e01a04c92b90e53458fd29a275018f9b761be0cae",
+      "snapshotSha256": "0673136aedba24bb6546fc92e1ebb8cad9eb0446d426d9950c943d95878b9fb6"
+    },
+    "hairstyleRelations": {
+      "fileName": "style-hairstyle-relations-cn.json",
+      "datasetVersion": "style-hairstyle-relations-cn-v1",
+      "sha256": "0c8df115de6e87e8e806c9a8703f3ee52252f062ae20b9500e88a3d43bfa647d",
+      "snapshotSha256": "b10734669d50bedd3ed0b929161de7d2c6e3f23d73af821fae5984dbe68c10f9"
+    },
+    "fitRules": {
+      "fileName": "fit-rules-cn.json",
+      "datasetVersion": "fit-rules-cn-v0.2",
+      "sha256": "04479594dedf852be6c2c1c16e821ff1b66963aeaabeda10ced4db20e9d66ebd",
+      "snapshotSha256": "b56b639ea814d09c8f16ccd077f1a77cfe5a281412d8dcd14ae17993516c2eb8"
+    },
+    "hairstyleRenderSchema": {
+      "fileName": "hairstyle-render-schema-v1.json",
+      "datasetVersion": "hairstyle-render-v1",
+      "sha256": "cfb6b86539febe7c20802fc44e997ec7967c15084be362434c4fe46f59ba7afe",
+      "snapshotSha256": "f98d4a3d5a6052a7a575d598b5c2ba98737124485b428db4768538704dad4910"
+    },
+    "wardrobeItems": {
+      "fileName": "wardrobe-items-cn.json",
+      "datasetVersion": "system-wardrobe-cn-v0.1",
+      "sha256": "bb3c15d23b8e2eeb05cfab6dbfe239643be0d9d0912271b91552633a639b402c",
+      "snapshotSha256": "f37401a8cc03302dd2b14813ba16d6377ad8bb19a45f918edeb6948b19cdf40a"
+    },
+    "wardrobeProfiles": {
+      "fileName": "style-wardrobe-profiles-cn.json",
+      "datasetVersion": "style-wardrobe-profiles-cn-v0.1",
+      "sha256": "8c81b16347e725e30f26c720f4633c3b71201ebbeb9f1c627d2e5e641d944a7e",
+      "snapshotSha256": "9095e2bc8ad7e39fcd6870b553c2244ea302f561bd6dd959204c8fb017006000"
+    },
+    "wardrobeAssets": {
+      "fileName": "wardrobe-image-assets-cn.json",
+      "datasetVersion": "system-wardrobe-image-assets-cn-v0.1",
+      "sha256": "e4bb4feb3526006dd5d214c9aacdb9289e4d649b4977bfdd47e66b9b870a61df",
+      "snapshotSha256": "019b6be6becea4e440b4aac0ee4dbce5509a207337f0d24080f63df07c9256d6"
+    },
+    "wardrobeSupply": {
+      "fileName": "wardrobe-supply-map-cn.json",
+      "datasetVersion": "wardrobe-supply-map-cn-v0.1",
+      "sha256": "b88082fb4cc29cfc3df5012c563c73e2e12431fde7c1e952a42d5e7a0c0897ed",
+      "snapshotSha256": "c8b72c855b1d990a0f988e732f3875d30dbd2f3bdf7d244128440645d629fe26"
+    }
+  },
+  "validators": {
+    "system-wardrobe-catalog": {
+      "id": "system-wardrobe-catalog",
+      "version": "sha256:05db635168f2dfa7a5d3cd9c4a02a97f51218760a5ae8955e97a63abdb16c441",
+      "passed": true
+    },
+    "wardrobe-image-assets": {
+      "id": "wardrobe-image-assets",
+      "version": "sha256:2babbae839ff30f0ccd4a902d05f59807e84a9d7f10ecb19476912a03e8a2afb",
+      "passed": true
+    },
+    "wardrobe-supply-map": {
+      "id": "wardrobe-supply-map",
+      "version": "sha256:d7383bae6e4954ef4c9912e09bb20454139258dfde826f377a037d5aad3da376",
+      "passed": true
+    },
+    "style-hairstyle-relations": {
+      "id": "style-hairstyle-relations",
+      "version": "sha256:906fb199b56ad4f568d4ec13bfaea4bb626165c3a7da7117ad07788571c90044",
+      "passed": true
+    },
+    "fit-rules-compile": {
+      "id": "fit-rules-compile",
+      "version": "sha256:bd1bea6c685770b1affc0c17d8d0171fc9b2ba50532251822333242bf688f19c",
+      "passed": true
+    },
+    "fit-rules-production": {
+      "id": "fit-rules-production",
+      "version": "sha256:bd1bea6c685770b1affc0c17d8d0171fc9b2ba50532251822333242bf688f19c",
+      "passed": false,
+      "readinessGate": true
+    }
+  }
+}

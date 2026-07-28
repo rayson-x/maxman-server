@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
+    "build:recommendation-catalog": "node scripts/build-recommendation-catalog-snapshot.mjs",
     "lock:status": "node scripts/agent-lock.mjs status",
     "progress": "node scripts/openspec-progress.mjs",
     "calibrate": "tsx src/scripts/calibrate-hairstyles.ts",

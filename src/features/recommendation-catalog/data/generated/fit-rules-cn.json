@@ -1,0 +1,333 @@
+{
+  "datasetVersion": "fit-rules-cn-v0.2",
+  "generatedAt": "2026-07-28",
+  "status": "draft",
+  "targetMarket": "中国大陆",
+  "boundSchemaVersion": "hairstyle-fit-v1",
+  "warning": "本库规则是美发行业的视觉平衡惯例（industry convention），不是科学实证结论。学术证据（Le 2002 / Farkas 2005 / Tibetan Youth 2025，见 docs/research-recommendation-rule-sources-cn.md §2.3）表明新古典面部比例标准对东亚人适用性有限，因此：UI 文案不得把规则表述为「科学证明」，只能表述为「行业通行做法/发型师经验」。S0/S1 级规则不得进入用户可见推荐。规则只允许引用 boundSchemaVersion 声明的维度与枚举；无法连接候选的规则不得交给 B 通道，记为 unexecutable_rule 进入数据修复队列。",
+  "design": {
+    "purpose": "「什么人适合什么」的适配规则层：连接客户端测量输出（脸型/发际线/发量，client/lib/face/）与候选目录（hairstyles-cn.json 的 fitAttributes），为双源推荐 B 通道与 UI 依据展示提供可解释规则。",
+    "form": "knowledge-based / constraint-based recommendation（Burke 2002；Felfernig）：IF conditions THEN conclusion + mechanism。规则不直接给发型打分，而是给 fitAttributes 维度加权；某款发型的适配分由其 fitAttributes 命中规则的加权和推导。",
+    "softVsHard": "脸型审美规则全部是 effectType=soft_ranking（软排序）；只有物理可行性（长度/发量/工艺不满足）才可成为硬约束，走 feasibilityAttributes，不在本文件表达。",
+    "compilation": "B 通道只接收规则编译器的投影：schema 校验 → applicability 判定 → 候选连接 → 置信度折扣 → 紧凑投影。原始文件不得直接进 prompt。",
+    "researchBasis": "docs/research-recommendation-rule-sources-cn.md"
+  },
+  "evidenceLevelScale": {
+    "S0": "editorial_seed：编辑拍脑袋，无外部来源。不得进入推荐，只做占位。",
+    "S1": "single_practitioner：单个从业者/自媒体内容。可进候选池，不推荐。",
+    "S2": "institutional：专业机构/认证协会官方内容，或单本权威教材/考纲。可推荐，UI 标注「行业惯例」。",
+    "S3": "multi_source：≥2 个独立高等级来源互证，或单篇同行评议论文直接支持。可推荐，UI 可给「依据」展开。",
+    "S4": "standard_backed：国家标准/官方考纲直接写明，或系统性学术综述支持。规则库锚点。"
+  },
+  "ruleVocabulary": {
+    "sourceStatus": ["unverified", "verified"],
+    "lifecycleStatus": ["draft", "active", "retired"],
+    "reviewStatus": ["pending_human_review", "human_reviewed"],
+    "effectType": ["soft_ranking"],
+    "conditionOperator": ["eq"],
+    "verdict": ["compatible", "caution"],
+    "direction": ["increase", "decrease", "neutral"],
+    "supportType": ["direct_source", "editorial_derivation"]
+  },
+  "effectEvidencePolicy": {
+    "direct_source": {
+      "levelAdjustment": 0,
+      "description": "effect 由来源原文直接支持，继承规则来源等级"
+    },
+    "editorial_derivation": {
+      "levelAdjustment": -1,
+      "description": "effect 是编辑性映射或推导，有效证据等级比规则来源等级降低一级"
+    }
+  },
+  "downgradeFactorPolicy": {
+    "aggregation": "同一 group 只应用一次最严格的 levelAdjustment；不同 group 累加。coveredBySupportType 命中时不重复降级",
+    "factors": {
+      "source_targets_women_extrapolated_to_men": {
+        "group": "population_transfer",
+        "levelAdjustment": -1,
+        "description": "女士美发来源向男性外推"
+      },
+      "source_non_east_asian_population": {
+        "group": "population_transfer",
+        "levelAdjustment": -1,
+        "description": "非东亚来源向中国大陆人群外推；与其他 population_transfer 因子合并只降一级"
+      },
+      "value_mapping_is_editorial": {
+        "group": "editorial_derivation",
+        "levelAdjustment": -1,
+        "coveredBySupportType": "editorial_derivation",
+        "description": "值域映射为编辑推导；已由 supportType 降级时不重复计算"
+      },
+      "foreheadCoverage_effect_is_editorial": {
+        "group": "editorial_derivation",
+        "levelAdjustment": -1,
+        "coveredBySupportType": "editorial_derivation",
+        "description": "遮额效果为编辑推导；已由 supportType 降级时不重复计算"
+      }
+    }
+  },
+  "conditionVocabulary": {
+    "faceShape": {
+      "values": ["oval", "round", "square", "oblong", "heart", "diamond", "pear"],
+      "source": "client/lib/face/types.ts FaceShape；与 VTCT 考纲脸型清单及 Milady/Pivot Point 教材七分类对齐",
+      "missingInputBehavior": "skip_rule"
+    },
+    "hairline": {"values": ["normal", "high", "receding", "occluded", "minimal"], "source": "client/lib/face/hair.ts HairMetrics", "missingInputBehavior": "skip_rule"},
+    "volume": {"values": ["thin", "normal", "thick"], "source": "client/lib/face/hair.ts HairMetrics", "missingInputBehavior": "downgrade_confidence"}
+  },
+  "attributeVocabulary": {
+    "note": "conclusion.attributeEffects 的 attribute 与 value 必须出自 hairstyle-fit-schema-v1.json 的 fitAttributes 声明（规则不直接绑 feasibilityAttributes；可行性硬约束由代码侧过滤表达）。attribute=\"*\" 仅允许用于 direction=neutral 的元规则。"
+  },
+  "rules": [
+    {
+      "id": "rule-facehair-round-sidevolume",
+      "ruleVersion": 2,
+      "domain": "face-hair",
+      "sourceStatus": "verified",
+      "lifecycleStatus": "draft",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male", "sourcePopulation": "female_hairdressing_extrapolated_to_cn_male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"field": "faceShape", "op": "eq", "value": "round"}],
+      "conclusion": {
+        "verdict": "caution",
+        "attributeEffects": [
+          {"attribute": "sideVolume", "value": ["high"], "direction": "decrease", "weight": 1, "supportType": "direct_source", "effectiveEvidenceLevel": "S1", "downgradeFactors": []}
+        ]
+      },
+      "mechanism": {
+        "text": "圆形脸横向视觉已强，侧区再增加量感会进一步放大脸的宽度；行业通行做法是削减侧区量感。",
+        "provenance": "editorial_interpretation_of_source"
+      },
+      "evidenceLevel": "S2",
+      "downgradeFactors": ["source_targets_women_extrapolated_to_men", "source_non_east_asian_population"],
+      "conflictsWith": [],
+      "sourceRefs": [
+        {
+          "title": "VTCT Level 3 Diploma in Women's Hairdressing (AH30239) 单元手册，UV30495 Outcome 1, p.71",
+          "quote": "Face shapes: Round – less volume at sides.",
+          "url": "https://www.qdostraining.com/wp-content/uploads/2021/09/AH30239.pdf",
+          "publisher": "VTCT（英国职业资格颁证机构）",
+          "officialIndex": "https://qualifications.vtct.org.uk",
+          "accessedAt": "2026-07-28"
+        }
+      ],
+      "evidenceTrail": {
+        "sourceLevelNote": "VTCT 考纲原文直接写明，单源。升级到 S3 需 Milady/Pivot Point 教材章节级摘编互证（见 upgradePath）。女士美发文凭向男性外推已记为降级因子。"
+      }
+    },
+    {
+      "id": "rule-facehair-square-sidevolume",
+      "ruleVersion": 2,
+      "domain": "face-hair",
+      "sourceStatus": "verified",
+      "lifecycleStatus": "draft",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male", "sourcePopulation": "female_hairdressing_extrapolated_to_cn_male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"field": "faceShape", "op": "eq", "value": "square"}],
+      "conclusion": {
+        "verdict": "compatible",
+        "attributeEffects": [
+          {"attribute": "sideVolume", "value": ["medium", "high"], "direction": "increase", "weight": 1, "supportType": "direct_source", "effectiveEvidenceLevel": "S1", "downgradeFactors": []}
+        ]
+      },
+      "mechanism": {
+        "text": "方形脸下颌宽、棱角强，侧区保留量感可以平衡下颌宽度，避免「上窄下宽」的对比。",
+        "provenance": "editorial_interpretation_of_source"
+      },
+      "evidenceLevel": "S2",
+      "downgradeFactors": ["source_targets_women_extrapolated_to_men", "source_non_east_asian_population"],
+      "conflictsWith": [],
+      "sourceRefs": [
+        {
+          "title": "VTCT Level 3 Diploma in Women's Hairdressing (AH30239) 单元手册，UV30495 Outcome 1, p.71",
+          "quote": "Square – volume at sides, soften corners.",
+          "url": "https://www.qdostraining.com/wp-content/uploads/2021/09/AH30239.pdf",
+          "publisher": "VTCT（英国职业资格颁证机构）",
+          "officialIndex": "https://qualifications.vtct.org.uk",
+          "accessedAt": "2026-07-28"
+        }
+      ],
+      "evidenceTrail": {"sourceLevelNote": "同 rule-facehair-round-sidevolume 的来源与降级因子说明。"}
+    },
+    {
+      "id": "rule-facehair-square-hardlines",
+      "ruleVersion": 3,
+      "domain": "face-hair",
+      "sourceStatus": "verified",
+      "lifecycleStatus": "draft",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male", "sourcePopulation": "female_hairdressing_extrapolated_to_cn_male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"field": "faceShape", "op": "eq", "value": "square"}],
+      "conclusion": {
+        "verdict": "caution",
+        "attributeEffects": [
+          {"attribute": "contourLine", "value": ["sharp"], "direction": "decrease", "weight": 1, "supportType": "editorial_derivation", "effectiveEvidenceLevel": "S0", "downgradeFactors": ["value_mapping_is_editorial"]}
+        ]
+      },
+      "mechanism": {
+        "text": "「soften corners」：方形脸应避免继续叠加硬朗几何轮廓（如板寸的方正外轮廓、硬刻分线），优先碎层、柔和边界来软化下颌与额角的棱角感。",
+        "provenance": "editorial_interpretation_of_source"
+      },
+      "evidenceLevel": "S2",
+      "downgradeFactors": ["source_targets_women_extrapolated_to_men", "source_non_east_asian_population"],
+      "conflictsWith": [],
+      "sourceRefs": [
+        {
+          "title": "VTCT Level 3 Diploma in Women's Hairdressing (AH30239) 单元手册，UV30495 Outcome 1, p.71",
+          "quote": "Square – volume at sides, soften corners.",
+          "url": "https://www.qdostraining.com/wp-content/uploads/2021/09/AH30239.pdf",
+          "publisher": "VTCT（英国职业资格颁证机构）",
+          "officialIndex": "https://qualifications.vtct.org.uk",
+          "accessedAt": "2026-07-28"
+        }
+      ],
+      "evidenceTrail": {"sourceLevelNote": "v3 修正：原绑定结构数值字段并使用非法字符串值，已改绑 fitAttributes.contourLine。「sharp=应避免」是 soften corners 的编辑性反向映射（supportType=editorial_derivation），教材摘编后需复核。"}
+    },
+    {
+      "id": "rule-facehair-oblong-topheight",
+      "ruleVersion": 2,
+      "domain": "face-hair",
+      "sourceStatus": "verified",
+      "lifecycleStatus": "draft",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male", "sourcePopulation": "female_hairdressing_extrapolated_to_cn_male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"field": "faceShape", "op": "eq", "value": "oblong"}],
+      "conclusion": {
+        "verdict": "caution",
+        "attributeEffects": [
+          {"attribute": "topHeight", "value": ["high"], "direction": "decrease", "weight": 1, "supportType": "direct_source", "effectiveEvidenceLevel": "S1", "downgradeFactors": []},
+          {"attribute": "foreheadCoverage", "value": ["none"], "direction": "decrease", "weight": 1, "supportType": "editorial_derivation", "effectiveEvidenceLevel": "S0", "downgradeFactors": ["foreheadCoverage_effect_is_editorial"]}
+        ]
+      },
+      "mechanism": {
+        "text": "长形脸纵轴已长，顶部再加高度（飞机头、高蓬松）会进一步拉长面部比例；完整露额在视觉上等效于增加纵轴长度，同样减权。",
+        "provenance": "editorial_interpretation_of_source"
+      },
+      "evidenceLevel": "S2",
+      "downgradeFactors": ["source_targets_women_extrapolated_to_men", "source_non_east_asian_population"],
+      "conflictsWith": [],
+      "sourceRefs": [
+        {
+          "title": "VTCT Level 3 Diploma in Women's Hairdressing (AH30239) 单元手册，UV30495 Outcome 1, p.71",
+          "quote": "Long – less height more volume.",
+          "url": "https://www.qdostraining.com/wp-content/uploads/2021/09/AH30239.pdf",
+          "publisher": "VTCT（英国职业资格颁证机构）",
+          "officialIndex": "https://qualifications.vtct.org.uk",
+          "accessedAt": "2026-07-28"
+        }
+      ],
+      "evidenceTrail": {"sourceLevelNote": "foreheadCoverage 减权是 less height 的编辑性延伸，教材摘编后需复核。"}
+    },
+    {
+      "id": "rule-facehair-oblong-sidevolume",
+      "ruleVersion": 2,
+      "domain": "face-hair",
+      "sourceStatus": "verified",
+      "lifecycleStatus": "draft",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male", "sourcePopulation": "female_hairdressing_extrapolated_to_cn_male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"field": "faceShape", "op": "eq", "value": "oblong"}],
+      "conclusion": {
+        "verdict": "compatible",
+        "attributeEffects": [
+          {"attribute": "sideVolume", "value": ["medium", "high"], "direction": "increase", "weight": 1, "supportType": "direct_source", "effectiveEvidenceLevel": "S1", "downgradeFactors": []}
+        ]
+      },
+      "mechanism": {
+        "text": "长形脸横向偏窄，侧区增加量感可以加宽视觉横轴，平衡过长纵轴。",
+        "provenance": "editorial_interpretation_of_source"
+      },
+      "evidenceLevel": "S2",
+      "downgradeFactors": ["source_targets_women_extrapolated_to_men", "source_non_east_asian_population"],
+      "conflictsWith": [],
+      "sourceRefs": [
+        {
+          "title": "VTCT Level 3 Diploma in Women's Hairdressing (AH30239) 单元手册，UV30495 Outcome 1, p.71",
+          "quote": "Long – less height more volume.",
+          "url": "https://www.qdostraining.com/wp-content/uploads/2021/09/AH30239.pdf",
+          "publisher": "VTCT（英国职业资格颁证机构）",
+          "officialIndex": "https://qualifications.vtct.org.uk",
+          "accessedAt": "2026-07-28"
+        }
+      ],
+      "evidenceTrail": {"sourceLevelNote": "同 rule-facehair-oblong-topheight。"}
+    },
+    {
+      "id": "rule-facehair-oval-general",
+      "ruleVersion": 2,
+      "domain": "face-hair",
+      "sourceStatus": "verified",
+      "lifecycleStatus": "draft",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male", "sourcePopulation": "female_hairdressing_extrapolated_to_cn_male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"field": "faceShape", "op": "eq", "value": "oval"}],
+      "conclusion": {
+        "verdict": "compatible",
+        "attributeEffects": [
+          {"attribute": "*", "value": ["*"], "direction": "neutral", "weight": 0, "supportType": "direct_source", "effectiveEvidenceLevel": "S1", "downgradeFactors": []}
+        ]
+      },
+      "mechanism": {
+        "text": "椭圆脸被行业体系列为「理想比例」基准，不做任何属性方向的加减权；适配差异由其他条件（发际线、发量、发质、场景）决定。",
+        "provenance": "editorial_interpretation_of_source"
+      },
+      "evidenceLevel": "S2",
+      "downgradeFactors": ["source_targets_women_extrapolated_to_men", "source_non_east_asian_population"],
+      "conflictsWith": [],
+      "sourceRefs": [
+        {
+          "title": "VTCT Level 3 Diploma in Women's Hairdressing (AH30239) 单元手册，UV30495 Outcome 1, p.71",
+          "quote": "Oval – suits all styles.",
+          "url": "https://www.qdostraining.com/wp-content/uploads/2021/09/AH30239.pdf",
+          "publisher": "VTCT（英国职业资格颁证机构）",
+          "officialIndex": "https://qualifications.vtct.org.uk",
+          "accessedAt": "2026-07-28"
+        }
+      ],
+      "evidenceTrail": {"sourceLevelNote": "「oval 为理想比例」是行业惯例定位；学术证据不支持把椭圆比例当作普适美学标准（见 warning），本条仅表示「不施加脸型修正」。"}
+    }
+  ],
+  "coverageGaps": [
+    {
+      "gap": "heart / diamond / pear 三种脸型无任何已核实来源的具体适配指导",
+      "note": "VTCT 考纲的脸型清单包含 heart 和 pear 但未给指导；Milady/Pivot Point 教材的对应章节需购书摘编。",
+      "blockedUntil": "textbook_excerpt"
+    },
+    {
+      "gap": "round 的顶部高度加权（「round 应加顶部高度」是行业广泛流传的说法，但 VTCT 原文未写）",
+      "blockedUntil": "textbook_excerpt"
+    },
+    {
+      "gap": "oblong 的刘海/遮额指导（行业广泛流传，VTCT 原文未写；当前 foreheadCoverage 效果为编辑性延伸）",
+      "blockedUntil": "textbook_excerpt"
+    },
+    {
+      "gap": "hairline（发际线后移/高发际线）× 额头遮盖类规则：用户高频痛点，教育体系来源中无直接条目，需单独调研",
+      "blockedUntil": "separate_research"
+    },
+    {
+      "gap": "volume（发量）× 顶部体积/分缝规则：同上，需单独调研",
+      "blockedUntil": "separate_research"
+    },
+    {
+      "gap": "体型×穿搭规则（domain=body-outfit）：GB/T 1335.1-2008 分型 + Flusser 廓形原则，见调研文档第 6 节第二批",
+      "blockedUntil": "batch_2"
+    },
+    {
+      "gap": "风格×发型/风格×穿搭协调规则：等三套风格×发型关系合并完成（compatibleHairstyleIds 123 对 / styleAffinities 79 对 / AI 判断 145 对，Jaccard 14–29%，需指定唯一真源）",
+      "blockedUntil": "style_relation_merge"
+    }
+  ],
+  "upgradePath": {
+    "to_S3": "购入 Milady Standard Cosmetology 14th（ISBN 9780357378908）与 Pivot Point Fundamentals: Cosmetology（ISBN 978-1-940593-56-2），摘编「Principles of Hair Design / 脸型分析」章节，与 VTCT 条目逐条互证；互证通过即升 S3，冲突记入 downgradeFactors。",
+    "to_S4": "人社部《美发师国家职业技能标准（2018 年版）》只有「掌握发型与脸型配合知识」的能力要求、无分脸型细则，不能直接把细则规则升到 S4；S4 需要国家标准级原文写明具体适配内容（目前不存在）。",
+    "qualityControl": "首批 gold 集 = 本文件 6 条 source_verified 规则；后续 AI 批量起草的规则与 gold 集盲评对比，Cohen's kappa ≥ 0.7 才放行（流程见调研文档 §5.2）。",
+    "compileGate": "scripts/validate-fit-rules.mjs：词表/枚举/类型校验 + 候选命中率检查；命中 0 款的 source_verified 规则使校验失败并记 unexecutable_rule。"
+  }
+}

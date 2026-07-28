@@ -1,0 +1,3222 @@
+{
+  "datasetVersion": "system-wardrobe-image-assets-cn-v0.1",
+  "generatedAt": "2026-07-27T16:27:06.545Z",
+  "targetMarket": "中国大陆男性",
+  "status": "generated_local_assets",
+  "source": "system-wardrobe-cn-v0.1",
+  "assetRoot": "/wardrobe-items/v1",
+  "warning": "本地静态文件需部署到可公开读取的对象存储或 CDN 后，才能作为当前换装 Provider 的 garmentImageUrl。鞋履与配饰仅用于衣柜展示，不能传给当前 V1 上身换装能力。",
+  "items": [
+    {
+      "wardrobeItemId": "wi-t01",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t01.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t02",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t02.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t03",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t03.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t04",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t04.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t05",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t05.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t06",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t06.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t07",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t07.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t08",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t08.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t09",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t09.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t10",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t10.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t11",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t11.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t12",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t12.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t13",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t13.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t14",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t14.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t15",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t15.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t16",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t16.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t17",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t17.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t18",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t18.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t19",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t19.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t20",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t20.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t21",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t21.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t22",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t22.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t23",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t23.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t24",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t24.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t25",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t25.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t26",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t26.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t27",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t27.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t28",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t28.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t29",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t29.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t30",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t30.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t31",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t31.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t32",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t32.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t33",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t33.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t34",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t34.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t35",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t35.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t36",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t36.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t37",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t37.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t38",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t38.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t39",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t39.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t40",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t40.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t41",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t41.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t42",
+      "category": "top",
+      "localPath": "/wardrobe-items/v1/wi-t42.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t43",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-t43.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o01",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o01.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o02",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o02.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o03",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o03.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o04",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o04.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o05",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o05.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o06",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o06.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o07",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o07.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o08",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o08.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o09",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o09.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o10",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o10.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o11",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o11.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o12",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o12.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o13",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o13.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o14",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o14.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o15",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o15.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o16",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o16.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o17",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o17.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o18",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o18.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o19",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o19.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o20",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o20.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o21",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o21.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o22",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o22.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o23",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o23.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o24",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o24.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o25",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o25.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o26",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o26.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o27",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o27.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o28",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o28.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o29",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o29.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o30",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o30.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o31",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o31.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o32",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o32.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o33",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o33.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o34",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o34.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o35",
+      "category": "outer",
+      "localPath": "/wardrobe-items/v1/wi-o35.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b01",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b01.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b02",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b02.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b03",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b03.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b04",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b04.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b05",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b05.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b06",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b06.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b07",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b07.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b08",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b08.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b09",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b09.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b10",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b10.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b11",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b11.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b12",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b12.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b13",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b13.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b14",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b14.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b15",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b15.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b16",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b16.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b17",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b17.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b18",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b18.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b19",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b19.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b20",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b20.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b21",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b21.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b22",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b22.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b23",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b23.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b24",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b24.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b25",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b25.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b26",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b26.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b27",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b27.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b28",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b28.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b29",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b29.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b30",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b30.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b31",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b31.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b32",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b32.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b33",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b33.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b34",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b34.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b35",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b35.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b36",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b36.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b37",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b37.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b38",
+      "category": "bottom",
+      "localPath": "/wardrobe-items/v1/wi-b38.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "candidate_requires_public_url",
+        "role": "garment_reference"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s01",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s01.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s02",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s02.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s03",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s03.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s04",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s04.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s05",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s05.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s06",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s06.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s07",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s07.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s08",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s08.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s09",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s09.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s10",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s10.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s11",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s11.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s12",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s12.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s13",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s13.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s14",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s14.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s15",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s15.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s16",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s16.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s17",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s17.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s18",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s18.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s19",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s19.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s20",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s20.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s21",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s21.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s22",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s22.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s23",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s23.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s24",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s24.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s25",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s25.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s26",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s26.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s27",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s27.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s28",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s28.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s29",
+      "category": "shoes",
+      "localPath": "/wardrobe-items/v1/wi-s29.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a01",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a01.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a02",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a02.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a03",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a03.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a04",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a04.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a05",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a05.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a06",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a06.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a07",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a07.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a08",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a08.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a09",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a09.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a10",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a10.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a11",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a11.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a12",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a12.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a13",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a13.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a14",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a14.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a15",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a15.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a16",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a16.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a17",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a17.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a18",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a18.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a19",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a19.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a20",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a20.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a21",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a21.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a22",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a22.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a23",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a23.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a24",
+      "category": "accessory",
+      "localPath": "/wardrobe-items/v1/wi-a24.png",
+      "assetKind": "synthetic_system_wardrobe_item",
+      "generatorLabel": "OpenAI built-in imagegen",
+      "isBrandedProductImage": false,
+      "displayStatus": "ready_local_asset",
+      "virtualTryOn": {
+        "status": "catalog_only",
+        "role": "not_supported_by_current_clothing_swap"
+      },
+      "constraints": [
+        "single_item",
+        "white_seamless_background",
+        "no_person",
+        "no_brand_or_text"
+      ]
+    }
+  ]
+}

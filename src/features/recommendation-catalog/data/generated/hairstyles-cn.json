@@ -1,0 +1,4947 @@
+[
+  {
+    "id": "hair-cn-flat-buzz",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "very-short",
+    "nameZh": "板寸",
+    "nameEn": "Flat Buzz Cut",
+    "aliases": [
+      "板寸头",
+      "平头板寸",
+      "短板寸"
+    ],
+    "description": "顶部极短并建立偏平、偏方的外轮廓，侧后区比顶部更短；不把所有推剪短发都归入板寸。",
+    "observableAttributes": [
+      {
+        "attribute": "topSilhouette",
+        "value": "flat_or_squared",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "fringe",
+        "value": "very_short_or_absent",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "sideTopTransition",
+        "value": "short_and_compact",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "foreheadExposure",
+        "value": "high",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 3,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 9,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "顶部通常约 6–18 mm，具体长度不作为硬阈值",
+      "texture": [
+        "直发",
+        "粗硬发",
+        "微卷"
+      ],
+      "density": "低至高均可，但极短长度会直接暴露密度差异",
+      "hairline": "发际线和额角暴露度高",
+      "service": "以推剪和轮廓修整为主，通常不需要烫发",
+      "maintenance": "为保持方正轮廓，需要较频繁修剪"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "american-streetwear",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "配合宽松街头单品和硬朗比例时可形成克制的街头基底。"
+      },
+      {
+        "styleId": "american-workwear",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "紧凑短轮廓与耐用、实用取向的工装单品视觉上协调。"
+      },
+      {
+        "styleId": "athleisure",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "长度短、活动时稳定，与整洁可行动的运动休闲造型相容。"
+      },
+      {
+        "styleId": "basketball-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "clean-boy",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "轮廓集中且没有复杂分缝，可作为清爽理容的一部分。"
+      },
+      {
+        "styleId": "gorpcore",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "graphic-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "guochao-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "hip-hop-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "military-vintage",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "trail-hiking",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "urban-techwear",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "教育部：全国职业院校技能大赛项目明确使用“板寸推剪造型”",
+        "url": "https://www.moe.gov.cn/s78/A07/A07_sjhj/201006/t20100621_96852.html",
+        "publisher": "中华人民共和国教育部",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "圆寸、板寸、方寸、毛寸、美式寸头的区别及脸型讲解",
+        "url": "https://www.bilibili.com/video/BV1uN4y1c7en/",
+        "publisher": "海南脏辫黑人烫磊子（作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.moe.gov.cn/s78/A07/A07_sjhj/201006/t20100621_96852.html"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "none",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "sharp",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "sleek",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "very-short",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "high",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-round-buzz",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "very-short",
+    "nameZh": "圆寸",
+    "nameEn": "Round Buzz Cut",
+    "aliases": [
+      "圆寸头",
+      "圆头寸",
+      "短圆寸"
+    ],
+    "description": "全头保持极短，顶部轮廓顺应头型呈圆弧而非刻意削成平面；与板寸的主要候选边界是顶部外轮廓，不是人物脸型。",
+    "observableAttributes": [
+      {
+        "attribute": "topSilhouette",
+        "value": "rounded",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "fringe",
+        "value": "very_short_or_absent",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "lengthDistribution",
+        "value": "near_uniform_with_soft_taper",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "foreheadExposure",
+        "value": "high",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 2,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "全头极短，通常约 3–15 mm",
+      "texture": [
+        "直发",
+        "粗硬发",
+        "微卷"
+      ],
+      "density": "低至高均可，但头皮和密度更可见",
+      "hairline": "完整暴露发际线",
+      "service": "推剪为主，不依赖造型品或烫发",
+      "maintenance": "需要定期修剪以避免轮廓失去圆整感"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "athleisure",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "洗护和造型步骤较少，与强调舒适行动的日常运动造型相容。"
+      },
+      {
+        "styleId": "basketball-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "clean-boy",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "近均一极短长度形成清爽、低变量的理容部分。"
+      },
+      {
+        "styleId": "military-vintage",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "normcore",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "近均一极短长度和无造型焦点符合低识别度日常基底。"
+      },
+      {
+        "styleId": "retro-sport",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "soft-youthful",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "相较板寸，圆弧顶部可降低方正硬度。"
+      },
+      {
+        "styleId": "trail-hiking",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "圆寸、板寸、方寸、毛寸、美式寸头的区别及脸型讲解",
+        "url": "https://www.bilibili.com/video/BV1uN4y1c7en/",
+        "publisher": "海南脏辫黑人烫磊子（作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "盘点全网男生圆寸发型",
+        "url": "https://www.bilibili.com/video/BV16R4y1o78t/",
+        "publisher": "长沙子晨男士发型设计（作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1uN4y1c7en/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "none",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "sleek",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "very-short",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-short-chestnut-crop",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "short",
+    "nameZh": "短碎栗子头",
+    "nameEn": "Short Chestnut Crop",
+    "aliases": [
+      "栗子头",
+      "渐变栗子头",
+      "短栗子头"
+    ],
+    "description": "顶部和刘海都保持紧凑短长度，前缘呈短而整齐或轻碎的横向边界，侧区保留少量厚度；排除全头推剪极短的寸头和顶部覆盖更长的碎盖。",
+    "observableAttributes": [
+      {
+        "attribute": "fringe",
+        "value": "short_horizontal_or_lightly_textured",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "topLength",
+        "value": "short_compact",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "sideVolume",
+        "value": "low_to_medium",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "parting",
+        "value": "none",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 3,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "顶部约 20–45 mm，刘海明显短于自然碎盖",
+      "texture": [
+        "直发",
+        "微卷"
+      ],
+      "density": "中等及以上更容易形成紧凑顶部",
+      "hairline": "短刘海只提供有限遮挡",
+      "service": "以剪裁为主，可配低渐变但不是必要定义",
+      "maintenance": "刘海边界和侧区长度变化会较快影响识别"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "athleisure",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "相比长碎盖更不容易遮挡视线，与日常运动休闲相容。"
+      },
+      {
+        "styleId": "blokecore",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "clean-boy",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "没有分缝且整体长度短，可支持清爽整洁的整体理容。"
+      },
+      {
+        "styleId": "gorpcore",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "light-outdoor",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "soft-youthful",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "短刘海与紧凑圆润顶部形成青年化语气。"
+      },
+      {
+        "styleId": "trail-hiking",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "男士发型目录：短碎发、前刺、圆寸、栗子头",
+        "url": "https://www.bilibili.com/video/BV1X5411w7D7/",
+        "publisher": "木木先森的视界（作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "理发师剪男生渐变栗子头",
+        "url": "https://www.bilibili.com/video/BV1C24y1U77a/",
+        "publisher": "美发课堂APP（官方账号发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1C24y1U77a/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "partial",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "mixed",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "natural",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "short",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-american-front-spike",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "short",
+    "nameZh": "美式前刺",
+    "nameEn": "American Front Spike",
+    "aliases": [
+      "前刺",
+      "立体前刺",
+      "纹理前刺",
+      "美式前刺短发"
+    ],
+    "description": "顶部短发整体向前汇聚，前额区域向上或斜上形成短刺和峰值，侧后区收紧；排除刘海自然下落的碎盖和顶部整体向后的背头。",
+    "observableAttributes": [
+      {
+        "attribute": "hairDirection",
+        "value": "forward_converging",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "frontShape",
+        "value": "raised_spikes",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "sideVolume",
+        "value": "low",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "foreheadExposure",
+        "value": "medium_to_high",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 8,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "顶部约 35–70 mm，需能形成向前束状结构",
+      "texture": [
+        "直发",
+        "粗硬发",
+        "微卷"
+      ],
+      "density": "中等及以上",
+      "hairline": "额角会部分或完全露出",
+      "service": "剪裁决定基础方向，可用吹风、发泥或夹板完成；摩根/钢夹烫只作为可选工艺",
+      "maintenance": "大多需要日常吹整与定型"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "american-streetwear",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "向前短刺和收紧侧区可与宽松 T、牛仔或工装下装形成当代美式街头轮廓。"
+      },
+      {
+        "styleId": "american-workwear",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "ametora",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "athleisure",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "短长度和露额版本适合强调行动性的日常运动场景。"
+      },
+      {
+        "styleId": "basketball-street",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "向上峰值与紧凑侧区能辅助球衣和篮球鞋的动感线条。"
+      },
+      {
+        "styleId": "blokecore",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "denim-heritage",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "gorpcore",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "graphic-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "guochao-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "hip-hop-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "light-outdoor",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "retro-sport",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "skate-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "urban-techwear",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "y2k-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "提高峰值、束状和锐利轮廓后，可承接千禧街头的强方向感。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "“前刺的基础发型该怎么剪？”",
+        "url": "https://www.bilibili.com/video/BV1psu4zWEq5/",
+        "publisher": "即山川发型教程（新生代男士形象管理品牌）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "男士造型：美式前刺理发教程",
+        "url": "https://www.bilibili.com/video/BV1bT5yz4EUb/",
+        "publisher": "不迫先生男士发型设计（官方账号发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1psu4zWEq5/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "none",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "mixed",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "piecey",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "short",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "high",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-natural-short-cover",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "short",
+    "nameZh": "自然短碎盖",
+    "nameEn": "Natural Short Textured Cover",
+    "aliases": [
+      "自然碎盖",
+      "短碎盖",
+      "学生碎盖",
+      "小碎盖"
+    ],
+    "description": "顶部和刘海自然向前覆盖，末端通过层次形成轻碎边界，不建立固定分缝；排除齐厚锅盖、中央开口的微分碎盖和短刺上扬的前刺。",
+    "observableAttributes": [
+      {
+        "attribute": "fringe",
+        "value": "forward_down_textured",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "parting",
+        "value": "none",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "topTexture",
+        "value": "soft_broken_layers",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "foreheadExposure",
+        "value": "low",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 3,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "顶部约 45–80 mm，刘海可落到额头上部",
+      "texture": [
+        "直发",
+        "微卷",
+        "轻自然卷"
+      ],
+      "density": "中等及以上更容易形成覆盖层",
+      "hairline": "适合需要一定前额覆盖的候选，但不承诺修饰效果",
+      "service": "以层次剪裁为核心，纹理烫或发根烫仅为可选增强",
+      "maintenance": "可不做高强度造型，但需要控制刘海厚度和侧区膨胀"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "blokecore",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "city-boy",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "自然、不刻意定型的短盖可配合宽松城市常服。"
+      },
+      {
+        "styleId": "clean-boy",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "自然下落的轻碎刘海、低侧区体积和无固定分缝形成清爽柔和外观。"
+      },
+      {
+        "styleId": "clean-fit",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "低装饰发型可支持干净造型，但覆盖刘海比典型利落轮廓更柔软。"
+      },
+      {
+        "styleId": "graphic-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "japanese-relaxed",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "korean-clean",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "碎层和自然落向可与黑白灰、干净比例的韩系简约方向组合。"
+      },
+      {
+        "styleId": "light-outdoor",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "normcore",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "低纹理、低蓬松版本可以融入低识别度的普通日常基础造型。"
+      },
+      {
+        "styleId": "resort-relaxed",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "skate-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "soft-youthful",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "自然下落刘海与软碎边界是主要视觉特征。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "男生碎盖发型怎么留长度过尴尬期",
+        "url": "https://www.bilibili.com/video/BV1SM4y187QM/",
+        "publisher": "发型最优解-罗艺（长沙男士发型作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "男士碎盖目录与大陆常用别名",
+        "url": "https://search.bilibili.com/all?keyword=%E7%94%B7%E5%A3%AB%E7%A2%8E%E7%9B%96",
+        "publisher": "哔哩哔哩官方搜索页",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1SM4y187QM/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "full",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "natural",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "short",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-micro-part-cover",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "medium-short",
+    "nameZh": "微分碎盖",
+    "nameEn": "Micro-Part Textured Cover",
+    "aliases": [
+      "微分",
+      "微中分碎盖",
+      "漫画感微分",
+      "微分纹理"
+    ],
+    "description": "保留碎盖的向前覆盖和层次，但在刘海中央或近中央形成窄开口；排除完全无分缝的自然碎盖和从发根清晰分向两侧的完整中分。",
+    "observableAttributes": [
+      {
+        "attribute": "fringe",
+        "value": "covered_with_narrow_opening",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "parting",
+        "value": "micro_center_or_off_center",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "topTexture",
+        "value": "airy_textured",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "foreheadExposure",
+        "value": "low_to_medium",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 3,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "顶部和刘海通常约 60–100 mm",
+      "texture": [
+        "直发",
+        "微卷",
+        "轻自然卷"
+      ],
+      "density": "中等及以上",
+      "hairline": "中央窄开口会暴露少量前额",
+      "service": "剪裁提供覆盖层；夹板、纹理烫或发根蓬松仅为可选工艺",
+      "maintenance": "通常需要吹出发根支撑并整理开口位置"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "city-boy",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "自然覆盖与小幅分缝能配合松弛城市层次。"
+      },
+      {
+        "styleId": "clean-boy",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "窄开口、空气碎感和低至中等额头暴露形成整理过但不僵硬的外观。"
+      },
+      {
+        "styleId": "korean-clean",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "窄分缝、刘海覆盖和受控轮廓常与大陆语境中的韩系简约青年造型组合。"
+      },
+      {
+        "styleId": "light-yabi",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "强化束状、卷度或漫画感，并加入少量亚文化配饰时可进入轻亚方向。"
+      },
+      {
+        "styleId": "soft-youthful",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "保留刘海覆盖，同时用窄开口增加轻盈感。"
+      },
+      {
+        "styleId": "y2k-street",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "窄中开口可辅助千禧感造型，但缺少服装和配饰信号时不足以成立。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "微分碎盖打理方法",
+        "url": "https://www.bilibili.com/video/BV1cKAkeDEDc/",
+        "publisher": "男生发型分享忆晨（沈阳男士发型作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "即山川教程目录中的纹理微分、微分短刺与微分侧背",
+        "url": "https://www.bilibili.com/list/1235606646?bvid=BV1UN411y7qL&oid=486587392",
+        "publisher": "即山川发型教程（新生代男士形象管理品牌）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1cKAkeDEDc/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "partial",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "natural",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "medium-short",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-natural-middle-part",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "medium",
+    "nameZh": "自然中分",
+    "nameEn": "Natural Middle Part",
+    "aliases": [
+      "中分",
+      "中分帘幕",
+      "自然中分发型",
+      "四六分中分"
+    ],
+    "description": "顶部中等长度从中央或接近中央的发根向两侧分开，刘海形成两片自然弧线；排除只有窄刘海开口的微分碎盖和明显偏向一侧的三七分。",
+    "observableAttributes": [
+      {
+        "attribute": "parting",
+        "value": "center_or_near_center_root_part",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "fringe",
+        "value": "two_sided_curtain",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "symmetry",
+        "value": "medium_to_high",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "foreheadExposure",
+        "value": "medium",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "刘海通常需要约 80–130 mm 才能稳定向两侧落下",
+      "texture": [
+        "直发",
+        "微卷",
+        "自然卷"
+      ],
+      "density": "中等及以上",
+      "hairline": "分缝会直接暴露中央发际线",
+      "service": "可纯剪吹整；气垫烫、纹理烫只作为可选工艺",
+      "maintenance": "需要建立发根分向和刘海弧度"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "city-boy",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "中等长度和自然两侧流向适合宽松城市常服。"
+      },
+      {
+        "styleId": "clean-boy",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "控制卷度和碎发后可成为清爽整洁整体呈现的一部分。"
+      },
+      {
+        "styleId": "ivy-preppy",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "japanese-relaxed",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "非贴服的中分与轻松层次能延续日系松弛比例。"
+      },
+      {
+        "styleId": "korean-clean",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "中等长度、帘幕分向和干净轮廓可支持韩系简约的比例语言。"
+      },
+      {
+        "styleId": "normcore",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "resort-relaxed",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "soft-youthful",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "帘幕式刘海与较柔和两侧弧线是主要特征。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "男生中分发型，帅气又好打理",
+        "url": "https://www.bilibili.com/video/BV1eW41147VC/",
+        "publisher": "木木先森的视界（作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "男生快速出门中分发型教程",
+        "url": "https://www.bilibili.com/video/BV1754y1b7rj/",
+        "publisher": "Marcus马马马克斯（作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1eW41147VC/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "partial",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "natural",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-textured-short-side-part",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "short",
+    "nameZh": "纹理短侧分",
+    "nameEn": "Textured Short Side Part",
+    "aliases": [
+      "短侧分",
+      "通勤侧分",
+      "侧分纹理",
+      "二八短侧分"
+    ],
+    "description": "顶部短至中短发从偏侧位置分向一侧，表面保留可见纹理而不是完全贴平；排除刘海较长并下垂的三七分，以及整体向后流动的侧背。",
+    "observableAttributes": [
+      {
+        "attribute": "parting",
+        "value": "off_center",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "hairDirection",
+        "value": "lateral_not_backward",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "topTexture",
+        "value": "visible_short_separation",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "foreheadExposure",
+        "value": "medium_to_high",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 8,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "顶部约 40–75 mm",
+      "texture": [
+        "直发",
+        "微卷",
+        "粗硬发"
+      ],
+      "density": "中等及以上",
+      "hairline": "分线位置需结合自然发旋",
+      "service": "以剪裁和吹风分向为主，可用发泥加强短纹理",
+      "maintenance": "通常需要低至中等强度日常造型"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "ametora",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "降低纹理并强化分线后，可与常春藤、军装和工装来源的经典男装组合。"
+      },
+      {
+        "styleId": "clean-boy",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "短长度和克制纹理可成为清爽理容的稳定部分。"
+      },
+      {
+        "styleId": "clean-fit",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "短侧分、可见但受控的表面纹理形成干净且不过度贴服的轮廓。"
+      },
+      {
+        "styleId": "ivy-preppy",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "new-business",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "清楚分向和短长度适合青年商务造型的利落要求。"
+      },
+      {
+        "styleId": "old-money-quiet-luxury",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "smart-casual",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "短侧分和清楚方向适合正式与休闲之间的整洁通勤表达。"
+      },
+      {
+        "styleId": "urban-commuter",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "低维护的短侧分与城市通勤单品视觉一致。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "即山川一分钟教程 Vol.59：纹理短侧分",
+        "url": "https://www.bilibili.com/video/BV1Vh411g7LR/",
+        "publisher": "即山川发型教程（新生代男士形象管理品牌）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "即山川纹理侧分与通勤侧分系列目录",
+        "url": "https://www.bilibili.com/video/BV1c64y1E7BJ",
+        "publisher": "即山川（品牌福利官官方账号）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1Vh411g7LR/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "none",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "mixed",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "asymmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "piecey",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "short",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-three-seven-fringe-part",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "medium-short",
+    "nameZh": "三七刘海侧分",
+    "nameEn": "Three-Seven Fringe Side Part",
+    "aliases": [
+      "三七分",
+      "韩式三七分",
+      "七三分",
+      "三七刘海"
+    ],
+    "description": "以约三七比例将中短刘海分向两侧，主刘海仍有部分向前或侧下覆盖；排除刘海全部向后、额头大面积露出的三七侧背，也排除近对称中分。",
+    "observableAttributes": [
+      {
+        "attribute": "parting",
+        "value": "asymmetric_three_seven",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "fringe",
+        "value": "partly_forward_or_side_down",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "hairDirection",
+        "value": "lateral_with_fringe",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "foreheadExposure",
+        "value": "low_to_medium",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "刘海通常约 70–110 mm",
+      "texture": [
+        "直发",
+        "微卷",
+        "轻自然卷"
+      ],
+      "density": "中等及以上",
+      "hairline": "主刘海仍能提供部分覆盖，但效果需个体评估",
+      "service": "可纯吹整或配纹理烫；分缝比例是描述语言而非精确测量",
+      "maintenance": "需要整理分向、刘海弧度和发根蓬松"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "ivy-preppy",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "korean-clean",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "提高蓬松但保持分向清楚时，可与干净比例的韩系简约造型组合。"
+      },
+      {
+        "styleId": "new-business",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "smart-casual",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "控制纹理后可用于半正式和通勤休闲造型。"
+      },
+      {
+        "styleId": "soft-youthful",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "保留刘海覆盖并使用不对称分向。"
+      },
+      {
+        "styleId": "urban-commuter",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "侧向组织清楚，同时保留日常刘海，适合非正装通勤。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "即山川：韩式三七分发型教程",
+        "url": "https://www.bilibili.com/video/BV19w411F7AM/",
+        "publisher": "即山川（品牌福利官官方账号）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "男生三七分发型打理教程",
+        "url": "https://www.bilibili.com/video/BV1Eo4y1K7V6/",
+        "publisher": "札南发型琪哥（专业男生发型改造作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV19w411F7AM/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "partial",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "asymmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "natural",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "medium-short",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-four-six-side-sweep",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "medium",
+    "nameZh": "四六纹理侧背",
+    "nameEn": "Four-Six Textured Side Sweep",
+    "aliases": [
+      "四六分侧背",
+      "微分侧背",
+      "长刘海侧背",
+      "纹理侧背"
+    ],
+    "description": "中等长度顶部从接近中线处分开后向两侧和后方流动，主刘海离开额头；排除刘海仍向下覆盖的三七分和顶部全部统一向后的完整背头。",
+    "observableAttributes": [
+      {
+        "attribute": "parting",
+        "value": "near_center_asymmetric",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "hairDirection",
+        "value": "side_and_backward",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "fringe",
+        "value": "lifted_away_from_forehead",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "foreheadExposure",
+        "value": "medium_to_high",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "顶部和刘海约 80–140 mm",
+      "texture": [
+        "直发",
+        "微卷",
+        "自然卷"
+      ],
+      "density": "中等及以上",
+      "hairline": "额头和额角暴露度较高",
+      "service": "吹风和夹板可建立侧后流向；烫发不是必要定义",
+      "maintenance": "需要中等强度日常造型以维持刘海离额和纹理"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "ametora",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "侧背方向可连接常春藤与美式传统再解释中的经典男士理发语言。"
+      },
+      {
+        "styleId": "contemporary-chinese-style",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "contemporary-suit",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "eastern-gentleman",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "editorial-male-model",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "japanese-relaxed",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "保留中长层次、降低定型后，可与自然面料和宽松分层的日系松弛方向组合。"
+      },
+      {
+        "styleId": "korean-clean",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "model-off-duty",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "接近中线的分缝、向侧后流动和中等体积形成松弛但受控的时装轮廓。"
+      },
+      {
+        "styleId": "new-business",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "分向明确、额头暴露和受控体积适合青年商务造型。"
+      },
+      {
+        "styleId": "old-money-quiet-luxury",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "smart-casual",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "露额、侧后流向和受控纹理形成适合通勤与半正式场景的整洁感。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "即山川教程 Vol.80：四六分侧背",
+        "url": "https://www.bilibili.com/video/BV1Dk4y1P7mZ/",
+        "publisher": "即山川发型教程（新生代男士形象管理品牌）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "三七侧背发型打理技巧",
+        "url": "https://www.bilibili.com/video/BV1y44y1v7mr/",
+        "publisher": "广州风度造型一介（作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1Dk4y1P7mZ/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "none",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "mixed",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "asymmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "natural",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-textured-slick-back",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "medium-short",
+    "nameZh": "纹理背头",
+    "nameEn": "Textured Slick Back",
+    "aliases": [
+      "纹理短背头",
+      "自然背头",
+      "蓬松背头",
+      "短背"
+    ],
+    "description": "顶部和刘海整体向后离开额头，但保留分束纹理和蓬松度，不要求传统油头的贴服高光；排除有明确侧向主分线的侧背和前额向前形成峰值的前刺。",
+    "observableAttributes": [
+      {
+        "attribute": "hairDirection",
+        "value": "predominantly_backward",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "topTexture",
+        "value": "separated_and_voluminous",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "parting",
+        "value": "none_or_weak",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "foreheadExposure",
+        "value": "high",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 8,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 8,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 8,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "顶部约 70–130 mm",
+      "texture": [
+        "直发",
+        "微卷",
+        "粗硬发"
+      ],
+      "density": "中等及以上",
+      "hairline": "完整或大面积暴露额头和发际线",
+      "service": "可纯造型或先做纹理烫；高光湿发不是必要属性",
+      "maintenance": "通常需要吹整、发泥或发蜡和定型喷雾"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "american-workwear",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "ametora",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "借用经典背头方向但降低贴服和油亮，可与美式传统再解释组合。"
+      },
+      {
+        "styleId": "avant-tailoring",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "contemporary-chinese-style",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "contemporary-suit",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "向后受控流向与成套剪裁的清晰肩线和正式轮廓协调。"
+      },
+      {
+        "styleId": "darkwear",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "露额后梳能强化全黑造型的纵向和锐利感，但不单独构成暗黑。"
+      },
+      {
+        "styleId": "denim-heritage",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "eastern-gentleman",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "editorial-male-model",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "military-vintage",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "model-off-duty",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "凌乱束状版本可与牛仔、皮夹克或风衣构成松弛但比例准确的私服感。"
+      },
+      {
+        "styleId": "new-business",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "露额、统一后向和清晰纹理可支持较现代、较软结构的青年商务呈现。"
+      },
+      {
+        "styleId": "punk-goth",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "即山川教程 Vol.132：纹理背头",
+        "url": "https://www.bilibili.com/video/BV1kfLtz6Ehh/",
+        "publisher": "即山川发型教程（新生代男士形象管理品牌）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "发型枫：纹理背头改造",
+        "url": "https://www.bilibili.com/video/BV1Dg411N7ov/",
+        "publisher": "发型枫（广州男士发型作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1kfLtz6Ehh/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "none",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "mixed",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "piecey",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "medium-short",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "high",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-strand-texture-short",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "short",
+    "nameZh": "束状纹理短发",
+    "nameEn": "Strand-Texture Short Hair",
+    "aliases": [
+      "锡纸纹理",
+      "钢夹纹理",
+      "束状纹理烫",
+      "凌乱纹理"
+    ],
+    "description": "顶部由大量清晰细束、折线或小卷构成，整体方向可向前、微分或自然散开；以可见纹理结果定义，不用“锡纸烫、钢夹烫、摩根烫”等施工方法单独决定条目。",
+    "observableAttributes": [
+      {
+        "attribute": "topTexture",
+        "value": "high_separation_strands",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "curlPattern",
+        "value": "small_bends_or_irregular_waves",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "hairDirection",
+        "value": "variable",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "visualDensity",
+        "value": "high",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 3,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 8,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 3,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "顶部通常约 50–100 mm",
+      "texture": [
+        "直发经造型或烫发",
+        "微卷",
+        "自然卷"
+      ],
+      "density": "中等及以上；低密度需要谨慎评估可见分缝",
+      "hairline": "可搭配刘海或微分，不单独承诺遮盖效果",
+      "service": "锡纸烫、钢夹烫、纹理烫或夹板都可能得到近似结果，必须作为独立工艺字段记录",
+      "maintenance": "化学烫发后仍可能需要整理束状和控制毛躁"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "american-streetwear",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "高分束、小折线和较高视觉密度为宽松街头服装提供明显发型焦点。"
+      },
+      {
+        "styleId": "darkwear",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "guochao-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "hip-hop-street",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "高纹理短发能辅助宽松球衣、图案 T 和篮球鞋的街头表达。"
+      },
+      {
+        "styleId": "light-yabi",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "纹理在整体造型中占据高视觉权重，与少量金属、旧化或图案信号组合时可进入轻亚方向。"
+      },
+      {
+        "styleId": "soft-youthful",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "降低折线强度并保留刘海时可形成更柔和版本。"
+      },
+      {
+        "styleId": "urban-techwear",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "y2k-street",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "细束、高纹理密度和锐利方向可承接千禧街头的强视觉节奏。"
+      },
+      {
+        "styleId": "yabi-subculture",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "高密度束状纹理可成为亚比混合造型的一项高表达信号。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "发型枫：锡纸烫与纹理烫有哪些区别",
+        "url": "https://www.bilibili.com/video/BV1HJ411M7uQ/",
+        "publisher": "发型枫（广州男士发型作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "男士烫发在家打理：摩根烫、锡纸烫",
+        "url": "https://www.bilibili.com/video/BV1yt4y1e7cZ/",
+        "publisher": "发型枫（广州男士发型作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1HJ411M7uQ/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "partial",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "piecey",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "short",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [
+          "perm"
+        ],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-short-wolf-tail",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "medium-short",
+    "nameZh": "短狼尾",
+    "nameEn": "Short Wolf Tail",
+    "aliases": [
+      "小狼尾",
+      "狼尾头",
+      "短鲻鱼头",
+      "鲻鱼狼尾"
+    ],
+    "description": "前部和侧区为短至中短层次，后颈单独保留明显更长的尾部；排除前后长度接近的普通中长层次和只有一条细长发束的鼠尾。",
+    "observableAttributes": [
+      {
+        "attribute": "frontBackContrast",
+        "value": "short_front_long_nape",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "napeLength",
+        "value": "distinct_tail",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "layering",
+        "value": "high",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "symmetry",
+        "value": "front_back_asymmetric",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 2,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 9,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 3,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "后颈需明显长于前侧，通常需要较长留发周期",
+      "texture": [
+        "直发",
+        "微卷",
+        "自然卷"
+      ],
+      "density": "中等及以上更容易建立完整层次",
+      "hairline": "前部可搭配刘海、微分或露额，需另作属性记录",
+      "service": "核心是前后长度差和层次剪裁，烫染不是必要定义",
+      "maintenance": "需要控制后颈尾部、侧区连接和生长后的断层"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "avant-tailoring",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "darkwear",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "前后不对称轮廓能强化暗黑长短层次，但颜色和服装仍需另行成立。"
+      },
+      {
+        "styleId": "japanese-relaxed",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "降低断差、保留自然卷时，可融入自然面料和宽松分层的日系松弛造型。"
+      },
+      {
+        "styleId": "light-yabi",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "punk-goth",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "不连续层次和尾部长度可辅助朋克/哥特服装信号。"
+      },
+      {
+        "styleId": "retro-sport",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "skate-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "y2k-street",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "大陆男士造型内容中的漫画感狼尾，可与做旧牛仔、科技跑鞋和亮眼配饰组合。"
+      },
+      {
+        "styleId": "yabi-subculture",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "前短后长的高反差轮廓可成为朋克、原宿和 Y2K 混搭中的强亚文化焦点。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "男士狼尾要怎么剪才好看",
+        "url": "https://www.bilibili.com/video/BV1qT4y1N7fL/",
+        "publisher": "耒阳潮男男士发型戴维（作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "男士狼尾发型官方搜索目录",
+        "url": "https://search.bilibili.com/all?keyword=%E7%94%B7%E5%A3%AB%E7%8B%BC%E5%B0%BE%E5%8F%91%E5%9E%8B",
+        "publisher": "哔哩哔哩官方搜索页",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1qT4y1N7fL/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "partial",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "asymmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "natural",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "medium-short",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-medium-relaxed-texture",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "medium",
+    "nameZh": "港风中长纹理",
+    "nameEn": "Relaxed Medium-Length Texture",
+    "aliases": [
+      "港风中长发",
+      "中长纹理",
+      "自然卷中长发",
+      "动感中长发"
+    ],
+    "description": "顶部、侧区和后部都保留中等长度，通过自然卷或大弧度纹理形成松散层次；排除后颈单独拉长的狼尾、全部贴后梳的背头和接近对称帘幕的标准中分。",
+    "observableAttributes": [
+      {
+        "attribute": "overallLength",
+        "value": "medium",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "curlPattern",
+        "value": "large_loose_bends",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "layering",
+        "value": "medium_to_high",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "hairDirection",
+        "value": "loose_variable",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 3,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "前额、顶部和侧区通常约 100–180 mm",
+      "texture": [
+        "自然卷",
+        "微卷",
+        "细软直发经造型或烫发"
+      ],
+      "density": "中等及以上；高密度需要减量和层次控制",
+      "hairline": "可搭配偏分、中分或无固定分缝，需另作属性记录",
+      "service": "可利用自然卷或大弧度纹理烫；不以“港风”作为施工工艺",
+      "maintenance": "需要毛躁管理、吹整或轻度造型，低维护说法需标注验证"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "ametora",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "低光泽、较克制的港风版本可与美式传统单品组合；发型本身不定义 Ametora。"
+      },
+      {
+        "styleId": "avant-tailoring",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "contemporary-chinese-style",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "denim-heritage",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "editorial-male-model",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "japanese-relaxed",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "中长层次和松散大弧度可与自然面料、宽松分层和低饱和配色形成稳定组合。"
+      },
+      {
+        "styleId": "model-off-duty",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "中长发的视觉存在感可与牛仔、皮夹克或风衣形成看似随手但有时装焦点的私服感。"
+      },
+      {
+        "styleId": "punk-goth",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      },
+      {
+        "styleId": "resort-relaxed",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "松散大弯与低正式度、轻材质度假造型协调。"
+      },
+      {
+        "styleId": "yabi-subculture",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "即山川教程 Vol.56：港风中长发",
+        "url": "https://www.bilibili.com/video/BV1MT411k7YX/",
+        "publisher": "即山川发型教程（新生代男士形象管理品牌）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "发型枫：男生中长发夹板动感造型",
+        "url": "https://www.bilibili.com/video/BV1x54y1J7TX/",
+        "publisher": "发型枫（广州男士发型作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1MT411k7YX/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "high",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "partial",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "natural",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-classic-three-seven-side-back",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "medium-short",
+    "nameZh": "经典三七侧背",
+    "nameEn": "Classic Three-Seven Side Back",
+    "aliases": [
+      "三七侧背",
+      "七三侧背",
+      "港风侧背",
+      "商务侧背"
+    ],
+    "description": "以明显三七分线组织顶部，主区头发向侧后方梳离额头，表面比四六纹理侧背更规整；排除刘海向下覆盖的三七分和没有主分线的纹理背头。",
+    "observableAttributes": [
+      {
+        "attribute": "parting",
+        "value": "clear_three_seven",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "hairDirection",
+        "value": "side_and_backward",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "surface",
+        "value": "controlled",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "foreheadExposure",
+        "value": "high",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 9,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 9,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 8,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "顶部约 70–120 mm",
+      "texture": [
+        "直发",
+        "微卷",
+        "粗硬发"
+      ],
+      "density": "中等及以上",
+      "hairline": "完整暴露额头与大部分额角",
+      "service": "明确分线、侧后吹整和定型是核心；气垫烫或侧背烫为可选工艺",
+      "maintenance": "通常需要中高强度日常造型"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "ametora",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "侧分侧背属于常春藤与美式传统再解释中的经典男士造型语汇。"
+      },
+      {
+        "styleId": "clean-fit",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "受控轮廓能支持干净造型，但经典分线比 Clean Fit 的服装定义更具体。"
+      },
+      {
+        "styleId": "contemporary-suit",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "明确分线和离额梳理与成套西装的结构感协调。"
+      },
+      {
+        "styleId": "eastern-gentleman",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "规整侧背可辅助现代东方正装或立领剪裁，文化结构仍来自服装。"
+      },
+      {
+        "styleId": "new-business",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "清楚分线、露额和受控表面可支持现代青年工作场景的精修感。"
+      },
+      {
+        "styleId": "old-money-quiet-luxury",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "经典侧背可辅助低 Logo、天然材质和克制配色的精致呈现。"
+      },
+      {
+        "styleId": "smart-casual",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "提高纹理、降低光泽后，可进入正式与休闲之间的港风通勤表达。"
+      },
+      {
+        "styleId": "urban-commuter",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": null
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "三七侧背发型打理技巧",
+        "url": "https://www.bilibili.com/video/BV1y44y1v7mr/",
+        "publisher": "广州风度造型一介（作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "三七侧背：大陆男士发型设计案例",
+        "url": "https://www.bilibili.com/video/BV14V411Z7gE/",
+        "publisher": "木田造型（作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1y44y1v7mr/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "none",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "sharp",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "asymmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "sleek",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "medium-short",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "high",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-medium-natural-layers",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "medium-long",
+    "nameZh": "中长自然分层",
+    "nameEn": "Natural Medium-Long Layers",
+    "aliases": [
+      "中长层次",
+      "高层次中长发",
+      "自然中长发",
+      "男生中长分层"
+    ],
+    "description": "前额、侧区和后部均保留可摆动的中长长度，通过连续层次减轻厚重感，表面以直发或轻微弯曲为主；排除大卷主导的港风中长纹理、后颈单独拉长的狼尾和已经达到肩线的披肩发。",
+    "observableAttributes": [
+      {
+        "attribute": "overallLength",
+        "value": "medium_long_above_shoulders",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "layering",
+        "value": "continuous_medium_to_high",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "curlPattern",
+        "value": "straight_to_soft_bend",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "perimeter",
+        "value": "light_and_mobile",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 3,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "最低长度：前部通常能到眉下或颧骨附近，侧后区接近耳下至颈中，但尚未稳定落到肩线",
+      "texture": [
+        "直发",
+        "微卷",
+        "自然卷经减量与层次控制"
+      ],
+      "density": "中等及以上更易形成连续层次；高密度需避免外轮廓堆积",
+      "hairline": "可配中分、偏分或无固定分缝，不能由条目本身推断遮盖效果",
+      "service": "核心是中长层次与重量分配；烫发只用于改变纹理，不是定义条件",
+      "maintenance": "需要定期修整层次、控制毛躁与发尾干燥，留发过渡期可能需要吹整"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "japanese-relaxed",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "连续层次和自然流向可与宽松分层、低饱和配色的日系松弛方向组合。"
+      },
+      {
+        "styleId": "model-off-duty",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "中长轮廓相对常见男士短发更具存在感，可成为松弛基础款中的时装焦点。"
+      },
+      {
+        "styleId": "soft-youthful",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "保留轻刘海和柔和发尾时可降低成熟感。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "男生留中长发，剪层次很重要",
+        "url": "https://www.bilibili.com/video/BV1J3411Q74e/",
+        "publisher": "发型枫（广州男士发型作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "想留长发，过渡期不好看怎么办",
+        "url": "https://www.bilibili.com/video/BV1754y1z7Kq/",
+        "publisher": "广州风度造型一介（作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1J3411Q74e/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "high",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "partial",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "natural",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "medium-long",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-long-wolf-tail",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "long",
+    "nameZh": "长狼尾",
+    "nameEn": "Long Wolf Tail",
+    "aliases": [
+      "长款狼尾",
+      "长鲻鱼头",
+      "长发狼尾",
+      "长层次狼尾"
+    ],
+    "description": "后颈和后部延伸至衣领以下，前侧仍以较短、高层次结构连接，保留明显的前短后长轮廓；排除后部只到颈中的短狼尾、前后长度接近的披肩分层和只留一束细尾的鼠尾。",
+    "observableAttributes": [
+      {
+        "attribute": "frontBackContrast",
+        "value": "layered_front_with_long_back",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "napeLength",
+        "value": "below_collar_or_near_shoulders",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "layering",
+        "value": "high",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "perimeter",
+        "value": "broken_or_feathered",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 2,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 9,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "最低长度：后区需越过衣领或接近肩线，前侧可短至颧骨或下颌附近但必须与后区形成可见长度差",
+      "texture": [
+        "直发",
+        "微卷",
+        "自然卷"
+      ],
+      "density": "中等及以上；低密度不宜过度打薄，高密度需控制侧区宽度",
+      "hairline": "前部可有刘海、分缝或露额，需作为独立属性标注",
+      "service": "依赖高层次和前后重量差；不能以“狼尾烫”工艺名称替代结果定义",
+      "maintenance": "需要持续修整尾部形状、侧区连接和发尾状态，留长周期较长"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "japanese-relaxed",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "降低断差并保留自然波纹时，可与自然面料和宽松分层形成松弛版本。"
+      },
+      {
+        "styleId": "y2k-street",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "高反差层次可与特殊廓形上装、做旧牛仔和亮眼配饰形成千禧街头表达。"
+      },
+      {
+        "styleId": "yabi-subculture",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "长后区与短前侧形成强烈结构识别，可作为朋克、原宿和 Y2K 混搭中的发型焦点。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "男士狼尾发型：长发改造与层次示范",
+        "url": "https://www.bilibili.com/video/BV1L5411572R/",
+        "publisher": "广州发型师一介（作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "狼尾怎么剪、怎么留与自己造型",
+        "url": "https://www.bilibili.com/video/BV11v4y1T7q6/",
+        "publisher": "男士长发作者自发布",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1L5411572R/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "partial",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "asymmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "natural",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "long",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-shoulder-straight",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "long",
+    "nameZh": "披肩直发",
+    "nameEn": "Shoulder-Length Straight Hair",
+    "aliases": [
+      "男生披肩发",
+      "齐肩直发",
+      "长直发",
+      "披肩长发"
+    ],
+    "description": "主体发长自然落到肩线或肩线以下，视觉以直顺流向和连续长轮廓为主，可有轻层次但不以卷曲或前短后长为核心；排除尚未到肩的中长分层、明显波浪披肩发和扎起后的马尾或发髻。",
+    "observableAttributes": [
+      {
+        "attribute": "overallLength",
+        "value": "shoulder_or_below",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "curlPattern",
+        "value": "straight",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "perimeter",
+        "value": "continuous_long",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "tieState",
+        "value": "untied",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 2,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "最低长度：大部分后区自然下垂时触及肩线，前侧长度可因层次略短",
+      "texture": [
+        "直发",
+        "轻微自然弯",
+        "卷发经拉直造型"
+      ],
+      "density": "低至高均可；高密度需要减量避免肩部堆积，低密度需谨慎控制过薄发尾",
+      "hairline": "可配中分或偏分，不由长发条目推断发际线适配",
+      "service": "核心是保留长度、修整发尾和层次；化学拉直不属于必要条件",
+      "maintenance": "洗护、干发与防打结时间较短发显著增加，发尾状态需持续维护"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "ametora",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "中分、低光泽版本可与常春藤、军装或丹宁传统单品组合；长直发本身不定义 Ametora。"
+      },
+      {
+        "styleId": "japanese-relaxed",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "自然垂落和长轮廓可与自然面料、宽松分层形成松弛基底。"
+      },
+      {
+        "styleId": "model-off-duty",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "男士披肩长度本身具有较高视觉辨识度，可成为基础款与外套造型中的时装焦点。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "29分钟了解男生留长发的全过程",
+        "url": "https://www.bilibili.com/video/BV1TM411X782/",
+        "publisher": "中国男士长发作者自发布",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "教程：我最喜欢的男生长发发型",
+        "url": "https://www.bilibili.com/video/BV1MFWRzLE6t/",
+        "publisher": "中国男士长发作者自发布",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1TM411X782/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "high",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "partial",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "sleek",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "long",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "high",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-shoulder-wave",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "long",
+    "nameZh": "披肩波浪发",
+    "nameEn": "Shoulder-Length Wavy Hair",
+    "aliases": [
+      "披肩卷发",
+      "男生长卷发",
+      "齐肩波浪发",
+      "长发微卷"
+    ],
+    "description": "主体长度到肩或更长，表面由连续大弯、波浪或松散卷曲构成，并保持散发状态；排除直顺披肩发、只有发尾轻微内扣的直发和整体尚在耳下至颈部的港风中长纹理。",
+    "observableAttributes": [
+      {
+        "attribute": "overallLength",
+        "value": "shoulder_or_below",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "curlPattern",
+        "value": "continuous_loose_wave_or_curl",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "volume",
+        "value": "medium_to_high",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "tieState",
+        "value": "untied",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 3,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 3,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "最低长度：自然状态下主体后区触及肩线；卷缩明显时湿发或拉伸长度可能更长",
+      "texture": [
+        "自然卷",
+        "微卷",
+        "直发经大弧度烫或热工具造型"
+      ],
+      "density": "中等及以上更容易形成完整波浪；高密度需控制膨胀，低密度需避免过度分束",
+      "hairline": "可配中分、偏分或散落前发，需独立标注",
+      "service": "自然卷与烫发都可达到近似结果，必须将纹理来源另行记录",
+      "maintenance": "需要卷曲整理、毛躁控制、较长干发时间和发尾护理"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "denim-heritage",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "较大波浪与丹宁、皮革等复古单品组合时可承载摇滚语气；发型本身不定义丹宁复古。"
+      },
+      {
+        "styleId": "japanese-relaxed",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "长波浪和自然体积可与宽松分层、低饱和配色构成松弛方向。"
+      },
+      {
+        "styleId": "model-off-duty",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "长长度叠加连续纹理，适合作为牛仔、皮夹克或风衣造型中的高权重时装焦点。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "适合长发男的卷发造型：日常打理分享",
+        "url": "https://www.bilibili.com/video/BV19Qt2z3Eq1/",
+        "publisher": "上海发型师 Allen（作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "男生长发自然松散卷发示范",
+        "url": "https://www.bilibili.com/video/BV1yb4y1a7tE/",
+        "publisher": "上海男士发型师（作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV19Qt2z3Eq1/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "high",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "partial",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "natural",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "long",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "high",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-low-ponytail",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "long",
+    "tieStructure": {
+      "type": "low_ponytail",
+      "coverage": "all_or_most_hair",
+      "anchorZone": "nape",
+      "provenance": "editorial_seed"
+    },
+    "nameZh": "低马尾",
+    "nameEn": "Low Ponytail",
+    "aliases": [
+      "男士低马尾",
+      "后颈马尾",
+      "低扎发",
+      "小马尾"
+    ],
+    "description": "大部分头发向后集中，并在后颈或后枕下部固定，尾部保持自由下垂；排除固定点位于头顶或后枕上部的高马尾、尾部盘成团的低丸子以及只扎上半区的半扎。",
+    "observableAttributes": [
+      {
+        "attribute": "tieCoverage",
+        "value": "all_or_most_hair",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "anchorZone",
+        "value": "nape_or_low_occipital",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "tailState",
+        "value": "free_hanging",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "frontControl",
+        "value": "variable_slick_or_loose",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "最低长度：主体后区可在后颈汇拢并由发圈稳定固定，通常需要接近肩线或更长；碎层可能无法全部收拢",
+      "texture": [
+        "直发",
+        "微卷",
+        "自然卷"
+      ],
+      "density": "低至高均可，马尾直径与密度需作为可观察属性而非优劣判断",
+      "hairline": "向后梳时暴露发际线；保留前侧散发时需独立标注",
+      "service": "无需化学服务；需要合适发圈与长发修剪",
+      "maintenance": "日常扎发成本低于复杂编发，但洗护、解结和发圈摩擦仍需管理"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "japanese-relaxed",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "低位固定与自由下垂尾部可与自然面料和宽松分层形成克制松弛感。"
+      },
+      {
+        "styleId": "model-off-duty",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "保留少量散发并配风衣、皮夹克或牛仔时，可形成松弛私服感。"
+      },
+      {
+        "styleId": "smart-casual",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "表面梳理平整时可成为半正式与通勤休闲造型中的受控长发结构。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "男生男士小马尾发型教学",
+        "url": "https://www.bilibili.com/video/BV1gW411472q/",
+        "publisher": "木木先森的视界（中国男士发型作者发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "男士不同场合下的3种丸子头发型",
+        "url": "https://www.bilibili.com/video/BV1LE41147fV/",
+        "publisher": "李白白 LEO（男士长发作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1gW411472q/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "none",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "mixed",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "sleek",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "long",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-high-ponytail",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "long",
+    "tieStructure": {
+      "type": "high_ponytail",
+      "coverage": "all_or_most_hair",
+      "anchorZone": "upper_occipital_or_crown",
+      "provenance": "editorial_seed"
+    },
+    "nameZh": "高马尾",
+    "nameEn": "High Ponytail",
+    "aliases": [
+      "男生高马尾",
+      "高扎马尾",
+      "头顶马尾",
+      "国风高马尾"
+    ],
+    "description": "大部分头发被拉向后枕上部或头顶附近固定，尾部保持自由下垂，固定点明显高于耳尖连线；排除后颈低位固定的低马尾、只固定上半区的半扎高马尾和尾部盘成团的高丸子。",
+    "observableAttributes": [
+      {
+        "attribute": "tieCoverage",
+        "value": "all_or_most_hair",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "anchorZone",
+        "value": "upper_occipital_or_crown",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "tailState",
+        "value": "free_hanging",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "silhouette",
+        "value": "lifted_and_directional",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 3,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "最低长度：主体头发能向后枕上部汇拢且尾部仍有可见垂坠，通常需要肩线附近或更长",
+      "texture": [
+        "直发",
+        "微卷",
+        "自然卷"
+      ],
+      "density": "低至高均可；密度影响尾部体积但不决定条目归类",
+      "hairline": "前额和额角通常暴露较多，保留龙须或碎发时需另记",
+      "service": "无需化学服务；高位固定需要足够长度和不易滑脱的固定方式",
+      "maintenance": "扎发本身较快，但高位拉力、碎发整理和长发洗护需由用户体验标注"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "american-streetwear",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "配合宽松 T、牛仔、工装下装或球鞋时视觉节奏鲜明。"
+      },
+      {
+        "styleId": "contemporary-chinese-style",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "可与当代中式立领、侧向门襟或平面剪裁组合，但不能把服装文化语境误当成发型固有来源。"
+      },
+      {
+        "styleId": "y2k-street",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "高位固定点与长尾形成强方向性，可承接千禧街头的特殊廓形和亮眼配饰。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "男生古风长发怎么留与高马尾示范",
+        "url": "https://www.bilibili.com/video/BV1Zh4y137qR/",
+        "publisher": "中国男士长发作者自发布",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "长发男生：半扎高马尾教程",
+        "url": "https://www.bilibili.com/video/BV1tQpgetE4j/",
+        "publisher": "一只苏大大（作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1Zh4y137qR/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "high",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "none",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "mixed",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "sleek",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "long",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-high-bun",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "long",
+    "tieStructure": {
+      "type": "high_bun",
+      "coverage": "all_or_most_hair",
+      "anchorZone": "upper_occipital_or_crown",
+      "provenance": "editorial_seed"
+    },
+    "nameZh": "高丸子头",
+    "nameEn": "High Bun",
+    "aliases": [
+      "男士高丸子",
+      "高髻",
+      "高发髻",
+      "高位丸子头"
+    ],
+    "description": "大部分头发在后枕上部或头顶附近集中后盘绕、折叠或结成团，尾部不再自由下垂；排除保留长尾的高马尾、后颈低位成团的低丸子和只固定上半区的半丸子。",
+    "observableAttributes": [
+      {
+        "attribute": "tieCoverage",
+        "value": "all_or_most_hair",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "anchorZone",
+        "value": "upper_occipital_or_crown",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "tailState",
+        "value": "wrapped_folded_or_knotted",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "silhouette",
+        "value": "compact_elevated_bun",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 8,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "最低长度：主体头发能在高位汇拢并至少折叠或盘绕一圈，通常需肩线附近或更长",
+      "texture": [
+        "直发",
+        "微卷",
+        "自然卷"
+      ],
+      "density": "中等及以上更容易形成完整发髻；低密度可形成较小发髻但不应以假发增量作为默认",
+      "hairline": "向上后方收紧时发际线暴露高，散落前发需另记",
+      "service": "无需化学服务；发圈、发簪或发夹属于固定方式字段",
+      "maintenance": "日常可快速完成，但固定牢度、头皮拉力、碎发与长发洗护成本需用户实测"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "american-streetwear",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "高位团状轮廓具有强识别度，可成为宽松街头基础单品中的结构焦点。"
+      },
+      {
+        "styleId": "athleisure",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "能把长发集中离开面部，与强调行动性的运动休闲相容，但稳定性需实测。"
+      },
+      {
+        "styleId": "y2k-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "提高固定点和发髻存在感后，可与千禧街头的特殊廓形和配饰组合。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "男士不同场合下的3种丸子头发型",
+        "url": "https://www.bilibili.com/video/BV1LE41147fV/",
+        "publisher": "李白白 LEO（男士长发作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "男生丸子头官方搜索目录",
+        "url": "https://search.bilibili.com/all?keyword=%E7%94%B7%E7%94%9F%E4%B8%B8%E5%AD%90%E5%A4%B4",
+        "publisher": "哔哩哔哩官方搜索页",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1LE41147fV/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "high",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "none",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "mixed",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "sleek",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "long",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-low-bun",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "long",
+    "tieStructure": {
+      "type": "low_bun",
+      "coverage": "all_or_most_hair",
+      "anchorZone": "nape_or_low_occipital",
+      "provenance": "editorial_seed"
+    },
+    "nameZh": "低丸子头",
+    "nameEn": "Low Bun",
+    "aliases": [
+      "男士低丸子",
+      "低髻",
+      "低发髻",
+      "后颈丸子头"
+    ],
+    "description": "大部分头发在后颈或后枕下部集中后盘绕、折叠或结成团，固定点低且尾部不自由下垂；排除尾部下垂的低马尾、高位成团的高丸子和仅固定上半区的半扎。",
+    "observableAttributes": [
+      {
+        "attribute": "tieCoverage",
+        "value": "all_or_most_hair",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "anchorZone",
+        "value": "nape_or_low_occipital",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "tailState",
+        "value": "wrapped_folded_or_knotted",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "silhouette",
+        "value": "compact_low_bun",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 8,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 8,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "最低长度：主体头发能在后颈汇拢并至少折叠或盘绕一圈，通常需接近肩线或更长",
+      "texture": [
+        "直发",
+        "微卷",
+        "自然卷"
+      ],
+      "density": "低至高均可；发髻体积随密度变化，不作为等级判断",
+      "hairline": "可完全后梳或保留前侧散发，必须独立记录",
+      "service": "无需化学服务；固定工具与发髻盘绕方式需另记",
+      "maintenance": "扎发步骤中等，低位较易松散；长发洗护、解结和固定摩擦仍需管理"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "contemporary-chinese-style",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "低发髻可与当代中式结构服装组合，但不预设文化身份，也不把服装语境当成发型来源。"
+      },
+      {
+        "styleId": "japanese-relaxed",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "降低表面张力并保留散发时，可与自然面料和宽松分层形成松弛版本。"
+      },
+      {
+        "styleId": "smart-casual",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "低位紧凑结构与受控表面可支持半正式和通勤休闲的精修感。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "长发男生：温柔低丸子头",
+        "url": "https://www.bilibili.com/video/BV1gm411D7mX/",
+        "publisher": "一只苏大大（作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "男士不同场合下的3种丸子头发型",
+        "url": "https://www.bilibili.com/video/BV1LE41147fV/",
+        "publisher": "李白白 LEO（男士长发作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1gm411D7mX/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "none",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "mixed",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "sleek",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "long",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-half-up",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "medium-long",
+    "tieStructure": {
+      "type": "half_up",
+      "coverage": "upper_section_only",
+      "anchorZone": "occipital_or_crown",
+      "provenance": "editorial_seed"
+    },
+    "nameZh": "半扎发",
+    "nameEn": "Half-Up Hair",
+    "aliases": [
+      "半扎",
+      "半丸子头",
+      "半扎马尾",
+      "男士公主头",
+      "半扎武士头"
+    ],
+    "description": "只把顶部和侧上区的一部分头发向后固定，其余后区与下层头发继续自然下垂；固定尾部可保持小马尾或盘成小团，但不能把全部头发收拢。排除全扎马尾、全扎丸子和仅靠分缝后梳但没有固定点的散发。",
+    "observableAttributes": [
+      {
+        "attribute": "tieCoverage",
+        "value": "upper_section_only",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "lowerHairState",
+        "value": "untied_and_hanging",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "anchorZone",
+        "value": "occipital_or_crown",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "tiedTailState",
+        "value": "small_tail_or_small_bun",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 6,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "最低长度：顶部与侧上区能在后枕汇拢固定，通常约 120–180 mm；下层是否到肩作为独立长度属性",
+      "texture": [
+        "直发",
+        "微卷",
+        "自然卷"
+      ],
+      "density": "中等及以上更容易同时保留扎起区和下垂区体积；低密度需避免过度分区",
+      "hairline": "前额暴露程度取决于收拢范围，需另记",
+      "service": "核心是分区和固定；“武士头、公主头”仅作为检索别名，不作为文化身份判断",
+      "maintenance": "固定步骤较简单，但层次过碎时需发夹辅助；下层仍承担长发洗护成本"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "japanese-relaxed",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "扎起区与自然下垂区同时保留层次，可与自然面料和宽松分层组合。"
+      },
+      {
+        "styleId": "light-yabi",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "半扎与高层次长发加入一两个金属、旧化或图案信号时，可形成日常轻亚方向。"
+      },
+      {
+        "styleId": "y2k-street",
+        "strength": "core",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "上下分区产生清晰结构对比，可承接千禧街头的特殊廓形和青年表达。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "男生发型不长不短怎么扎：实用半丸子头技巧",
+        "url": "https://www.bilibili.com/video/BV1Sy4y1C73v/",
+        "publisher": "广州风度造型一介（作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "长发男生：半扎高马尾教程",
+        "url": "https://www.bilibili.com/video/BV1tQpgetE4j/",
+        "publisher": "一只苏大大（作者自发布）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1Sy4y1C73v/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "partial",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "natural",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "medium-long",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-free-small-braids",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "lengthBand": "medium-long",
+    "braidStructure": {
+      "type": "free_hanging_small_braids",
+      "count": "one_or_multiple",
+      "scalpAttached": false,
+      "provenance": "editorial_seed"
+    },
+    "nameZh": "自由垂落小辫",
+    "nameEn": "Free-Hanging Small Braids",
+    "aliases": [
+      "男士小辫",
+      "单股小辫",
+      "多股小辫",
+      "长发编辫",
+      "细辫造型"
+    ],
+    "description": "将一束或多束较长头发从离开头皮的位置编成自由垂落的小辫，其余头发可散落或扎起；排除从头皮连续贴编的贴头辫、把全部头发锁结成柱状束的锁发，以及只用发圈固定但没有交叉编织结构的小马尾。",
+    "observableAttributes": [
+      {
+        "attribute": "braidCount",
+        "value": "one_or_multiple",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "scalpAttachment",
+        "value": "not_continuously_attached",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "braidPath",
+        "value": "free_hanging",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "remainingHairState",
+        "value": "loose_or_tied",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 2,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 9,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 7,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 3,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "最低长度：被编区域通常至少约 120–160 mm，才能形成数次交叉并保留可固定尾端",
+      "texture": [
+        "直发",
+        "微卷",
+        "自然卷"
+      ],
+      "density": "中等及以上便于分出多束；细软或低密度应减少辫数并避免过度拉紧",
+      "hairline": "是否露额取决于选区，不能由编辫本身推断",
+      "service": "不依赖化学服务；需记录辫数、粗细、选区、是否加发和固定方式",
+      "maintenance": "单辫维护较低，多辫分区和拆解成本上升；应避免把松散或起毛简单判为质量差"
+    },
+    "styleAffinities": [
+      {
+        "styleId": "hip-hop-street",
+        "strength": "compatible",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "多股小辫可与说唱、篮球或街舞语境的宽大比例组合，但不能从发型反推音乐偏好或文化身份。"
+      },
+      {
+        "styleId": "japanese-relaxed",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "单股细辫与散发组合时，可作为日系松弛分层中的局部强调。"
+      },
+      {
+        "styleId": "y2k-street",
+        "strength": "accent",
+        "provenance": "derived_from_relations_v1",
+        "rationale": "局部编织在长发轮廓中形成明确焦点，可与千禧街头的做旧牛仔和亮眼配饰组合。"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "title": "男士辫子官方搜索目录：小辫与武士头扎发案例",
+        "url": "https://search.bilibili.com/all?keyword=%E7%94%B7%E5%A3%AB%E8%BE%AB%E5%AD%90",
+        "publisher": "哔哩哔哩官方搜索页",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "十八般男友：厌倦大背头不妨扎个小辫子",
+        "url": "https://search.bilibili.com/all?keyword=%E5%8E%8C%E5%80%A6%E4%BA%86%E5%A4%A7%E8%83%8C%E5%A4%B4%E4%B8%8D%E5%A6%A8%E6%89%8E%E4%B8%AA%E5%B0%8F%E8%BE%AB%E5%AD%90",
+        "publisher": "哔哩哔哩官方搜索页（作者自发布内容索引）",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://search.bilibili.com/all?keyword=%E7%94%B7%E5%A3%AB%E8%BE%AB%E5%AD%90"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "partial",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "asymmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "piecey",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "medium-long",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [
+          "braiding"
+        ],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-cornrows-special",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "recommendationEligibility": "special_opt_in",
+    "lengthBand": "medium-long",
+    "braidStructure": {
+      "type": "cornrows",
+      "count": "multiple_rows",
+      "scalpAttached": true,
+      "provenance": "editorial_seed"
+    },
+    "nameZh": "贴头辫（特殊候选）",
+    "nameEn": "Cornrows (Special Opt-In)",
+    "aliases": [
+      "贴头辫",
+      "地垄沟",
+      "头皮辫",
+      "多排贴编"
+    ],
+    "description": "多股头发从发根开始沿头皮连续贴编，形成可见分区和一排或多排路径；排除离开头皮后自由垂落的小辫、仅用发胶贴伏的造型和锁结形成的锁发。该结构源于非洲与非洲侨民长期发型传统，在中国市场只作为主动选择的特殊候选，不作为默认推荐，也不据外貌推断用户文化身份。",
+    "observableAttributes": [
+      {
+        "attribute": "scalpAttachment",
+        "value": "continuous",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "rowPattern",
+        "value": "one_or_multiple_visible_paths",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "partingGeometry",
+        "value": "explicit",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "braidEndState",
+        "value": "free_tied_or_integrated",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 1,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 10,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 9,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 4,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "最低长度需由实际编发师根据发质、分区和是否加发确认；冷启动不设统一毫米阈值",
+      "texture": [
+        "直发",
+        "微卷",
+        "自然卷；施工方式和稳定性差异显著"
+      ],
+      "density": "需要足够分区发量；不能用种族、肤色或国籍代替发质与密度评估",
+      "hairline": "分区与贴编会提高头皮和发际线可见度",
+      "service": "应由有该结构经验的编发师评估；必须记录是否加发、行数、路径、粗细和固定方式",
+      "maintenance": "制作、清洁、拆解、松紧感和可持续佩戴周期均需单独标注；不作低维护承诺",
+      "culturalBoundary": "名称优先用“贴头辫/cornrows”，避免将其泛化为“黑人头”；展示文化来源说明，默认不进入自动推荐，需用户主动选择或探索"
+    },
+    "styleAffinities": [],
+    "sourceRefs": [
+      {
+        "title": "男士贴头辫/地垄沟：西安 Barbershop 制作案例",
+        "url": "https://www.bilibili.com/video/BV1yU4y1J7QA/",
+        "publisher": "18LiBarbershop（西安编发机构作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "Strands of Inspiration: cornrows and Black identities through hair",
+        "url": "https://nmaahc.si.edu/explore/stories/strands-of-inspiration",
+        "publisher": "Smithsonian National Museum of African American History and Culture",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1yU4y1J7QA/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "none",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "sharp",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "sleek",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "medium-long",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "high",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [
+          "braiding-specialist"
+        ],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  },
+  {
+    "id": "hair-cn-locs-special",
+    "kind": "hairstyle",
+    "targetMarket": "中国大陆",
+    "coldStartStatus": "editorial_seed",
+    "recommendationEligibility": "special_opt_in",
+    "lengthBand": "long",
+    "braidStructure": {
+      "type": "locs_not_braids",
+      "count": "multiple_locked_sections",
+      "scalpAttached": false,
+      "provenance": "editorial_seed"
+    },
+    "nameZh": "锁发 / Locs（特殊候选）",
+    "nameEn": "Locs (Special Opt-In)",
+    "aliases": [
+      "locs",
+      "锁发",
+      "脏辫",
+      "全真发锁结",
+      "dreadlocks"
+    ],
+    "description": "头发被持续分区并锁结为多束柱状结构，可自然垂落或再扎起；它不是交叉编织形成的普通辫子，也不等同一次性加发仿造。该结构与非洲及非洲侨民身份、历史和自然发文化紧密相关，在中国市场只作为主动选择的特殊候选，并优先使用“锁发/locs”而非带有污名暗示的单一俗称。",
+    "observableAttributes": [
+      {
+        "attribute": "sectionStructure",
+        "value": "multiple_locked_cylindrical_sections",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "strandState",
+        "value": "locked_not_cross_braided",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "rootPattern",
+        "value": "separated_sections",
+        "provenance": "editorial_seed"
+      },
+      {
+        "attribute": "installationState",
+        "value": "natural_locs_or_extensions_must_be_recorded",
+        "provenance": "editorial_seed"
+      }
+    ],
+    "formality": {
+      "value": 1,
+      "provenance": "editorial_seed"
+    },
+    "expressiveness": {
+      "value": 10,
+      "provenance": "editorial_seed"
+    },
+    "structure": {
+      "value": 8,
+      "provenance": "editorial_seed"
+    },
+    "maturityImpression": {
+      "value": 5,
+      "provenance": "editorial_seed"
+    },
+    "constraints": {
+      "provenance": "editorial_seed",
+      "hairLength": "最低长度与起锁方式、发质、目标粗细及是否接发有关，必须由有经验的锁发师现场确认",
+      "texture": [
+        "自然卷",
+        "微卷",
+        "直发；起锁方法、成形速度和稳定性不同"
+      ],
+      "density": "需按目标束数和粗细分区；不能用种族、肤色或国籍代替发质评估",
+      "hairline": "根部分区会提高头皮可见度，边缘处理需另记",
+      "service": "必须区分自然锁发、钩锁、扭转起锁和接发；不把短期仿真辫等同长期锁发",
+      "maintenance": "起锁、成熟、根部维护、清洁干燥与拆除成本都高，周期和方法需专业确认",
+      "culturalBoundary": "优先标注“locs/锁发”，保留“脏辫”仅作中国市场检索别名；展示其非洲与非洲侨民文化来源，不默认推荐，不借造型推断用户身份"
+    },
+    "styleAffinities": [],
+    "sourceRefs": [
+      {
+        "title": "脏辫教学：Dreadlocks / Locs 制作示范",
+        "url": "https://www.bilibili.com/video/BV1kJ41157qF/",
+        "publisher": "鼓手高伟（中国作者自发布）",
+        "accessedAt": "2026-07-26"
+      },
+      {
+        "title": "It’s More Than “Just” Hair: locs and Black identity",
+        "url": "https://folklife.si.edu/magazine/black-hair-identity",
+        "publisher": "Smithsonian Center for Folklife and Cultural Heritage",
+        "accessedAt": "2026-07-26"
+      }
+    ],
+    "stimuli": [
+      {
+        "sourcePage": "https://www.bilibili.com/video/BV1kJ41157qF/"
+      }
+    ],
+    "fitAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "topHeight": {
+        "value": "low",
+        "provenance": "ai_draft_pending_review"
+      },
+      "sideVolume": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "foreheadCoverage": {
+        "value": "none",
+        "provenance": "ai_draft_pending_review"
+      },
+      "contourLine": {
+        "value": "soft",
+        "provenance": "ai_draft_pending_review"
+      },
+      "symmetry": {
+        "value": "symmetric",
+        "provenance": "ai_draft_pending_review"
+      },
+      "surfaceTexture": {
+        "value": "piecey",
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "feasibilityAttributes": {
+      "schemaVersion": "hairstyle-fit-v1",
+      "minimumLengthBand": {
+        "value": "long",
+        "provenance": "ai_draft_pending_review"
+      },
+      "compatibleNaturalPatterns": {
+        "value": [
+          "straight",
+          "wavy",
+          "curly"
+        ],
+        "provenance": "derived_from_constraints"
+      },
+      "volumeRequirement": {
+        "value": "medium",
+        "provenance": "ai_draft_pending_review"
+      },
+      "maintenanceLevel": {
+        "value": "high",
+        "provenance": "ai_draft_pending_review"
+      },
+      "serviceRequirements": {
+        "value": [
+          "locs-specialist"
+        ],
+        "provenance": "ai_draft_pending_review"
+      }
+    },
+    "personalizedRenderReadiness": "missing_render_spec"
+  }
+]

@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "hairstyle-render-v1",
+  "status": "active",
+  "createdAt": "2026-07-28",
+  "purpose": "个性化发型图片生成的封闭视觉词表。renderAttributes 只描述目标图片应呈现的固定形态，不描述用户天然发质，也不替代 fitAttributes。每个具体 render variant 必须采用单一枚举值；多形态发型必须拆成多个 variant，禁止使用 variable。",
+  "renderReadinessEnum": [
+    "missing_render_spec",
+    "draft_render_spec",
+    "render_validated"
+  ],
+  "renderAttributes": {
+    "lengthPresentation": {
+      "enum": ["very-short", "short", "medium-short", "medium", "medium-long", "long"],
+      "description": "成图中可见的最终长度带"
+    },
+    "topShape": {
+      "enum": ["flat", "close", "natural", "lifted", "high_lift", "tied"],
+      "description": "顶部固定轮廓；禁止 variable"
+    },
+    "sideShape": {
+      "enum": ["close", "controlled", "natural", "full", "braided"],
+      "description": "侧区固定轮廓与量感"
+    },
+    "foreheadTreatment": {
+      "enum": ["exposed", "partially_covered", "fully_covered"],
+      "description": "额头在最终造型中的固定呈现"
+    },
+    "parting": {
+      "enum": ["none", "center", "off_center", "side", "slicked_back"],
+      "description": "固定分缝或梳理方向"
+    },
+    "wavePattern": {
+      "enum": ["straight", "soft_bend", "wavy", "curly", "braided", "locs"],
+      "description": "目标图片里的波卷/编织形态；与用户天然发质字段分开"
+    },
+    "surfaceDefinition": {
+      "enum": ["sleek", "natural", "piecey", "braided", "locs"],
+      "description": "发丝表面束感与分离度"
+    },
+    "finish": {
+      "enum": ["matte", "natural", "glossy"],
+      "description": "目标造型光泽，不得由模型自由决定"
+    },
+    "arrangement": {
+      "enum": ["loose", "ponytail_low", "ponytail_high", "bun_low", "bun_high", "half_up", "free_braids", "cornrows", "locs"],
+      "description": "长发、扎发或编发的固定组织方式"
+    }
+  },
+  "provenanceEnum": [
+    "ai_draft_pending_review",
+    "derived_from_constraints",
+    "human_reviewed"
+  ],
+  "calibrationStatusEnum": [
+    "prompt_draft",
+    "prompt_calibrated",
+    "render_validated"
+  ],
+  "variantPolicy": {
+    "fixedValuesOnly": true,
+    "forbiddenValues": ["variable"],
+    "multiFormBehavior": "同一发型家族的不同波卷、分缝、扎法或光泽必须拆成独立 render variant，不允许具体 variant 使用 variable",
+    "recommendationWithoutRender": "允许文字推荐，但不得向用户展示为个性化「未来的你」效果"
+  },
+  "calibrationPolicy": {
+    "perProviderModel": true,
+    "requiredFields": [
+      "provider",
+      "model",
+      "promptVersion",
+      "status",
+      "evidenceAssetRefs",
+      "reviewedAt"
+    ],
+    "userVisibleGate": "只有目标 variant 至少存在一条 status=render_validated 的当前 provider/model 校准记录，才允许进入个性化图片生成"
+  },
+  "projectionPolicy": {
+    "description": "fitAttributes 可与 renderAttributes 做一致性校验，但不得从 fitAttributes 自动生成完整 renderSpec；渲染描述需要独立标注和按 provider/model 校准",
+    "pairs": {
+      "topHeight": "topShape",
+      "sideVolume": "sideShape",
+      "foreheadCoverage": "foreheadTreatment",
+      "surfaceTexture": "surfaceDefinition"
+    }
+  }
+}
