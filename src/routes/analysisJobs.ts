@@ -263,6 +263,12 @@ export async function registerAnalysisJobRoutes(app: FastifyInstance): Promise<v
     if (!job) return reply.code(404).send({ error: "job 不存在" });
     if (job.userId !== user.id) return reply.code(403).send({ error: "无权访问该 job" });
 
+    const previewJob = job.jobType === "hairstyle_preview_generation" || job.jobType === "outfit_preview_generation";
+    const rawPartial = (job.partialResult ?? null) as Record<string, unknown> | null;
+    // Provider failures, calibration gaps and retry diagnostics are audit data.
+    // A preview is optional, so exposing them would turn a normal text fallback
+    // into a user-facing technical error.
+    const { missing: _internalMissing, ...publicPartial } = rawPartial ?? {};
     return reply.send({
       jobId: job.id,
       jobType: job.jobType,
@@ -272,8 +278,8 @@ export async function registerAnalysisJobRoutes(app: FastifyInstance): Promise<v
       // 后续 select-style / outfit-previews / materialize 全要用它。
       planId: job.planId ?? null,
       // 即使还在跑，已完成的部分也直接给出去
-      partialResult: job.partialResult ?? null,
-      errorReason: job.errorReason,
+      partialResult: previewJob ? publicPartial : job.partialResult ?? null,
+      errorReason: previewJob ? null : job.errorReason,
       createdAt: job.createdAt,
       completedAt: job.completedAt,
       // 把该 job_type 的完整状态序列一起返回，客户端可据此算进度百分比

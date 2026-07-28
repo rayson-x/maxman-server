@@ -14,10 +14,11 @@
 initial_analysis：输入审核 → 客户端测量规范化 → recommend-style-directions
   → 用户选择风格
 hairstyle_recommendation：recommend-hairstyles（必须带已选风格）
+  → 文字候选立即可选；hairstyle_preview_generation 可为已校准候选追加本人发型图
   → 用户选择发型
 wardrobe_recommendation：recommend-wardrobe（必须带已选风格 + 发型）
+  → 文字候选立即可选；outfit_preview_generation 为未选定的已校准候选追加本人穿搭图
   → 用户选择穿搭
-outfit_preview_generation：只消费已选穿搭；未精确校准则保留文字、跳过本人预览
 ```
 
 三者都通过同一内部 `DualSourceRecommendationEngine`：A/B 接收相同原始用户资产和
