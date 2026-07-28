@@ -308,16 +308,16 @@ flowchart LR
 | B1 层1 词库 + 层2 LLM | ✅ 已实现 |
 | B1 层3 图片审核 | ⬜ provider 未选（本地 MVP 搁置） |
 | B2 analyzeVision | ✅ 已实现；只规范化客户端测量，不再单独调用云端视觉 provider |
-| B4 天气装配 | ⬜ 服务已实现但未接进推荐路径 |
+| B4 天气装配 | ✅ 已接进 `outfit_preview_generation`；季节按目标日期真实气温判定（`seasonFromWeather`），不再用日历月份 |
 | B5 recommendStyle 接缝 | ✅ 接口 + vision-llm 实现；catalog-matching ⬜ |
 | B5 全量判定记录 | ⬜ 现在只有计数式 filterTrace |
-| B6 可行性校验 | ✅ 已实现；**客观造型属性表 ⬜（实测发现模型标注会朝「能通过」方向偏）** |
+| B6 可行性校验 | ✅ 已实现；客观造型属性表 ✅ 15 款人工校准（`objectiveHairstyleAttributes.ts`，含逐款 renderDescription） |
 | B7 对抗式复核 | 🔶 step 与 provider 已写，未接进编排器 |
-| B8 renderPreview | ✅ 已实现；**预览图未追加身份保留后缀 ⬜** |
+| B8 renderPreview | ✅ 已实现；身份保持与构图约束由 `composeEditInstruction` 统一前置拼装 |
 | B9 快照落库 | ⬜ |
 | C3 惯例/可行性排除区分 | ⬜ 现在两者都是硬排除 |
 | D2 materializePlan 接缝 | ✅ 刚抽出 |
 | E1-E13 推进与复核 | ✅ 已实现 |
 | F agent 介入 | ⬜ tool 包装未做；对话入口用确定性意图分类，未接 agent |
-| 幂等设计 | ⬜ |
+| 幂等设计 | ✅ 五个 job 端点均带 `Idempotency-Key`；仓储层捕获 P2002 竞态后回读 |
 | 审美数据本体 | ⬜ 空，跑测试占位 11 条 |
