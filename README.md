@@ -10,13 +10,25 @@ AI 男性形象改善产品的服务端。目标用户是 18-26 岁中国男性�
 ```bash
 npm install
 cp .env.example .env          # 填入各供应商密钥
-docker compose up -d          # 或自备 Postgres 5433 + Redis 6379
+docker compose up -d          # Postgres :5433 + Redis :6379
 npx prisma migrate deploy
 npx prisma generate           # 生成物在 src/generated/，不入库
 
 npm run dev                   # API，:8787
 npm run dev:worker            # worker，另开一个终端
 ```
+
+**端口撞了怎么办。** Postgres 刻意用 5433 避开机器上其他项目，但 Redis 用的是默认
+6379，常被别的本地项目占用。compose 的端口可以用环境变量覆盖，不必改文件：
+
+```bash
+BM_PG_PORT=5434 BM_REDIS_PORT=6380 docker compose up -d
+# 然后把 .env 的 DATABASE_URL / REDIS_URL 改成同样的端口
+```
+
+已经有现成的 Postgres/Redis（或手工 `docker run` 建过容器）时直接跳过 compose——
+只要 `.env` 里的两个 URL 指对即可。compose 不写死 `container_name`，所以不会和
+手工创建的容器撞名。
 
 Worker 必须单独起。API 进程只负责入队，实际执行在 worker 里——
 `POST /analysis-jobs` 会返回 202 然后 job 停在 `created`，如果 worker 没跑。

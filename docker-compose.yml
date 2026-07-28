@@ -1,0 +1,49 @@
+# 本地开发依赖。README 的「快速开始」一直引用这个文件但它缺失，补上以对齐文档与实现。
+#
+# 两个刻意的选择：
+#
+# 1. **不写 `container_name`。** 让 compose 用 `<项目名>-postgres-1` 这类命名。
+#    写死名字会和手工 `docker run --name bettermeet-pg` 创建的容器撞名，
+#    报 "container name already in use" 且无法自动接管。
+#
+# 2. **端口可用环境变量覆盖。** Postgres 默认 5433 而非 5432，避开机器上其他项目的
+#    Postgres（.env.example 的 DATABASE_URL 也是 5433）；Redis 用默认 6379，
+#    但它常被别的本地项目占用。撞端口时不必改这个文件：
+#
+#      BM_PG_PORT=5434 BM_REDIS_PORT=6380 docker compose up -d
+#
+#    然后把 .env 里的 DATABASE_URL / REDIS_URL 改成同样的端口。
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bettermeet
+      POSTGRES_PASSWORD: bettermeet
+      POSTGRES_DB: bettermeet
+    ports:
+      - "${BM_PG_PORT:-5433}:5432"
+    volumes:
+      - bettermeet-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bettermeet -d bettermeet"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # BullMQ 队列与 lib/redisSemaphore.ts 的出图并发信号量都依赖它。
+    # 信号量是跨进程的全局闸门（见 openspec add-mvp1-backend-flow/design.md 决策 12），
+    # 所以 API 进程与 worker 进程必须连同一个 Redis 实例。
+    ports:
+      - "${BM_REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  bettermeet-pgdata:

@@ -32,3 +32,22 @@ tmp-uploads/
 .DS_Store
 .vscode/
 .idea/
+
+# ── 出图校准/基准产物与人脸样本：不入库 ──────────────────────────────────
+# 发型渲染校准产出（本地图片）
+calibration-out/
+# 切换 provider 前的旧校准图备份，命名形如 calibration-out.seededit-legacy-<日期>
+calibration-out.*/
+# provider 质感对照台产出（npm run bench:image）
+bench-out/
+
+# 发型矩阵等基准资产（760M）。可由脚本重新生成，且体积远超 git 的合理承载；
+# ⚠ 分发方案（OSS / LFS）尚未确定，clone 后需从现有环境拷贝。
+benchmark-assets/
+
+# 校准/联调用的真人照片。**含开发者本人照片**——隐私敏感，绝不入库。
+# 校准台通过 --photo 显式传路径，不依赖固定文件名。
+*.tmp.jpg
+*.tmp.jpeg
+*.tmp.png
+real-face.*
