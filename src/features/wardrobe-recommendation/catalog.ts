@@ -1,7 +1,4 @@
-import itemDocument from "./data/generated/wardrobe-items-cn.json" with { type: "json" };
-import profileDocument from "./data/generated/style-wardrobe-profiles-cn.json" with { type: "json" };
-import assetDocument from "./data/generated/wardrobe-image-assets-cn.json" with { type: "json" };
-import supplyDocument from "./data/generated/wardrobe-supply-map-cn.json" with { type: "json" };
+import { recommendationCatalogSnapshot } from "../recommendation-catalog/deploymentSnapshot.js";
 
 type Item = {
   id: string; nameZh: string; category: string;
@@ -14,13 +11,14 @@ type Profile = { styleId: string; styleNameZh: string; formulaTemplates: Formula
 type Asset = { wardrobeItemId: string; localPath: string; displayStatus: string; virtualTryOn: { status: string } };
 type Supply = { wardrobeItemId: string; supplyCandidates: Array<{ brandLineId: string; sourceUrl: string; status: string; rationale: string }> };
 
-const items = (itemDocument as { items: Item[] }).items;
-const profiles = (profileDocument as { profiles: Profile[] }).profiles;
-const assets = (assetDocument as { items: Asset[] }).items;
-const supply = (supplyDocument as { entries: Supply[] }).entries;
+const items = (recommendationCatalogSnapshot.wardrobeItems as { items: Item[] }).items;
+const profiles = (recommendationCatalogSnapshot.wardrobeProfiles as { profiles: Profile[] }).profiles;
+const assets = (recommendationCatalogSnapshot.wardrobeAssets as { items: Asset[] }).items;
+const supply = (recommendationCatalogSnapshot.wardrobeSupply as { entries: Supply[] }).entries;
 
 export const wardrobeCatalog = {
-  version: (itemDocument as { datasetVersion: string }).datasetVersion,
+  manifestVersion: recommendationCatalogSnapshot.manifest.manifestVersion,
+  version: recommendationCatalogSnapshot.manifest.sources.wardrobeItems.datasetVersion,
   itemsById: new Map(items.map((item) => [item.id, item])),
   profilesByStyleId: new Map(profiles.map((profile) => [profile.styleId, profile])),
   assetsByItemId: new Map(assets.map((asset) => [asset.wardrobeItemId, asset])),
