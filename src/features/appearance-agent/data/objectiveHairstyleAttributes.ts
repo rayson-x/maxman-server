@@ -46,7 +46,7 @@ export type ObjectiveHairstyleAttributes = {
  * biased toward whichever answer would pass the current user's constraint.
  */
 export const OBJECTIVE_HAIRSTYLE_ATTRIBUTES: readonly ObjectiveHairstyleAttributes[] = [
-  { canonicalName: "微碎盖", aliases: ["短碎盖", "碎盖"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留五到七公分，发梢斜着不齐剪出凌乱层次，刘海盖到眉毛，两侧推短但不推太高"},
+  { canonicalName: "微碎盖", aliases: ["短碎盖", "碎盖"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留五到七公分，发梢斜着不齐剪出凌乱层次，刘海盖到眉毛，两侧和后颈剪到一两公分，鬓角自然不推出渐变线"},
   { canonicalName: "法式碎盖", aliases: ["法式短碎发"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留六到八公分，细碎刘海垂到眉毛且边缘不齐，两侧和后颈推薄"},
   { canonicalName: "纹理前刺", aliases: ["前刺"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留四到五公分，额前头发用发泥往上抓起蓬松，两侧推短，露出额头"},
   { canonicalName: "短寸", aliases: ["寸头", "板寸", "圆寸"], requiresHairVolume: "low", coversForehead: false , renderDescription: "全头用推子均匀推到一公分左右，不留刘海，额头完全露出"},
@@ -54,13 +54,13 @@ export const OBJECTIVE_HAIRSTYLE_ATTRIBUTES: readonly ObjectiveHairstyleAttribut
   { canonicalName: "侧分短发", aliases: ["侧分"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留六到七公分并保持蓬松，在一侧分开，刘海稍微斜盖住额角，鬓角剪薄"},
   { canonicalName: "三七侧分", aliases: ["三七分"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留六到七公分并保持蓬松，按三七分开，刘海斜向一侧稍微遮住额角，鬓角剪薄不推光"},
   { canonicalName: "大背头", aliases: ["背头", "油头"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留七到八公分，全部头发往后梳理并梳得光滑整齐，额头完全露出，两侧贴头"},
-  { canonicalName: "飞机头", aliases: [], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留七到八公分往中间支棱起来并向前上方翘起，两侧和后面剪短"},
+  { canonicalName: "飞机头", aliases: [], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留七到八公分，从额前往后上方梳起成饱满的圆弧隆起，发面顺滑不炸开，两侧和后面剪短"},
   { canonicalName: "栗子头", aliases: [], requiresHairVolume: "low", coversForehead: true , renderDescription: "两侧和后面推短，顶部留长，刘海直接往前梳下来盖住额头，整体圆润像半个栗子"},
   { canonicalName: "法式刘海短发", aliases: ["法式刘海"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留五到六公分，刘海平齐垂到眉毛上方，两侧推短"},
-  { canonicalName: "韩式逗号刘海", aliases: ["逗号刘海"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "刘海留到眉毛并在一侧弯出逗号形的弧度，额头露出一部分，两侧剪出层次"},
+  { canonicalName: "韩式逗号刘海", aliases: ["逗号刘海"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "刘海留到眉毛并在一侧弯出逗号形的弧度，额头露出一部分，两侧修到露出耳廓，后颈剪薄"},
   { canonicalName: "中分短发", aliases: ["中分"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留到耳朵长度并保持蓬松，从正中分开，两边刘海各自垂到眉毛下方"},
   { canonicalName: "自然卷短发", aliases: ["短卷发"], requiresHairVolume: "high", coversForehead: true , renderDescription: "顶部留五到六公分的自然卷，卷发蓬松成团，额前散落几缕卷曲发丝，两侧推短"},
-  { canonicalName: "蓬松纹理烫", aliases: ["纹理烫"], requiresHairVolume: "high", coversForehead: true , renderDescription: "顶部留六到七公分烫出卷曲纹理并抓得蓬松，两侧推短，发丝有明显卷度"},
+  { canonicalName: "蓬松纹理烫", aliases: ["纹理烫"], requiresHairVolume: "high", coversForehead: true , renderDescription: "顶部留六到七公分烫成大波浪的S形起伏，卷圈比自然卷宽松，用发泥抓出向上的空气感，两侧推短"},
 ] as const;
 
 function normalized(value: string): string {

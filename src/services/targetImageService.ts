@@ -45,6 +45,33 @@ export function identityConstraint(changeScope: string): string {
 export const IDENTITY_PRESERVATION_SUFFIX = identityConstraint("指定部分");
 
 /**
+ * **前置**构图约束 + 造型指令的完整拼装。位置本身是实测结论，不是风格偏好。
+ *
+ * 在 Seedream 4.5 上，凡是描述里带方向性措辞（「刘海斜向一侧」「在一侧分开」）
+ * 的款式，模型会把人物头部转成 3/4 侧脸——它把这些词读成了镜头/头部朝向指令。
+ * 对照实验（`npm run bench:image --variants N1,N3,P1,P2,P3`）：
+ *
+ *   - 约束放句尾（N1/N3，含显式「保持正面视角与原有头部朝向」）→ **仍然转头**
+ *   - 把方向措辞换成解剖锚点「分缝线落在左眉正上方」（P1）→ **仍然转头**
+ *   - 约束**前置**到句首（P3）→ 姿态保住，且分缝结构正确
+ *
+ * 所以有效成分是位置，不是措辞强度。
+ *
+ * 两个坑：
+ * 1. **不能出现暗示照片格式的词。** 前置版本最初写「正面平视的证件照角度」，
+ *    输出画幅直接从 4:3 横版变成 3:4 竖版（`qualityCheck` 会因宽高比不符判失败）。
+ *    改为中性的「原照片的构图、画面比例」。
+ * 2. **不要为了防漂移去精简造型描述。** 精简版（P4）在「韩式逗号刘海」上丢掉了
+ *    逗号钩的形状，而姿态并没有比 P3 更好——长度不是漂移的原因。
+ */
+export function composeEditInstruction(changeScope: string, direction: string): string {
+  return (
+    `保持原照片的构图、画面比例、头部朝向与拍摄距离完全不变，只替换${changeScope}：` +
+    `${direction}。脸型、五官、表情不变`
+  );
+}
+
+/**
  * 反向 prompt。**只放"假"的表现，不放身份属性**。
  *
  * 实测教训：把脸型/五官/肤色/性别/年龄等 18 条否定式全塞进 negative_prompt，

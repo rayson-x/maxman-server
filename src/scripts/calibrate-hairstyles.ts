@@ -3,19 +3,29 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { basename, join } from "node:path";
 import { getImageEditProvider } from "../features/appearance-agent/composition.js";
 import { OBJECTIVE_HAIRSTYLE_ATTRIBUTES } from "../features/appearance-agent/data/objectiveHairstyleAttributes.js";
-import { identityConstraint, NEGATIVE_PROMPT } from "../services/targetImageService.js";
+import { composeEditInstruction, NEGATIVE_PROMPT } from "../services/targetImageService.js";
 
 /**
  * 发型渲染描述的校准台。
  *
  * 为什么需要它：`renderDescription` 是**逐款措辞校准**出来的，不是推导出来的。
- * 实测已经踩到三类坑，且都只在真人照上才暴露（合成证件照原本就是短发贴头，
- * 改动量小，错的也看不出来）：
- *   1. 指令里带发型名 → 模型按错误先验出图，且名称的先验压倒描述
- *   2. 分缝/背头不写顶部长度 → 被读成"剪到很短"，退化成寸头
- *   3. 施工感动词（"压出发缝"/"剪短贴头"）→ 被读成剃出来的硬分缝、铲青
+ * 坑都只在真人照上暴露（合成证件照原本就是短发贴头，改动量小，错的也看不出来）。
+ *
+ * ⚠ **校准结论绑定 provider，换 provider 必须整套重测。** 已经被推翻过一次：
+ *
+ * | 结论 | SeedEdit 3.0 | Seedream 4.5（当前） |
+ * |---|---|---|
+ * | 指令带发型名 | **禁止**，名称先验压倒描述 | **必须带**，是有效锚点 |
+ * | 构图约束位置 | 句尾即可 | **必须前置**，放句尾无效 |
+ * | 喂高分辨率源图 | 无用（输出钳死 864） | 有用（size 可控，2K） |
+ *
+ * 跨 provider 仍然成立的两条：
+ *   - 分缝/背头不写顶部长度 → 被读成"剪到很短"，退化成寸头
+ *   - 施工感动词（"压出发缝"/"剪短贴头"）→ 被读成剃出来的硬分缝、铲青
  *
  * 一次跑完 15 款并生成并排对照页，改完描述就能重跑，比一款一款看快得多。
+ * 想验证 prompt **结构**（带不带名、约束放哪）而不是逐款措辞，用
+ * `bench-image-edit.ts`——它的横轴是配置，这里的横轴是发型。
  *
  * 用法：
  *   npm run calibrate -- --photo ./my.jpg                 # 全部 15 款
@@ -72,8 +82,12 @@ console.log(`待渲染：${targets.length} 款${only ? `（--only）` : ""}${for
 for (const [i, attrs] of targets.entries()) {
   const file = `${attrs.canonicalName}.jpg`;
   const outPath = join(OUT_DIR, file);
-  // 与线上完全一致的拼装：不带发型名，只给动作描述
-  const prompt = `把这个人的发型改成：${attrs.renderDescription} ${identityConstraint("头发")}`;
+  // 必须与线上同一条拼装函数，否则校准的不是真正会发出去的 prompt。
+  // 结构（约束前置 + 带发型名）的实测依据见 composeEditInstruction 的注释。
+  const prompt = composeEditInstruction(
+    "头发",
+    `改成${attrs.canonicalName}，${attrs.renderDescription}`,
+  );
   const base = { name: attrs.canonicalName, description: attrs.renderDescription, prompt };
 
   if (!force && existsSync(outPath)) {
@@ -142,8 +156,8 @@ const html = `<!doctype html>
   <div>
     <strong>反向 prompt</strong>
     <div class="prompt">${esc(NEGATIVE_PROMPT)}</div>
-    <div class="note">校准要点：① 指令里不写发型名（名称先验会压倒描述）② 分缝/背头要写顶部长度
-    ③ 避开施工感动词（"压出发缝"→剃出硬分缝，"剪短贴头"→铲青）</div>
+    <div class="note">校准要点（Seedream 4.5）：① 构图约束必须前置，放句尾无效 ② 指令里带发型名是有效锚点
+    （这条与 SeedEdit 相反）③ 分缝/背头要写顶部长度 ④ 避开"证件照"等暗示画幅的词</div>
   </div>
 </div>
 <div class="grid">

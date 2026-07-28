@@ -48,6 +48,20 @@ type Variant = {
   provider: () => ImageEditProvider;
   /** 附加在正向 prompt 末尾的质感措辞 */
   positiveSuffix?: string;
+  /**
+   * 覆盖整条正向 prompt。默认 `把这个人的发型改成：<描述> <身份约束>`。
+   *
+   * 存在的理由：**prompt 结构问题每换一次 provider 就得重测。** SeedEdit 3.0 上
+   * 带发型名会让名称先验压倒描述（`微碎盖` 出油头背头，反向 prompt 压不住），
+   * 于是现有 15 条描述都是「不带名、纯动作描述」。但那是 SeedEdit 的缺陷，
+   * 不能假设新模型也如此——名称有可能反而是正确的锚点。
+   */
+  buildPrompt?: (a: { name: string; description: string }) => string;
+  /**
+   * 按发型名替换 renderDescription。用来在**改数据文件之前**先验证候选措辞——
+   * 否则每试一版都要动 objectiveHairstyleAttributes.ts 再回滚。
+   */
+  descriptionOverrides?: Record<string, string>;
   negativePrompt: string;
   /** 是否先把源图放大到短边 1536 再喂进去 */
   hires?: boolean;
@@ -110,9 +124,98 @@ const VARIANTS: Variant[] = [
   },
 ];
 
+// ── prompt 结构变体（都跑当前默认 provider = Seedream 4.5）─────────────────
+// 回答一个问题：现有 15 条描述「不带发型名」是为绕开 SeedEdit 的名称先验，
+// 换 Seedream 4.5 后这个绕法还有必要吗？名称可能反而是正确的锚点。
+// 结论决定的是「15 条要不要整体重构」，所以先用 3 款做便宜的判断。
+VARIANTS.push(
+  {
+    id: "N0",
+    label: "N0 · 只给描述（现状）",
+    why: "现有 15 条的结构：不带发型名，纯动作描述",
+    provider: () => arkWith(ARK_DEFAULT),
+    negativePrompt: NEGATIVE_PROMPT,
+  },
+  {
+    id: "N1",
+    label: "N1 · 发型名 + 描述",
+    why: "名称做锚点、描述做细化。若明显更准，15 条都该带上名字",
+    provider: () => arkWith(ARK_DEFAULT),
+    buildPrompt: ({ name, description }) =>
+      `把这个人的发型改成${name}：${description} ${identityConstraint("头发")}`,
+    negativePrompt: NEGATIVE_PROMPT,
+  },
+  {
+    id: "N2",
+    label: "N2 · 只给发型名",
+    why: "对照上限：若它就已经够准，说明我们那些厘米数描述是多余的",
+    provider: () => arkWith(ARK_DEFAULT),
+    buildPrompt: ({ name }) => `把这个人的发型改成${name} ${identityConstraint("头发")}`,
+    negativePrompt: NEGATIVE_PROMPT,
+  },
+  {
+    id: "N3",
+    label: "N3 · 名+描述，且钉住姿态",
+    why: "N0/N1 在带方向性措辞的款式上会把头转成 3/4 侧脸——验证显式钉住朝向能否消除",
+    provider: () => arkWith(ARK_DEFAULT),
+    buildPrompt: ({ name, description }) =>
+      `把这个人的发型改成${name}：${description} 保持同一个人的脸型、五官与表情不变，` +
+      `保持正面视角与原有头部朝向、拍摄角度不变，只改头发`,
+    negativePrompt: NEGATIVE_PROMPT,
+  },
+  {
+    id: "P1",
+    label: "P1 · 去掉方向措辞，改用解剖锚点",
+    why: "假设一：`斜向一侧` 被读成镜头朝向。改成按眉/额角定位分缝，不出现方位词",
+    provider: () => arkWith(ARK_DEFAULT),
+    descriptionOverrides: {
+      三七侧分: "顶部留六到七公分并保持蓬松，分缝线落在左眉正上方，左边头发少右边头发多，较多的一侧压住额角，鬓角剪薄不推光",
+      韩式逗号刘海: "刘海留到眉毛，靠左眉那几缕向内弯成逗号形的钩子，额头中间露出来，两侧剪出层次",
+    },
+    buildPrompt: ({ name, description }) =>
+      `把这个人的发型改成${name}：${description} ${identityConstraint("头发")}`,
+    negativePrompt: NEGATIVE_PROMPT,
+  },
+  {
+    id: "P2",
+    label: "P2 · 姿态约束前置",
+    why: "假设二：约束放句尾权重太低。改为开头就钉死正面证件照角度",
+    provider: () => arkWith(ARK_DEFAULT),
+    buildPrompt: ({ name, description }) =>
+      `保持正面平视的证件照角度、头部朝向与拍摄距离完全不变，只替换头发：` +
+      `改成${name}，${description}。脸型、五官、表情不变`,
+    negativePrompt: NEGATIVE_PROMPT,
+  },
+  {
+    id: "P3",
+    label: "P3 · 约束前置，去掉画幅暗示",
+    why: "P2 保住了姿态但「证件照」把画幅改成竖版。换成中性措辞，只钉构图不提照片格式",
+    provider: () => arkWith(ARK_DEFAULT),
+    buildPrompt: ({ name, description }) =>
+      `保持原照片的构图、画面比例、头部朝向与拍摄距离完全不变，只替换头发：` +
+      `改成${name}，${description}。脸型、五官、表情不变`,
+    negativePrompt: NEGATIVE_PROMPT,
+  },
+  {
+    id: "P4",
+    label: "P4 · 约束前置 + 精简描述",
+    why: "N2（只给名、描述最短）两款都保住姿态——验证描述越短漂移越小",
+    provider: () => arkWith(ARK_DEFAULT),
+    descriptionOverrides: {
+      三七侧分: "顶部六到七公分，蓬松三七分缝，刘海压住额角",
+      韩式逗号刘海: "刘海到眉毛，末端弯成逗号钩，额头露出一部分",
+    },
+    buildPrompt: ({ name, description }) =>
+      `保持原照片的构图、画面比例、头部朝向与拍摄距离完全不变，只替换头发：` +
+      `改成${name}，${description}。脸型、五官、表情不变`,
+    negativePrompt: NEGATIVE_PROMPT,
+  },
+);
+
+const ARK_DEFAULT = "doubao-seedream-4-5-251128";
 const arkWith = (model: string): ImageEditProvider => createArkSeedreamImageEditProvider(model);
 
-const ARK_VARIANT_IDS = ["E", "F", "G"];
+const ARK_VARIANT_IDS = ["E", "F", "G", "N0", "N1", "N2", "N3", "P1", "P2", "P3", "P4"];
 /** 缺方舟 key 时别白跑 6 格必失败的格子 */
 function defaultVariantIds(): string[] {
   const all = VARIANTS.map((v) => v.id);
@@ -188,8 +291,11 @@ for (const style of styles) {
     const name = style.canonicalName;
     const file = `${name}-${v.id}.jpg`;
     const outPath = join(OUT_DIR, file);
-    const desc = v.positiveSuffix ? `${style.renderDescription}，${v.positiveSuffix}` : style.renderDescription;
-    const prompt = `把这个人的发型改成：${desc} ${identityConstraint("头发")}`;
+    const baseDesc = v.descriptionOverrides?.[name] ?? style.renderDescription;
+    const desc = v.positiveSuffix ? `${baseDesc}，${v.positiveSuffix}` : baseDesc;
+    const prompt = v.buildPrompt
+      ? v.buildPrompt({ name, description: desc })
+      : `把这个人的发型改成：${desc} ${identityConstraint("头发")}`;
     const cell: Cell = { file, note: "", prompt, negative: v.negativePrompt };
 
     if (!force && existsSync(outPath)) {
