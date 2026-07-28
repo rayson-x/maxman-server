@@ -28,6 +28,7 @@ const TERMINAL: JobStatus[] = ["completed", "completed_partial", "failed", "canc
 const ALLOWED_FLOW: Record<JobType, JobStatus[]> = {
   initial_analysis: ["created", "input_moderating", "analyzing", "recommending", "rendering"],
   hairstyle_recommendation: ["created", "recommending"],
+  hairstyle_preview_generation: ["created", "rendering"],
   wardrobe_recommendation: ["created", "recommending"],
   outfit_preview_generation: ["created", "rendering"],
   plan_materialization: ["created", "materializing"],

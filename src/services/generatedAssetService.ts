@@ -20,8 +20,15 @@ export type RecordGeneratedAssetParams = {
   kind: GeneratedAssetKind;
   storageKey: string;
   provider: string;
+  modelVersion?: string;
   planId?: string;
   candidateId?: string;
+  recommendationSetId?: string;
+  styleDirectionId?: string;
+  hairstyleCandidateId?: string;
+  outfitCandidateId?: string;
+  baselinePhotoId?: string;
+  renderSpecVersion?: string;
   providerCallId?: string;
   /** 目标图基于用户自报的完成情况生成时置真，会体现在标识文案里 */
   basedOnSelfReported?: boolean;
@@ -39,14 +46,34 @@ export function createGeneratedAssetService(prisma: PrismaClient) {
           userId: params.userId,
           planId: params.planId,
           candidateId: params.candidateId,
+          recommendationSetId: params.recommendationSetId,
+          styleDirectionId: params.styleDirectionId,
+          hairstyleCandidateId: params.hairstyleCandidateId,
+          outfitCandidateId: params.outfitCandidateId,
+          baselinePhotoId: params.baselinePhotoId,
           kind: params.kind,
           storageKey: params.storageKey,
           provider: params.provider,
+          modelVersion: params.modelVersion,
           providerCallId: params.providerCallId,
+          renderSpecVersion: params.renderSpecVersion,
           disclosure,
         },
       });
       return { assetId: asset.id, disclosure };
+    },
+
+    /** Only active assets may cross the service boundary into a user read URL. */
+    async findActiveById(assetId: string) {
+      return prisma.generatedAsset.findFirst({ where: { id: assetId, status: "active" } });
+    },
+
+    async invalidateForRecommendationSets(recommendationSetIds: string[]): Promise<void> {
+      if (recommendationSetIds.length === 0) return;
+      await prisma.generatedAsset.updateMany({
+        where: { recommendationSetId: { in: recommendationSetIds }, status: "active" },
+        data: { status: "invalidated" },
+      });
     },
 
     /**

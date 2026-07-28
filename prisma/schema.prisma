@@ -590,6 +590,7 @@ model TargetImage {
 enum JobType {
   initial_analysis
   hairstyle_recommendation
+  hairstyle_preview_generation
   wardrobe_recommendation
   outfit_preview_generation
   plan_materialization
@@ -691,6 +692,12 @@ enum GeneratedAssetKind {
   hairstyle_preview
   outfit_preview
   target_image
+}
+
+/// 预览属于推荐上下文的可选衍生物。上游选择改变后保留审计记录，但不得再签发读取地址。
+enum GeneratedAssetStatus {
+  active
+  invalidated
 }
 
 /// 一次推荐的候选集。
@@ -985,10 +992,19 @@ model GeneratedAsset {
   userId         String
   planId         String?
   candidateId    String?
+  /// 生成时所属候选集；不建外键，避免 supersede 的审计历史被级联删除。
+  recommendationSetId String?
+  styleDirectionId     String?
+  hairstyleCandidateId String?
+  outfitCandidateId    String?
+  baselinePhotoId      String?
   kind           GeneratedAssetKind
+  status         GeneratedAssetStatus @default(active)
   storageKey     String
   provider       String
+  modelVersion   String?
   providerCallId String?
+  renderSpecVersion String?
   /// AI 生成内容的显式标识文案（隐式标识写在图片元数据里）
   disclosure     String
   createdAt      DateTime           @default(now())
@@ -999,6 +1015,8 @@ model GeneratedAsset {
 
   @@index([userId, kind])
   @@index([planId])
+  @@index([planId, status])
+  @@index([recommendationSetId, status])
 }
 
 enum ProviderCallStatus {
