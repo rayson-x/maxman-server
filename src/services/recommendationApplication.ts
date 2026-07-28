@@ -991,15 +991,26 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
             },
           });
           if (hairstyleChanged) {
-            await tx.recommendationSet.updateMany({
-              where: {
-                planId: command.planId,
-                kind: "outfit",
-                status: { in: ["preparing", "ready", "failed"] },
-              },
-              data: { status: "superseded" },
-            });
-          }
+          await tx.recommendationSet.updateMany({
+            where: {
+              planId: command.planId,
+              kind: "outfit",
+              status: { in: ["preparing", "ready", "failed"] },
+            },
+            data: { status: "superseded" },
+          });
+          // Preview images are derived from the previous hairstyle choice. Keep
+          // their audit rows, but never let the old look be read after a user
+          // switches hairstyle.
+          await tx.generatedAsset.updateMany({
+            where: {
+              planId: command.planId,
+              kind: "outfit_preview",
+              status: "active",
+            },
+            data: { status: "invalidated" },
+          });
+        }
         } else {
           await tx.appearancePlan.update({ where: { id: command.planId }, data: { selectedOutfitId: candidate.id } });
         }

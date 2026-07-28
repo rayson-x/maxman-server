@@ -39,3 +39,37 @@ test("selecting an exposed catalog-external candidate raises its gap and asset p
   assert.deepEqual(result, { ok: true, candidateId: "candidate-1", nameZh: "目录外穿搭" });
   assert.deepEqual(calls, ["plan", "decision", "choice", "gap", "asset-priority"]);
 });
+
+test("changing hairstyle invalidates dependent outfit sets and active preview assets", async () => {
+  const calls: string[] = [];
+  const candidate = {
+    id: "hair-2",
+    nameZh: "短碎发",
+    styleDirectionId: "clean-fit",
+    set: {
+      id: "hair-set-1",
+      planId: "plan-1",
+      kind: "hairstyle",
+      status: "ready",
+      plan: { userId: "user-1", selectedStyle: { id: "clean-fit" }, selectedHairstyleId: "hair-1" },
+      comparisonLog: null,
+    },
+  };
+  const tx = {
+    appearancePlan: { update: async () => { calls.push("plan"); return {}; } },
+    recommendationSet: { updateMany: async () => { calls.push("sets"); return { count: 1 }; } },
+    generatedAsset: { updateMany: async () => { calls.push("assets"); return { count: 2 }; } },
+    conversationDecision: { create: async () => { calls.push("decision"); return {}; } },
+  };
+  const prisma = {
+    recommendationCandidate: { findUnique: async () => candidate },
+    $transaction: async (fn: (client: typeof tx) => Promise<unknown>) => fn(tx),
+  };
+  const provider = { name: "test", version: "v1", source: "hybrid" as const, recommend: async () => ({ candidates: [] }) };
+  const app = createRecommendationApplication({ prisma: prisma as never, hairstyleProvider: provider, outfitProvider: provider });
+
+  const result = await app.selectCandidate({ userId: "user-1", planId: "plan-1", candidateId: "hair-2", expectedKind: "hairstyle" });
+
+  assert.deepEqual(result, { ok: true, candidateId: "hair-2", nameZh: "短碎发" });
+  assert.deepEqual(calls, ["plan", "sets", "assets", "decision"]);
+});
