@@ -38,6 +38,7 @@ model User {
   plans           AppearancePlan[]
   analysisJobs    AnalysisJob[]
   generatedAssets GeneratedAsset[]
+  recommendationComparisons RecommendationComparisonLog[]
 
   @@index([deviceSessionId])
 }
@@ -405,6 +406,7 @@ model AppearancePlan {
   feedback              Feedback[]
   generatedStyleEntries StyleProfileEntry[]    @relation("GeneratedStyleEntryPlan")
   recommendationSets    RecommendationSet[]
+  recommendationComparisons RecommendationComparisonLog[]
   generatedAssets       GeneratedAsset[]
 
   @@index([userId, status])
@@ -715,6 +717,7 @@ model RecommendationSet {
 
   plan       AppearancePlan            @relation(fields: [planId], references: [id], onDelete: Cascade)
   candidates RecommendationCandidate[]
+  comparisonLog RecommendationComparisonLog?
 
   @@index([planId, kind, status])
 }
@@ -749,6 +752,225 @@ model RecommendationCandidate {
 
   @@unique([setId, rank])
   @@unique([setId, providerCandidateKey])
+}
+
+// ---------------------------------------------------------------------------
+// 双源推荐审计、行为证据与目录缺口
+// ---------------------------------------------------------------------------
+
+enum RecommendationChannel {
+  A
+  B
+}
+
+enum RecommendationChannelRunStatus {
+  pending
+  completed
+  failed
+  timed_out
+  reused
+}
+
+enum RecommendationReviewerStatus {
+  not_required
+  pending
+  completed
+  failed
+}
+
+enum RecommendationReviewerClassification {
+  agree
+  rule_gap
+  rule_conflict
+  rule_misapplied
+  llm_hallucination
+}
+
+enum RecommendationOutcomeType {
+  saved
+  slot_replaced
+  explicitly_disliked
+  try_on_saved
+  finally_adopted
+}
+
+/// 每一次用户可见的双源领域结果。版本化引用而非照片、签名 URL、原始 prompt 或 transcript。
+model RecommendationComparisonLog {
+  id                  String                       @id @default(cuid())
+  userId              String
+  planId              String
+  recommendationSetId String?                      @unique
+  domain              String
+  generation          Int
+  computationKey      String
+  profileSnapshotRef  String
+  photoAssetRefs      String[]
+  appearanceAnalysisRef String?
+  questionnaireSnapshotRef String?
+  recommendationContextRef String?
+  catalogManifestVersion String?
+  inputVersions       Json
+  retrievalAudit      Json
+  diffResult          Json
+  mergePolicyVersion  String
+  stochasticComparison Boolean @default(false)
+  reviewerStatus      RecommendationReviewerStatus @default(not_required)
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @updatedAt
+
+  user            User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan            AppearancePlan           @relation(fields: [planId], references: [id], onDelete: Cascade)
+  recommendationSet RecommendationSet?     @relation(fields: [recommendationSetId], references: [id], onDelete: SetNull)
+  channelRuns     RecommendationChannelRun[]
+  exposures       RecommendationExposure[]
+  choices         RecommendationChoice[]
+  outcomes        RecommendationOutcome[]
+  reviewerResult  RecommendationReviewerResult?
+  catalogGaps     CatalogGap[]
+
+  @@unique([planId, domain, generation, computationKey])
+  @@index([userId, domain, createdAt])
+}
+
+/// A/B 独立幂等、重试和成本审计；仅保存结构化结果，不保存模型原文。
+model RecommendationChannelRun {
+  id                  String                       @id @default(cuid())
+  comparisonId        String
+  channel             RecommendationChannel
+  computationKey      String
+  status              RecommendationChannelRunStatus @default(pending)
+  provider            String
+  model               String
+  modelVersion        String?
+  promptVersion       String
+  schemaVersion       String
+  latencyMs           Int?
+  cost                Float?
+  retryCount          Int                          @default(0)
+  reused              Boolean                      @default(false)
+  structuredResult    Json?
+  failureCode         String?
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @updatedAt
+
+  comparison RecommendationComparisonLog @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+
+  @@unique([comparisonId, channel])
+  @@unique([computationKey])
+  @@index([status, updatedAt])
+}
+
+/// 真正返回给用户的候选才进入 exposure 分母；候选快照不可被后续目录映射回写。
+model RecommendationExposure {
+  id             String                       @id @default(cuid())
+  comparisonId   String
+  candidateId    String?
+  candidateSnapshot Json
+  source         String
+  position       Int
+  exposedAt      DateTime                     @default(now())
+
+  comparison RecommendationComparisonLog @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  choices    RecommendationChoice[]
+  outcomes   RecommendationOutcome[]
+
+  @@unique([comparisonId, position])
+  @@index([comparisonId, source])
+}
+
+/// 选择是行为证据，不是审美或规则的客观真值。
+model RecommendationChoice {
+  id             String   @id @default(cuid())
+  comparisonId   String
+  exposureId     String
+  candidateId    String?
+  evidenceKind   String   @default("behavioral_evidence")
+  chosenAt       DateTime @default(now())
+
+  comparison RecommendationComparisonLog @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  exposure   RecommendationExposure      @relation(fields: [exposureId], references: [id], onDelete: Cascade)
+
+  @@unique([comparisonId, exposureId])
+  @@index([comparisonId, chosenAt])
+}
+
+/// 只有显式保存/替换/不喜欢/试穿保存/最终采用属于强结果事件；浏览和滚动不入表。
+model RecommendationOutcome {
+  id             String                    @id @default(cuid())
+  comparisonId   String
+  exposureId     String?
+  outcomeType    RecommendationOutcomeType
+  payload        Json?
+  occurredAt     DateTime                  @default(now())
+
+  comparison RecommendationComparisonLog @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  exposure   RecommendationExposure?     @relation(fields: [exposureId], references: [id], onDelete: SetNull)
+
+  @@index([comparisonId, outcomeType])
+}
+
+/// 高差异复审异步且非权威：不修改 comparison 的候选或用户响应。
+model RecommendationReviewerResult {
+  id             String                           @id @default(cuid())
+  comparisonId   String                           @unique
+  status         RecommendationReviewerStatus     @default(pending)
+  classification RecommendationReviewerClassification?
+  relatedRuleIds String[]
+  notes          String?
+  suggestion     String?
+  createdAt      DateTime                         @default(now())
+  completedAt    DateTime?
+
+  comparison RecommendationComparisonLog @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+}
+
+/// 目录外概念和覆盖不足都显式入库，避免把未知误当成不适合。
+model CatalogGap {
+  id             String   @id @default(cuid())
+  comparisonId   String?
+  domain         String
+  conceptItemId  String
+  reason         String
+  status         String   @default("open")
+  selectionCount Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  comparison RecommendationComparisonLog? @relation(fields: [comparisonId], references: [id], onDelete: SetNull)
+  assetTasks AssetGenerationQueue[]
+
+  @@unique([domain, conceptItemId])
+  @@index([status, updatedAt])
+}
+
+model AssetGenerationQueue {
+  id          String   @id @default(cuid())
+  gapId       String
+  status      String   @default("queued")
+  priority    Int      @default(0)
+  requestedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  gap CatalogGap @relation(fields: [gapId], references: [id], onDelete: Cascade)
+
+  @@unique([gapId])
+  @@index([status, priority])
+}
+
+/// 后续映射仅影响未来解析；历史 exposure 快照保持 concept 事实不变。
+model ConceptCatalogMapping {
+  id             String   @id @default(cuid())
+  domain         String
+  conceptItemId  String
+  catalogItemId  String
+  assetStatus    String
+  reviewedBy     String?
+  reviewedAt     DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([domain, conceptItemId])
+  @@index([catalogItemId])
 }
 
 /// 所有生成图片先建这条记录，再对用户签发读取 URL。
