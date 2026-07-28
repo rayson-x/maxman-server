@@ -26,6 +26,27 @@ export function createDualSourceCandidateStore(prisma: PrismaClient) {
       const kind = input.domain === "hairstyle" ? "hairstyle" : "outfit";
       const setKey = `dual-source:${input.domain}:${input.computationKey}`;
       return prisma.$transaction(async (tx) => {
+        // A reviewed mapping affects only newly stored candidates. Existing
+        // comparison/exposure JSON remains the historical concept snapshot.
+        const conceptIds = input.candidates
+          .map((candidate) => candidate.canonicalId)
+          .filter((canonicalId) => canonicalId.startsWith("concept:"));
+        const mappings = conceptIds.length > 0
+          ? await tx.conceptCatalogMapping.findMany({
+              where: { domain: input.domain, conceptItemId: { in: conceptIds } },
+              select: { conceptItemId: true, catalogItemId: true },
+            })
+          : [];
+        const mappingByConcept = new Map(mappings.map((mapping) => [mapping.conceptItemId, mapping.catalogItemId]));
+        const resolved = input.candidates.map((candidate) => {
+          const catalogItemId = mappingByConcept.get(candidate.canonicalId);
+          return {
+            originalCanonicalId: candidate.canonicalId,
+            candidate: catalogItemId
+              ? { ...candidate, id: catalogItemId, canonicalId: catalogItemId }
+              : candidate,
+          };
+        });
         const existing = await tx.recommendationSet.findUnique({
           where: { computationKey: setKey },
           include: { candidates: { orderBy: { rank: "asc" } } },
@@ -34,9 +55,15 @@ export function createDualSourceCandidateStore(prisma: PrismaClient) {
           if (existing.planId !== input.planId || existing.kind !== kind) {
             throw new Error("dual_source_computation_key_conflict");
           }
+          const existingByKey = new Map(existing.candidates.map((row) => [row.providerCandidateKey, row.id]));
           return {
             recommendationSetId: existing.id,
-            candidateRecordIds: Object.fromEntries(existing.candidates.map((row) => [row.providerCandidateKey, row.id])),
+            candidateRecordIds: Object.fromEntries(
+              resolved.flatMap(({ originalCanonicalId, candidate }) => {
+                const candidateId = existingByKey.get(candidate.canonicalId);
+                return candidateId ? [[originalCanonicalId, candidateId]] : [];
+              }),
+            ),
           };
         }
         const set = await tx.recommendationSet.create({
@@ -58,8 +85,8 @@ export function createDualSourceCandidateStore(prisma: PrismaClient) {
             },
           },
         });
-        const rows = [...input.candidates].sort((a, b) => a.rank - b.rank || a.canonicalId.localeCompare(b.canonicalId));
-        const created = await Promise.all(rows.map((candidate, index) =>
+        const rows = [...resolved].sort((a, b) => a.candidate.rank - b.candidate.rank || a.candidate.canonicalId.localeCompare(b.candidate.canonicalId));
+        const created = await Promise.all(rows.map(({ candidate }, index) =>
           tx.recommendationCandidate.create({
             data: {
               setId: set.id,
@@ -82,10 +109,9 @@ export function createDualSourceCandidateStore(prisma: PrismaClient) {
         await tx.recommendationSet.update({ where: { id: set.id }, data: { status: "ready" } });
         return {
           recommendationSetId: set.id,
-          candidateRecordIds: Object.fromEntries(created.map((row) => [row.providerCandidateKey, row.id])),
+          candidateRecordIds: Object.fromEntries(created.map((row, index) => [rows[index]!.originalCanonicalId, row.id])),
         };
       });
     },
   };
 }
-

@@ -100,3 +100,29 @@ test("reuses only completed structured channel results with matching immutable i
   assert.deepEqual(Object.keys(reused), ["A"]);
   assert.equal(reused.A?.candidates[0]?.canonicalId, "catalog-a");
 });
+
+test("maps a catalog-external concept for future resolution without changing historical exposures", async () => {
+  const calls: string[] = [];
+  const tx = {
+    conceptCatalogMapping: {
+      upsert: async () => { calls.push("mapping"); return { id: "mapping-1" }; },
+    },
+    catalogGap: {
+      findUnique: async () => { calls.push("gap-read"); return { id: "gap-1" }; },
+      update: async () => { calls.push("gap-update"); return {}; },
+    },
+    assetGenerationQueue: {
+      updateMany: async () => { calls.push("asset-update"); return { count: 1 }; },
+    },
+  };
+  const prisma = { $transaction: async (fn: (client: typeof tx) => Promise<unknown>) => fn(tx) };
+  const persistence = createDualSourceRecommendationPersistence(prisma as never);
+  await persistence.mapConceptToCatalog({
+    domain: "wardrobe",
+    conceptItemId: "concept:wardrobe:external",
+    catalogItemId: "wardrobe:reviewed-item",
+    assetStatus: "ready",
+    reviewedBy: "catalog-ops",
+  });
+  assert.deepEqual(calls, ["mapping", "gap-read", "gap-update", "asset-update"]);
+});

@@ -337,5 +337,55 @@ export function createDualSourceRecommendationPersistence(prisma: PrismaClient) 
         },
       });
     },
+
+    /**
+     * Operations-only catalog resolution. It is intentionally a service
+     * method rather than an unauthenticated HTTP endpoint: this workspace has
+     * no staff authorization surface yet. The mapping is append-only evidence
+     * for future recommendation resolution; historical exposure snapshots are
+     * never touched.
+     */
+    async mapConceptToCatalog(input: {
+      domain: string;
+      conceptItemId: string;
+      catalogItemId: string;
+      assetStatus: string;
+      reviewedBy?: string;
+      reviewedAt?: Date;
+    }) {
+      return prisma.$transaction(async (tx) => {
+        const mapping = await tx.conceptCatalogMapping.upsert({
+          where: { domain_conceptItemId: { domain: input.domain, conceptItemId: input.conceptItemId } },
+          create: {
+            domain: input.domain,
+            conceptItemId: input.conceptItemId,
+            catalogItemId: input.catalogItemId,
+            assetStatus: input.assetStatus,
+            reviewedBy: input.reviewedBy ?? null,
+            reviewedAt: input.reviewedAt ?? new Date(),
+          },
+          update: {
+            catalogItemId: input.catalogItemId,
+            assetStatus: input.assetStatus,
+            reviewedBy: input.reviewedBy ?? undefined,
+            reviewedAt: input.reviewedAt ?? new Date(),
+          },
+        });
+        const gap = await tx.catalogGap.findUnique({
+          where: { domain_conceptItemId: { domain: input.domain, conceptItemId: input.conceptItemId } },
+          select: { id: true },
+        });
+        if (gap) {
+          await tx.catalogGap.update({ where: { id: gap.id }, data: { status: "mapped" } });
+          if (input.assetStatus === "ready") {
+            await tx.assetGenerationQueue.updateMany({
+              where: { gapId: gap.id, status: { in: ["queued", "processing"] } },
+              data: { status: "completed" },
+            });
+          }
+        }
+        return mapping;
+      });
+    },
   };
 }
