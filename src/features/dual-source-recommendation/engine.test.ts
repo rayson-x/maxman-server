@@ -109,3 +109,26 @@ test("uses the specified single-channel and catalog-unavailable degradation path
   assert.deepEqual(catalogUnavailable.main, []);
   assert.deepEqual(catalogUnavailable.exploration.map((row) => row.source), ["exploration"]);
 });
+
+test("times out each channel independently without retrying the successful peer", async () => {
+  const calls: string[] = [];
+  const engine = new DualSourceRecommendationEngine({
+    contextByteBudget: 1000,
+    maxMainCandidates: 3,
+    channelTimeoutMs: 10,
+  });
+  const result = await engine.recommend({
+    domain: "style",
+    commonInput: { profileSnapshotRef: "p", originalAssetRefs: ["front"], selectedUpstream: {}, model: { provider: "fake", model: "v1", temperature: 0, tokenLimit: 1 } },
+    recalled: recalled.slice(0, 1), rules: [], deterministicFallback: [candidate("a", 1, { systemSupported: true })],
+    async runChannel(invocation) {
+      calls.push(invocation.channel);
+      if (invocation.channel === "B") await new Promise((resolve) => setTimeout(resolve, 50));
+      return { candidates: [candidate("a", 1, { systemSupported: invocation.channel === "B" })] };
+    },
+  });
+  assert.deepEqual(calls.sort(), ["A", "B"]);
+  assert.equal(result.audit.degradation, "b_failed");
+  assert.deepEqual(result.main.map((row) => row.source), ["deterministic_system"]);
+  assert.deepEqual(result.exploration.map((row) => row.source), ["exploration"]);
+});

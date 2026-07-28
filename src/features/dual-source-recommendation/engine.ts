@@ -54,7 +54,12 @@ export type DualSourceResult = {
 };
 
 export class DualSourceRecommendationEngine {
-  constructor(private readonly config: { contextByteBudget: number; maxMainCandidates: number }) {
+  constructor(private readonly config: {
+    contextByteBudget: number;
+    maxMainCandidates: number;
+    /** Each channel has its own budget; one timeout never cancels or retries its peer. */
+    channelTimeoutMs?: number;
+  }) {
     if (!Number.isInteger(config.contextByteBudget) || config.contextByteBudget < 1) {
       throw new Error("contextByteBudget must be a positive integer");
     }
@@ -82,14 +87,16 @@ export class DualSourceRecommendationEngine {
       bytes: recalled.reduce((total, row) => total + row.bytes, 0),
     };
 
-    const runA = input.runChannel({ channel: "A", domain: input.domain, commonInput: input.commonInput });
+    const runA = this.withTimeout(input.runChannel({
+      channel: "A", domain: input.domain, commonInput: input.commonInput,
+    }), "A");
     const runB = catalogAvailable
-      ? Promise.all(batches.map((candidates) => input.runChannel({
+      ? Promise.all(batches.map((candidates) => this.withTimeout(input.runChannel({
           channel: "B",
           domain: input.domain,
           commonInput: input.commonInput,
           systemContext: { candidates, rules: input.rules },
-        })))
+        }), "B")))
       : Promise.resolve([] as ChannelResult[]);
     const [aSettled, bSettled] = await Promise.allSettled([runA, runB]);
 
@@ -172,6 +179,17 @@ export class DualSourceRecommendationEngine {
     }
     if (current.length > 0) batches.push(current);
     return batches;
+  }
+
+  private withTimeout<T>(promise: Promise<T>, channel: "A" | "B"): Promise<T> {
+    if (!this.config.channelTimeoutMs) return promise;
+    return new Promise<T>((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error(`${channel}_channel_timeout`)), this.config.channelTimeoutMs);
+      promise.then(
+        (value) => { clearTimeout(timeout); resolve(value); },
+        (error: unknown) => { clearTimeout(timeout); reject(error); },
+      );
+    });
   }
 
   private normalize(candidates: DomainCandidate[]): DomainCandidate[] {
