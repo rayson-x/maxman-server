@@ -954,7 +954,7 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
           set: {
             include: {
               plan: { select: { userId: true, selectedStyle: true, selectedHairstyleId: true } },
-              comparisonLog: { select: { id: true } },
+              comparisonLog: { select: { id: true, domain: true } },
             },
           },
         },
@@ -1012,12 +1012,13 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         });
         // A choice is behavioral evidence only when this particular candidate
         // was actually exposed for the comparison that produced its set.
-        const comparisonId = candidate.set.comparisonLog?.id;
-        if (comparisonId) {
+        const comparison = candidate.set.comparisonLog;
+        if (comparison) {
+          const comparisonId = comparison.id;
           const exposure = await tx.recommendationExposure.findFirst({
             where: { comparisonId, candidateId: candidate.id },
             orderBy: { position: "asc" },
-            select: { id: true },
+            select: { id: true, candidateSnapshot: true },
           });
           if (exposure) {
             await tx.recommendationChoice.upsert({
@@ -1025,6 +1026,33 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
               create: { comparisonId, exposureId: exposure.id, candidateId: candidate.id },
               update: {},
             });
+            // The candidate record may resolve a reviewed concept to a catalog
+            // item later, but the exposure snapshot is intentionally
+            // immutable. It is therefore the only trustworthy source for
+            // deciding whether this was an originally catalog-external
+            // selection that should raise backlog priority.
+            const snapshot = exposure.candidateSnapshot as { canonicalId?: unknown };
+            if (typeof snapshot.canonicalId === "string" && snapshot.canonicalId.startsWith("concept:")) {
+              const gap = await tx.catalogGap.findUnique({
+                where: {
+                  domain_conceptItemId: {
+                    domain: comparison.domain,
+                    conceptItemId: snapshot.canonicalId,
+                  },
+                },
+                select: { id: true },
+              });
+              if (gap) {
+                await tx.catalogGap.update({
+                  where: { id: gap.id },
+                  data: { selectionCount: { increment: 1 } },
+                });
+                await tx.assetGenerationQueue.updateMany({
+                  where: { gapId: gap.id },
+                  data: { priority: { increment: 1 } },
+                });
+              }
+            }
           }
         }
       });
