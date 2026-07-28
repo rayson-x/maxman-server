@@ -31,6 +31,12 @@ export const env = {
     region: optional("VOLC_REGION") ?? "cn-north-1",
     visualHost: optional("VOLC_VISUAL_HOST") ?? "visual.volcengineapi.com",
   },
+  // 火山方舟（ARK）跟上面的「视觉智能」是两套凭证：视觉智能用 AK/SK 签名，
+  // 方舟用 Bearer API Key。Seedream 4.0+ 只在方舟上，所以两套都得留。
+  ark: {
+    apiKey: optional("ARK_API_KEY"),
+    baseURL: optional("ARK_BASE_URL") ?? "https://ark.cn-beijing.volces.com/api/v3",
+  },
   hunyuan: {
     apiKey: optional("TENCENT_HUNYUAN_API_KEY"),
     baseURL: optional("TENCENT_HUNYUAN_BASE_URL") ?? "https://api.hunyuan.cloud.tencent.com/v1",

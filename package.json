@@ -16,7 +16,9 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "lock:status": "node scripts/agent-lock.mjs status",
-    "progress": "node scripts/openspec-progress.mjs"
+    "progress": "node scripts/openspec-progress.mjs",
+    "calibrate": "tsx src/scripts/calibrate-hairstyles.ts",
+    "bench:image": "tsx src/scripts/bench-image-edit.ts"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^3.0.14",

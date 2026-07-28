@@ -19,7 +19,7 @@ src/
     │   └── candidateTaskCatalog.ts   # human-curated seed data (hair + outfit_accessory)
     ├── providers/
     │   ├── vision/                   # VisionAnalysisProvider: zhipu, qwen, hunyuan
-    │   ├── imageEdit/                # ImageEditProvider: volcengine (SeedEdit 3.0), qwen (wanx)
+    │   ├── imageEdit/                # ImageEditProvider: qwen (默认), volcengine (SeedEdit 3.0), ark (Seedream), stepfun
     │   ├── clothing/                 # ClothingSwapProvider: volcengine (dressing_diffusion), hunyuan (stub, non-viable)
     │   ├── textToImage/              # TextToImageProvider: zhipu (CogView)
     │   ├── textPlanning/             # TextPlanningProvider: deepseek (catalog-constrained scoring)
@@ -50,8 +50,12 @@ This is deliberately Fastify-agnostic (no `fastify.decorate()` yet, since no Fas
 | `VisionAnalysisProvider` | Zhipu GLM-4V-Flash | ✅ working | default |
 | | Qwen-VL-Plus (DashScope) | ✅ working | required per-model console enablement, separate from chat models |
 | | Hunyuan-vision | ❌ blocked | API key invalid, needs regeneration |
-| `ImageEditProvider` (img2img) | Volcengine SeedEdit 3.0 (`seededit_v3.0`) | ✅ working | default; validated specifically for hairstyle-change prompts with strong identity preservation |
-| | Qwen wanx2.1-imageedit | ⚠️ code correct, blocked | `Model.AccessDenied` — needs separate DashScope model enablement from vision |
+| `ImageEditProvider` (img2img) | Seedream 4.5（方舟 ARK，`doubao-seedream-4-5-251128`） | ✅ working | **default**（第三次调整：volcengine → qwen → ark）。发丝质感、皮肤/背景保真度全场最好，且两款测试都保持正脸构图。付出的代价见下方「图像编辑 provider 的默认选择」 |
+| | Qwen-Image-Edit-Plus (DashScope) | ✅ working | 曾是 default。比 SeedEdit 好，但三七侧分这类需要清楚分缝的款式结构偏软 |
+| | Volcengine SeedEdit 3.0 (`seededit_v3.0`) | ✅ working | 最初的 default。**「identity preservation 强」这条结论已被推翻**——它重画整幅画面（磨皮、削脸、背景漂移），且输出被钳在短边 864 |
+| | Seedream 4.0（方舟 ARK） | ✅ working，不推荐 | 比 SeedEdit 基准还差（墙面漂移 18-22 vs 基准 5.3-6.0） |
+| | Seedream 5.0 lite（方舟 ARK） | ✅ working，不推荐 | 质感全场最好，但会自作主张把正脸转成侧脸构图——身份/构图保持不可控，且延迟约 4.5 档的 2 倍 |
+| | ~~Qwen wanx2.1-imageedit~~ | 已弃 | 旧的 async wanx 接口，从未跑通过（`Model.AccessDenied`）。现已改走 multimodal-generation |
 | `ClothingSwapProvider` | Volcengine `dressing_diffusion` (V1) | ✅ working | confirmed end-to-end with synthetic model+garment photos via `CVSync2AsyncSubmitTask`/`GetResult` |
 | | Volcengine `dressing_diffusionV2` (multi-garment) | not attempted | documented under a different Action pair (`CVSubmitTask`/`CVGetResult`, not `Sync2Async`) — unverified, not needed yet |
 | | Hunyuan | ❌ not viable | official SDK inspected — no image-input capability exists at all, this is a capability gap not a credentials gap |
@@ -59,6 +63,56 @@ This is deliberately Fastify-agnostic (no `fastify.decorate()` yet, since no Fas
 | `TextPlanningProvider` / `FreeRecommendationProvider` / `AdversarialReviewProvider` | DeepSeek (`deepseek-v4-flash`) via `generateObject` | ✅ working | see decision 4 below for the prompting gotchas required to get reliable structured output |
 
 Aliyun DashScope's `access_denied` (blocking Qwen vision + Qwen img2img) was resolved for vision mid-session by the user enabling `qwen-vl-plus` specifically in the console; **img2img's `wanx2.1-imageedit` is a separate model requiring its own console enablement** — this was not yet done as of this change.
+
+#### 图像编辑 provider 的默认选择（后续修订）
+
+这张表最初把 SeedEdit 3.0 记为「identity preservation 强」。那个结论是在**合成证件照**上得出的，
+源图本来就是短发贴头、改动量小，所以看不出问题。换成真人照（长发、室内侧光）后，1:1 裁切下问题一眼可见，
+并且可量化——取「剪头发不该动到」的左上墙面算与原图的 RMSE，把降采样再放回的重采样误差 0.22 当地板：
+
+| 配置 | 墙面 RMSE | 输出尺寸 |
+|---|---|---|
+| 重采样地板（控制组） | 0.22 | — |
+| SeedEdit 3.0 | 5.3–6.0（地板 24×） | 1152×864 |
+| SeedEdit + 质感措辞 | 5.7–6.0 | 1152×864 |
+| SeedEdit + 短边 1536 输入 | 5.3 | **仍是 1152×864** |
+| Qwen-Image-Edit-Plus | 1.3–1.4（地板 6×） | 1184×896 |
+
+三条结论：
+
+1. **主因是 provider，不是 prompt 措辞。** 我们的 prompt 里没有任何一句要求修皮肤或瘦脸，
+   但 SeedEdit 把原图额头痘印、毛孔全磨掉，某些款还把脸削窄了——它在重新合成整幅画面。
+2. **喂高分辨率是死路。** 源图放大到短边 1536 再喂，输出仍被钳在 1152×864；
+   发丝细节是在模型内部被降采样吃掉的，调用方无法干预。SeedEdit 没有 `size` 参数。
+3. **加质感措辞只有小幅收益。** 正向加「发丝根根分明」确实让发梢多出分股，
+   但偏毛躁，且对墙面漂移毫无改善。是微调，不是解法。
+
+因此默认先改为 `qwen`。**代价要记清**：三七侧分这类需要清楚分缝的款式，Qwen 的结构不如 SeedEdit 准
+（它偏软、分缝不明确），而 `objectiveHairstyleAttributes.renderDescription` 那 15 段措辞是**按 SeedEdit 校准的**，
+换 provider 后需要按 Qwen 重校一轮。两家都还在磨脸部皮肤——彻底解决要靠头发区域外贴回原图像素，尚未做。
+
+#### 补一轮：方舟 Seedream 三档
+
+拿到 `ARK_API_KEY` 后把 Seedream 4.0/4.5/5.0 lite 三档也接进同一张对照台，跟已有的 A（SeedEdit）、D（Qwen）横向对比：
+
+| 配置 | 墙面 RMSE | 输出尺寸 | 结构准确度 |
+|---|---|---|---|
+| Seedream 4.0 | 18.65 / 22.06（比 A 还差） | 2304×1728 | — |
+| Seedream 4.5 | 4.33 / 2.81 | 2304×1728 | 两款均正脸，结构合理 |
+| Seedream 5.0 lite | 3.43 / 3.64 | 2304×1728 | **三七侧分那款把正脸转成了侧脸构图** |
+
+注意 5.0 lite 在「三七侧分」上「下三分之一 RMSE」高达 30（全场最高），肉眼核实后确认不是噪声——
+是模型自己把头部转了角度、重新摆了姿势，构图保持能力比数字暗示得更不可控。4.0 档在两款测试里
+都明显劣于 SeedEdit 基准，直接排除。4.5 档发丝质感、皮肤/背景保真度全场最好，且两款测试都保持
+正脸构图，价格 $0.04/张（约 ¥0.29，与 SeedEdit 同量级）。
+
+默认改为 `ark`（`doubao-seedream-4-5-251128`）。方舟是三套凭证里最新接入的一套（`ARK_API_KEY`，
+与视觉智能的 AK/SK 是分开的两套认证），只验证过生产码路（OSS 预签名 URL）能通，尚未在真实生产
+流量下跑过。15 款 `renderDescription` 仍是按 SeedEdit 校准的旧措辞，换 provider 后仍需重校一轮——
+这条债务经过两次 provider 切换后还没还。
+
+对照台：`src/scripts/bench-image-edit.ts`（`npm run bench:image`），横轴是配置、纵轴是发型；
+与 `calibrate-hairstyles.ts`（横轴 15 款发型、验描述对不对版）分工不同，两个都要留。
 
 ### 3. Volcengine-specific infrastructure: rate limiting + durable task ledger
 

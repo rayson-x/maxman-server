@@ -8,7 +8,7 @@
  *
  * Switch active providers via env vars, e.g.:
  *   ACTIVE_VISION_PROVIDER=zhipu|qwen|hunyuan   (default: zhipu)
- *   ACTIVE_IMAGE_EDIT_PROVIDER=volcengine|qwen|stepfun  (default: volcengine)
+ *   ACTIVE_IMAGE_EDIT_PROVIDER=ark|qwen|volcengine|stepfun  (default: ark)
  *   ACTIVE_CLOTHING_PROVIDER=volcengine         (only viable one so far)
  *   ACTIVE_TEXT_TO_IMAGE_PROVIDER=zhipu         (only viable one so far)
  *   ACTIVE_TEXT_PLANNING_PROVIDER=deepseek      (only viable one so far)
@@ -25,6 +25,7 @@ import type { VisionAnalysisProvider } from "./providers/vision/types.js";
 
 import { createVolcengineImageEditProvider } from "./providers/imageEdit/volcengineImageEdit.js";
 import { createQwenImageEditProvider } from "./providers/imageEdit/qwenImageEdit.js";
+import { createArkSeedreamImageEditProvider } from "./providers/imageEdit/arkSeedreamImageEdit.js";
 import { createStepFunImageEditProvider } from "./providers/imageEdit/stepfunImageEdit.js";
 import type { ImageEditProvider } from "./providers/imageEdit/types.js";
 
@@ -98,10 +99,22 @@ export function getImageEditProvider(): ImageEditProvider {
     {
       volcengine: createVolcengineImageEditProvider,
       qwen: createQwenImageEditProvider,
+      // 缺 ARK_API_KEY（方舟凭证与视觉智能的 AK/SK 是两套）。
+      // 它是目前唯一 size 可控的一家，能突破 SeedEdit 短边 864 的天花板
+      ark: createArkSeedreamImageEditProvider,
       // tasks 12.1：代码就绪，缺凭证。接入动因是火山并发=1 的吞吐天花板
       stepfun: createStepFunImageEditProvider,
     },
-    "volcengine",
+    // 默认几经调整：volcengine(SeedEdit) → qwen → ark(Seedream 4.5)。
+    // 真人照对照台（src/scripts/bench-image-edit.ts）依次测出：
+    //   SeedEdit 3.0  重画整幅画面（磨皮削脸、墙面漂移 24 倍地板、输出钳死 1152×864）
+    //   qwen          比 SeedEdit 好，但三七侧分这类需要清楚分缝的款式结构偏软
+    //   Seedream 4.0  比 SeedEdit 基准还差（墙面漂移 18-22）
+    //   Seedream 5.0 lite  质感最好，但会自作主张把正脸转成侧脸构图——结构不可控
+    //   Seedream 4.5  发丝质感和皮肤保真度最好，且两款测试都保持正脸构图 → 定为默认
+    // ⚠ 代价：方舟是三套凭证里最新接入的一套（ARK_API_KEY，与视觉智能的 AK/SK 分开），
+    // 未在生产流量下跑过；15 款 renderDescription 仍是按 SeedEdit 校准的，需要重校一轮。
+    "ark",
   ));
 }
 

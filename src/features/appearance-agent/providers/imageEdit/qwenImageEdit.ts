@@ -1,73 +1,84 @@
 import { env, required } from "../../../../config/env.js";
 import type { ImageEditInput, ImageEditProvider, ImageEditResult } from "./types.js";
 
-// DashScope's native (non-OpenAI-compatible) async task API for Tongyi
-// Wanxiang image editing. Exact path/model id should be confirmed against
-// https://help.aliyun.com/zh/model-studio/wanx-image-edit-api-reference on
-// first real call — these are best-effort defaults, overridable via env.
-const MODEL_ID = process.env.ALIYUN_WANX_IMAGE_EDIT_MODEL ?? "wanx2.1-imageedit";
-const SYNTHESIS_PATH = process.env.ALIYUN_WANX_IMAGE_EDIT_PATH ?? "/services/aigc/image2image/image-synthesis";
+/**
+ * 通义千问 Qwen-Image-Edit 指令编辑。
+ *
+ * 接口是**同步**的 multimodal-generation（不是 wanx 那套 async task），
+ * 文档：https://help.aliyun.com/zh/model-studio/qwen-image-edit-api
+ *
+ * ⚠ `prompt_extend` 默认 true，会把指令改写成它自己的长 prompt。
+ * 我们的 `renderDescription` 是逐款校准出来的措辞（见 objectiveHairstyleAttributes.ts），
+ * 被改写就等于校准全部作废，所以这里必须显式关掉。
+ */
+const MODEL_ID = process.env.ALIYUN_QWEN_IMAGE_EDIT_MODEL ?? "qwen-image-edit-plus";
+const GENERATION_PATH = "/services/aigc/multimodal-generation/generation";
 
-async function dashscopeFetch(path: string, init: RequestInit) {
-  const baseURL = env.aliyun.nativeBaseURL;
-  if (!baseURL) throw new Error("Missing ALIYUN_DASHSCOPE_NATIVE_BASE_URL");
-  const res = await fetch(`${baseURL}${path}`, init);
-  const json = await res.json();
-  if (!res.ok) throw new Error(`DashScope error (${res.status}): ${JSON.stringify(json)}`);
-  return json;
+type QwenEditResponse = {
+  output?: {
+    choices?: Array<{ message?: { content?: Array<{ image?: string }> } }>;
+  };
+  request_id?: string;
+  code?: string;
+  message?: string;
+};
+
+/** 响应里图片藏在 choices[].message.content[].image，逐层兜底取第一张 */
+function firstImageUrl(json: QwenEditResponse): string | undefined {
+  for (const choice of json.output?.choices ?? []) {
+    for (const part of choice.message?.content ?? []) {
+      if (part.image) return part.image;
+    }
+  }
+  return undefined;
 }
 
 export function createQwenImageEditProvider(): ImageEditProvider {
   const apiKey = required("ALIYUN_DASHSCOPE_API_KEY");
 
   return {
-    name: "qwen-wanx-image-edit",
+    name: "qwen-image-edit",
     async edit(input: ImageEditInput): Promise<ImageEditResult> {
       const start = Date.now();
+      const baseURL = env.aliyun.nativeBaseURL;
+      if (!baseURL) throw new Error("Missing ALIYUN_DASHSCOPE_NATIVE_BASE_URL");
 
-      const submitJson = (await dashscopeFetch(SYNTHESIS_PATH, {
+      const image = input.imageUrl ?? (input.imageBase64 ? `data:image/jpeg;base64,${input.imageBase64}` : undefined);
+      if (!image) throw new Error("qwen-image-edit needs imageUrl or imageBase64");
+
+      const res = await fetch(`${baseURL}${GENERATION_PATH}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
-          "X-DashScope-Async": "enable",
         },
         body: JSON.stringify({
           model: MODEL_ID,
           input: {
-            function: "description_edit",
-            prompt: input.instruction,
-            base_image_url: input.imageUrl,
+            messages: [{ role: "user", content: [{ image }, { text: input.instruction }] }],
           },
-          parameters: { n: 1 },
+          parameters: {
+            n: 1,
+            prompt_extend: false,
+            watermark: false,
+            ...(input.seed !== undefined && input.seed >= 0 ? { seed: input.seed } : {}),
+            ...(input.negativePrompt ? { negative_prompt: input.negativePrompt } : {}),
+          },
         }),
-      })) as { output?: { task_id?: string } };
+      });
 
-      const taskId = submitJson.output?.task_id;
-      if (!taskId) throw new Error(`DashScope submit did not return a task_id: ${JSON.stringify(submitJson)}`);
-
-      const deadline = Date.now() + 60_000;
-      while (Date.now() < deadline) {
-        const statusJson = (await dashscopeFetch(`/tasks/${taskId}`, {
-          method: "GET",
-          headers: { Authorization: `Bearer ${apiKey}` },
-        })) as { output?: { task_status?: string; results?: Array<{ url?: string }> } };
-
-        const status = statusJson.output?.task_status;
-        if (status === "SUCCEEDED") {
-          return {
-            provider: "qwen-wanx-image-edit",
-            imageUrl: statusJson.output?.results?.[0]?.url,
-            latencyMs: Date.now() - start,
-            raw: statusJson,
-          };
-        }
-        if (status === "FAILED" || status === "UNKNOWN") {
-          throw new Error(`DashScope task ${taskId} failed: ${JSON.stringify(statusJson)}`);
-        }
-        await new Promise((r) => setTimeout(r, 2000));
+      const json = (await res.json()) as QwenEditResponse;
+      if (!res.ok) {
+        throw new Error(`DashScope error (${res.status}): ${json.code ?? ""} ${json.message ?? JSON.stringify(json)}`);
       }
-      throw new Error(`DashScope task ${taskId} timed out`);
+
+      return {
+        provider: "qwen-image-edit",
+        imageUrl: firstImageUrl(json),
+        callId: json.request_id,
+        latencyMs: Date.now() - start,
+        raw: json,
+      };
     },
   };
 }

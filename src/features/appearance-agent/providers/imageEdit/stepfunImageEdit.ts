@@ -61,6 +61,7 @@ export function createStepFunImageEditProvider(): ImageEditProvider {
       form.append("model", MODEL_ID);
       form.append("image", new Blob([new Uint8Array(imageBytes)], { type: "image/jpeg" }), "input.jpg");
       form.append("prompt", input.instruction);
+      if (input.negativePrompt) form.append("negative_prompt", input.negativePrompt);
       form.append("response_format", "b64_json");
       form.append("cfg_scale", String(DEFAULT_CFG_SCALE));
       form.append("steps", String(DEFAULT_STEPS));
