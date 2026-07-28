@@ -56,6 +56,9 @@ export function createDualSourceWorkflowApplication(
         model: process.env.DUAL_SOURCE_RECOMMENDATION_MODEL ?? "glm-4.6v",
         temperature: 0.2,
         tokenLimit: 900,
+        // The current Zhipu function-calling endpoint exposes no stable seed.
+        // Persist this so a diff is never presented as solely catalog-caused.
+        supportsSeed: false,
       },
     };
     const adapter = createDualSourceProviderAdapter({

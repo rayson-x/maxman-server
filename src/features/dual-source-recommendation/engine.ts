@@ -27,7 +27,15 @@ export type CommonRecommendationInput = {
   selectedUpstream: Record<string, string>;
   /** Versioned, authorized structured facts sent identically to both channels. */
   userContext?: Record<string, unknown>;
-  model: { provider: string; model: string; temperature: number; tokenLimit: number };
+  model: {
+    provider: string;
+    model: string;
+    temperature: number;
+    tokenLimit: number;
+    /** Undefined means unknown and is conservatively persisted as stochastic. */
+    supportsSeed?: boolean;
+    seed?: number;
+  };
 };
 
 export type ChannelInvocation = {

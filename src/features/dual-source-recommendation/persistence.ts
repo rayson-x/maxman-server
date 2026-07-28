@@ -68,7 +68,7 @@ export function createDualSourceRecommendationPersistence(prisma: PrismaClient) 
               degradation: input.result.audit.degradation,
             },
             mergePolicyVersion: input.result.audit.diff.diffPolicyVersion,
-            stochasticComparison: false,
+            stochasticComparison: input.commonInput.model.supportsSeed !== true,
             reviewerStatus: input.result.audit.diff.severity === "high" ? "pending" : "not_required",
           },
           update: {

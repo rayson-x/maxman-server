@@ -33,9 +33,10 @@ test("persists structured comparison, both channel outcomes, and exposure before
     promptVersion: "prompt-v1", schemaVersion: "schema-v1", result,
   });
   assert.deepEqual(calls.map((call) => call.table), ["comparison", "channel", "channel", "exposure"]);
-  const comparison = calls[0]!.args as { create: { photoAssetRefs: string[]; retrievalAudit: unknown } };
+  const comparison = calls[0]!.args as { create: { photoAssetRefs: string[]; retrievalAudit: unknown; stochasticComparison: boolean } };
   assert.deepEqual(comparison.create.photoAssetRefs, ["original-photo"]);
   assert.deepEqual(comparison.create.retrievalAudit, result.audit.retrieval);
+  assert.equal(comparison.create.stochasticComparison, true);
   const exposure = calls[3]!.args as { create: { source: string; position: number; candidateSnapshot: { canonicalId: string } } };
   assert.equal(exposure.create.source, "consensus");
   assert.equal(exposure.create.position, 1);
