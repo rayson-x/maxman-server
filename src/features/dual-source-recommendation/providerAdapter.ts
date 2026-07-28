@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import {
   DualSourceRecommendationEngine,
   type CommonRecommendationInput,
+  type ChannelResult,
   type DomainCandidate,
   type DualSourceResult,
   type RecalledCandidate,
@@ -49,6 +50,7 @@ export function createDualSourceProviderAdapter(options: {
       rules: unknown[];
       deterministicFallback: DomainCandidate[];
       catalogAvailable?: boolean;
+      reusedChannels?: Partial<Record<"A" | "B", ChannelResult>>;
     }): Promise<DualSourceResult> {
       const allByName = new Map(input.recalled.map((row) => [row.candidate.nameZh, row]));
       return engine.recommend({

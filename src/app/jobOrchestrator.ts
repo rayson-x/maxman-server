@@ -303,6 +303,30 @@ export function createJobOrchestrator(container: AppContainer) {
     });
   }
 
+  /**
+   * A job retry must retain its generation and therefore its immutable
+   * comparison/exposure history. A later job after an upstream selection
+   * change receives the next generation, so stale downstream sets cannot be
+   * confused with the newly conditioned result.
+   */
+  async function dualSourceGeneration(
+    planId: string,
+    domain: "style" | "hairstyle" | "wardrobe",
+    computationKey: string,
+  ): Promise<number> {
+    const sameJob = await prisma.recommendationComparisonLog.findFirst({
+      where: { planId, domain, computationKey },
+      select: { generation: true },
+    });
+    if (sameJob) return sameJob.generation;
+
+    const previous = await prisma.recommendationComparisonLog.aggregate({
+      where: { planId, domain },
+      _max: { generation: true },
+    });
+    return (previous._max.generation ?? 0) + 1;
+  }
+
   const handlers = {
     /**
      * S1 → S2 → 建方案 → S3（风格—发型组合）。
@@ -364,7 +388,7 @@ export function createJobOrchestrator(container: AppContainer) {
           userId: p.userId,
           planId: plan.id,
           jobId: p.jobId,
-          generation: 1,
+          generation: await dualSourceGeneration(plan.id, "style", `style:${p.jobId}`),
           originalPhotos: [front, ...(fullBody ? [fullBody] : [])],
           profileSnapshotRef: `appearance-profile:${p.userId}:${profile?.updatedAt.toISOString() ?? "missing"}`,
           appearanceAnalysisRef: `analysis-job:${p.jobId}:vision-v1`,
@@ -525,7 +549,7 @@ export function createJobOrchestrator(container: AppContainer) {
         userId: p.userId,
         planId: p.planId,
         jobId: p.jobId,
-        generation: 1,
+        generation: await dualSourceGeneration(p.planId, "hairstyle", `hairstyle:${p.jobId}`),
         originalPhotos: [photos.front],
         profileSnapshotRef: `appearance-profile:${p.userId}:${profile?.updatedAt.toISOString() ?? "missing"}`,
         appearanceAnalysisRef: prior ? `analysis-job:${prior.id}:vision-v1` : undefined,
@@ -601,7 +625,7 @@ export function createJobOrchestrator(container: AppContainer) {
         userId: p.userId,
         planId: p.planId,
         jobId: p.jobId,
-        generation: 1,
+        generation: await dualSourceGeneration(p.planId, "wardrobe", `wardrobe:${p.jobId}`),
         originalPhotos: [photos.front, ...(photos.fullBody ? [photos.fullBody] : [])],
         profileSnapshotRef: `appearance-profile:${p.userId}:${profile?.updatedAt.toISOString() ?? "missing"}`,
         questionnaireSnapshotRef: profile ? `appearance-profile:${profile.id}:${profile.updatedAt.toISOString()}` : undefined,

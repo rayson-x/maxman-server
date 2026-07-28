@@ -24,7 +24,10 @@ test("the three public domain tools use one adapter and enforce upstream waiting
   const persisted: unknown[] = [];
   const tools = createDualSourceRecommendationTools({
     adapter,
-    persistence: { persist: async (input: unknown) => { persisted.push(input); return { id: "comparison" }; } } as never,
+    persistence: {
+      findReusableChannels: async () => ({}),
+      persist: async (input: unknown) => { persisted.push(input); return { id: "comparison" }; },
+    } as never,
   });
 
   await assert.rejects(
@@ -55,6 +58,7 @@ test("underfed hairstyle relations create a catalog gap instead of claiming cata
   const tools = createDualSourceRecommendationTools({
     adapter,
     persistence: {
+      findReusableChannels: async () => ({}),
       persist: async () => ({ id: "comparison" }),
       recordCatalogGap: async (input: unknown) => { gaps.push(input); return { id: "gap" }; },
     } as never,

@@ -132,3 +132,27 @@ test("times out each channel independently without retrying the successful peer"
   assert.deepEqual(result.main.map((row) => row.source), ["deterministic_system"]);
   assert.deepEqual(result.exploration.map((row) => row.source), ["exploration"]);
 });
+
+test("reuses a completed channel and retries only the failed peer for the same computation", async () => {
+  const calls: string[] = [];
+  const engine = new DualSourceRecommendationEngine({ contextByteBudget: 1000, maxMainCandidates: 3 });
+  const result = await engine.recommend({
+    domain: "style",
+    commonInput: { profileSnapshotRef: "p", originalAssetRefs: ["front"], selectedUpstream: {}, model: { provider: "fake", model: "v1", temperature: 0, tokenLimit: 1 } },
+    recalled: recalled.slice(0, 1),
+    rules: [],
+    deterministicFallback: [candidate("a", 1, { systemSupported: true })],
+    reusedChannels: {
+      A: { candidates: [candidate("a", 1)], provider: "fake", model: "v1" },
+    },
+    async runChannel(invocation) {
+      calls.push(invocation.channel);
+      return { candidates: [candidate("a", 1, { systemSupported: true })], provider: "fake", model: "v1" };
+    },
+  });
+
+  assert.deepEqual(calls, ["B"]);
+  assert.equal(result.audit.channels.A.reused, true);
+  assert.equal(result.audit.channels.B.reused, false);
+  assert.deepEqual(result.main.map((row) => row.source), ["consensus"]);
+});

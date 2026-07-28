@@ -1,10 +1,46 @@
 import type { PrismaClient } from "../../generated/prisma/client.js";
-import type { CommonRecommendationInput, DualSourceResult, RecommendationDomain } from "./engine.js";
+import type { ChannelResult, CommonRecommendationInput, DomainCandidate, DualSourceResult, RecommendationDomain } from "./engine.js";
 
-type PersistedChannelStatus = "completed" | "failed" | "timed_out";
+type PersistedChannelStatus = "completed" | "failed" | "timed_out" | "reused";
 
-function channelStatus(status: DualSourceResult["audit"]["channels"]["A"]["status"]): PersistedChannelStatus {
+function channelStatus(audit: DualSourceResult["audit"]["channels"]["A"]): PersistedChannelStatus {
+  if (audit.reused) return "reused";
+  const { status } = audit;
   return status === "completed" || status === "timed_out" ? status : "failed";
+}
+
+function isCandidate(value: unknown): value is DomainCandidate {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Record<string, unknown>;
+  return typeof candidate.id === "string"
+    && typeof candidate.canonicalId === "string"
+    && typeof candidate.rank === "number"
+    && typeof candidate.nameZh === "string"
+    && typeof candidate.rationale === "string"
+    && typeof candidate.systemSupported === "boolean"
+    && typeof candidate.hardConflict === "boolean";
+}
+
+function reusableResult(run: {
+  status: string;
+  structuredResult: unknown;
+  provider: string;
+  model: string;
+  modelVersion: string | null;
+  latencyMs: number | null;
+  cost: number | null;
+}): ChannelResult | null {
+  if (run.status !== "completed" && run.status !== "reused") return null;
+  const result = run.structuredResult as { candidates?: unknown } | null;
+  if (!result || !Array.isArray(result.candidates) || !result.candidates.every(isCandidate)) return null;
+  return {
+    candidates: result.candidates,
+    provider: run.provider,
+    model: run.model,
+    modelVersion: run.modelVersion ?? undefined,
+    latencyMs: run.latencyMs ?? undefined,
+    cost: run.cost ?? undefined,
+  };
 }
 
 /**
@@ -14,6 +50,65 @@ function channelStatus(status: DualSourceResult["audit"]["channels"]["A"]["statu
  */
 export function createDualSourceRecommendationPersistence(prisma: PrismaClient) {
   return {
+    /**
+     * A worker retry keeps the computation key stable. Reuse only a completed
+     * structured result whose immutable input/version references still match;
+     * a failed or malformed peer is deliberately omitted for an independent
+     * retry. No prompt, transcript, or signed URL is read or stored here.
+     */
+    async findReusableChannels(input: {
+      planId: string;
+      domain: RecommendationDomain;
+      generation: number;
+      computationKey: string;
+      commonInput: CommonRecommendationInput;
+      appearanceAnalysisRef?: string | null;
+      questionnaireSnapshotRef?: string | null;
+      recommendationContextRef?: string | null;
+      catalogManifestVersion?: string | null;
+      promptVersion: string;
+      schemaVersion: string;
+    }): Promise<Partial<Record<"A" | "B", ChannelResult>>> {
+      const comparison = await prisma.recommendationComparisonLog.findUnique({
+        where: {
+          planId_domain_generation_computationKey: {
+            planId: input.planId,
+            domain: input.domain,
+            generation: input.generation,
+            computationKey: input.computationKey,
+          },
+        },
+        include: { channelRuns: true },
+      });
+      if (!comparison
+        || comparison.profileSnapshotRef !== input.commonInput.profileSnapshotRef
+        || JSON.stringify(comparison.photoAssetRefs) !== JSON.stringify(input.commonInput.originalAssetRefs)
+        || comparison.appearanceAnalysisRef !== (input.appearanceAnalysisRef ?? null)
+        || comparison.questionnaireSnapshotRef !== (input.questionnaireSnapshotRef ?? null)
+        || comparison.recommendationContextRef !== (input.recommendationContextRef ?? null)
+        || comparison.catalogManifestVersion !== (input.catalogManifestVersion ?? null)) {
+        return {};
+      }
+      const versions = comparison.inputVersions as {
+        selectedUpstream?: unknown;
+        model?: unknown;
+        promptVersion?: unknown;
+        schemaVersion?: unknown;
+      };
+      if (versions.promptVersion !== input.promptVersion
+        || versions.schemaVersion !== input.schemaVersion
+        || JSON.stringify(versions.selectedUpstream) !== JSON.stringify(input.commonInput.selectedUpstream)
+        || JSON.stringify(versions.model) !== JSON.stringify(input.commonInput.model)) {
+        return {};
+      }
+      const reusable: Partial<Record<"A" | "B", ChannelResult>> = {};
+      for (const run of comparison.channelRuns) {
+        const result = reusableResult(run);
+        if (result) reusable[run.channel] = result;
+      }
+      return reusable;
+    },
+
     async persist(input: {
       userId: string;
       planId: string;
@@ -91,7 +186,7 @@ export function createDualSourceRecommendationPersistence(prisma: PrismaClient) 
               comparisonId: comparison.id,
               channel,
               computationKey: `${input.computationKey}:${channel}`,
-              status: channelStatus(audit.status),
+              status: channelStatus(audit),
               provider: audit.provider ?? input.commonInput.model.provider,
               model: audit.model ?? input.commonInput.model.model,
               modelVersion: audit.modelVersion ?? null,
@@ -103,7 +198,7 @@ export function createDualSourceRecommendationPersistence(prisma: PrismaClient) 
               failureCode: audit.failureCode ?? (audit.status === "not_run" ? "catalog_unavailable" : null),
             },
             update: {
-              status: channelStatus(audit.status),
+              status: channelStatus(audit),
               latencyMs: audit.latencyMs ?? null,
               cost: audit.cost ?? null,
               structuredResult: audit.status === "not_run" ? undefined : { candidates: audit.candidates },

@@ -44,6 +44,19 @@ async function run(
   },
   candidateStore?: CandidateStore,
 ): Promise<DualSourceResult> {
+  const reusedChannels = await persistence.findReusableChannels({
+    planId: input.planId,
+    domain: input.domain,
+    generation: input.generation,
+    computationKey: input.computationKey,
+    commonInput: input.commonInput,
+    appearanceAnalysisRef: input.appearanceAnalysisRef,
+    questionnaireSnapshotRef: input.questionnaireSnapshotRef,
+    recommendationContextRef: input.recommendationContextRef,
+    catalogManifestVersion: input.catalogManifestVersion,
+    promptVersion: input.promptVersion,
+    schemaVersion: input.schemaVersion,
+  });
   const result = await adapter.recommend({
     domain: input.domain,
     commonInput: input.commonInput,
@@ -51,6 +64,7 @@ async function run(
     rules: input.rules,
     deterministicFallback: fallback(input.recalled),
     catalogAvailable: input.catalogAvailable,
+    reusedChannels,
   });
   const stored = candidateStore && input.domain !== "style"
     ? await candidateStore.store({

@@ -375,6 +375,30 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
       await tx.conversationDecision.create({
         data: { planId, decisionKind: "style_direction_selected", payload: style as never },
       });
+      // Style directions are comparison/exposure snapshots rather than legacy
+      // RecommendationCandidate rows. Match the exact exposed canonical ID so
+      // this remains behavioral evidence with a real exposure denominator.
+      const comparison = await tx.recommendationComparisonLog.findFirst({
+        where: { planId, userId: user.id, domain: "style" },
+        orderBy: { createdAt: "desc" },
+        select: { id: true },
+      });
+      if (comparison) {
+        const exposures = await tx.recommendationExposure.findMany({
+          where: { comparisonId: comparison.id },
+          select: { id: true, candidateSnapshot: true },
+        });
+        const exposure = exposures.find((row) =>
+          (row.candidateSnapshot as { canonicalId?: unknown }).canonicalId === style.id,
+        );
+        if (exposure) {
+          await tx.recommendationChoice.upsert({
+            where: { comparisonId_exposureId: { comparisonId: comparison.id, exposureId: exposure.id } },
+            create: { comparisonId: comparison.id, exposureId: exposure.id },
+            update: {},
+          });
+        }
+      }
       return true;
     });
     if (!updated) {

@@ -77,6 +77,8 @@ export type DualSourceResult = {
 
 export type ChannelAudit = {
   status: "completed" | "failed" | "timed_out" | "not_run";
+  /** A structured result from the same immutable computation was reused. */
+  reused?: boolean;
   candidates: DomainCandidate[];
   provider?: string;
   model?: string;
@@ -108,6 +110,8 @@ export class DualSourceRecommendationEngine {
     rules: unknown[];
     deterministicFallback: DomainCandidate[];
     catalogAvailable?: boolean;
+    /** Completed channels from this exact computation key. A retry invokes only absent peers. */
+    reusedChannels?: Partial<Record<"A" | "B", ChannelResult>>;
     runChannel(invocation: ChannelInvocation): Promise<ChannelResult>;
   }): Promise<DualSourceResult> {
     const catalogAvailable = input.catalogAvailable !== false;
@@ -120,16 +124,20 @@ export class DualSourceRecommendationEngine {
       bytes: recalled.reduce((total, row) => total + row.bytes, 0),
     };
 
-    const runA = this.withTimeout(input.runChannel({
-      channel: "A", domain: input.domain, commonInput: input.commonInput,
-    }), "A");
+    const runA = input.reusedChannels?.A
+      ? Promise.resolve(input.reusedChannels.A)
+      : this.withTimeout(input.runChannel({
+          channel: "A", domain: input.domain, commonInput: input.commonInput,
+        }), "A");
     const runB = catalogAvailable
-      ? Promise.all(batches.map((candidates) => this.withTimeout(input.runChannel({
-          channel: "B",
-          domain: input.domain,
-          commonInput: input.commonInput,
-          systemContext: { candidates, rules: input.rules },
-        }), "B")))
+      ? input.reusedChannels?.B
+        ? Promise.resolve([input.reusedChannels.B])
+        : Promise.all(batches.map((candidates) => this.withTimeout(input.runChannel({
+            channel: "B",
+            domain: input.domain,
+            commonInput: input.commonInput,
+            systemContext: { candidates, rules: input.rules },
+          }), "B")))
       : Promise.resolve([] as ChannelResult[]);
     const [aSettled, bSettled] = await Promise.allSettled([runA, runB]);
 
@@ -142,8 +150,10 @@ export class DualSourceRecommendationEngine {
     const fallback = this.normalize(input.deterministicFallback);
 
     const channelAudit = {
-      A: this.channelAudit(aSettled),
-      B: catalogAvailable ? this.channelAudit(bSettled) : { status: "not_run" as const, candidates: [] },
+      A: this.channelAudit(aSettled, Boolean(input.reusedChannels?.A)),
+      B: catalogAvailable
+        ? this.channelAudit(bSettled, Boolean(input.reusedChannels?.B))
+        : { status: "not_run" as const, candidates: [] },
     };
 
     if (!catalogAvailable) {
@@ -263,7 +273,7 @@ export class DualSourceRecommendationEngine {
     return candidates.slice(0, this.config.maxMainCandidates).map((candidate) => ({ ...candidate, source }));
   }
 
-  private channelAudit(settled: PromiseSettledResult<ChannelResult | ChannelResult[]>): ChannelAudit {
+  private channelAudit(settled: PromiseSettledResult<ChannelResult | ChannelResult[]>, reused = false): ChannelAudit {
     if (settled.status === "fulfilled") {
       const runs = Array.isArray(settled.value) ? settled.value : [settled.value];
       const first = runs[0];
@@ -275,6 +285,7 @@ export class DualSourceRecommendationEngine {
         modelVersion: first?.modelVersion,
         latencyMs: runs.reduce((total, run) => total + (run.latencyMs ?? 0), 0) || undefined,
         cost: runs.reduce((total, run) => total + (run.cost ?? 0), 0) || undefined,
+        reused,
       };
     }
     const message = settled.reason instanceof Error ? settled.reason.message : "channel_failed";

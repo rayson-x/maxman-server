@@ -42,3 +42,61 @@ test("persists structured comparison, both channel outcomes, and exposure before
   assert.equal(exposure.create.position, 1);
   assert.equal(exposure.create.candidateSnapshot.canonicalId, "catalog-a");
 });
+
+test("reuses only completed structured channel results with matching immutable input versions", async () => {
+  const prisma = {
+    recommendationComparisonLog: {
+      findUnique: async () => ({
+        profileSnapshotRef: "profile-v1",
+        photoAssetRefs: ["original-photo"],
+        appearanceAnalysisRef: null,
+        questionnaireSnapshotRef: null,
+        recommendationContextRef: null,
+        catalogManifestVersion: "catalog-v1",
+        inputVersions: {
+          selectedUpstream: { styleId: "clean" },
+          model: { provider: "provider", model: "model", temperature: 0, tokenLimit: 100 },
+          promptVersion: "prompt-v1",
+          schemaVersion: "schema-v1",
+        },
+        channelRuns: [
+          {
+            channel: "A",
+            status: "completed",
+            structuredResult: { candidates: [result.main[0]] },
+            provider: "provider",
+            model: "model",
+            modelVersion: null,
+            latencyMs: 12,
+            cost: null,
+          },
+          {
+            channel: "B",
+            status: "failed",
+            structuredResult: null,
+            provider: "provider",
+            model: "model",
+            modelVersion: null,
+            latencyMs: null,
+            cost: null,
+          },
+        ],
+      }),
+    },
+  };
+  const persistence = createDualSourceRecommendationPersistence(prisma as never);
+  const reused = await persistence.findReusableChannels({
+    planId: "plan", domain: "style", generation: 1, computationKey: "key",
+    commonInput: {
+      profileSnapshotRef: "profile-v1",
+      originalAssetRefs: ["original-photo"],
+      selectedUpstream: { styleId: "clean" },
+      model: { provider: "provider", model: "model", temperature: 0, tokenLimit: 100 },
+    },
+    catalogManifestVersion: "catalog-v1",
+    promptVersion: "prompt-v1",
+    schemaVersion: "schema-v1",
+  });
+  assert.deepEqual(Object.keys(reused), ["A"]);
+  assert.equal(reused.A?.candidates[0]?.canonicalId, "catalog-a");
+});
