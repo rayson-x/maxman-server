@@ -7,6 +7,7 @@ import {
 import type { CommonRecommendationInput, DomainCandidate, DualSourceResult, RecommendationDomain } from "./engine.js";
 import type { createDualSourceProviderAdapter } from "./providerAdapter.js";
 import type { createDualSourceRecommendationPersistence } from "./persistence.js";
+import type { createDualSourceCandidateStore } from "./candidateStore.js";
 
 type SharedToolInput = {
   userId: string;
@@ -25,6 +26,7 @@ type SharedToolInput = {
 
 type ProviderAdapter = ReturnType<typeof createDualSourceProviderAdapter>;
 type Persistence = ReturnType<typeof createDualSourceRecommendationPersistence>;
+type CandidateStore = ReturnType<typeof createDualSourceCandidateStore>;
 
 function fallback(recalled: Parameters<ProviderAdapter["recommend"]>[0]["recalled"]): DomainCandidate[] {
   return recalled.map((row, index) => ({ ...row.candidate, rank: index + 1, systemSupported: true }));
@@ -38,7 +40,9 @@ async function run(
     recalled: Parameters<ProviderAdapter["recommend"]>[0]["recalled"];
     rules: unknown[];
     catalogAvailable?: boolean;
+    selectedStyleId?: string;
   },
+  candidateStore?: CandidateStore,
 ): Promise<DualSourceResult> {
   const result = await adapter.recommend({
     domain: input.domain,
@@ -48,6 +52,16 @@ async function run(
     deterministicFallback: fallback(input.recalled),
     catalogAvailable: input.catalogAvailable,
   });
+  const stored = candidateStore && input.domain !== "style"
+    ? await candidateStore.store({
+        planId: input.planId,
+        domain: input.domain,
+        generation: input.generation,
+        computationKey: input.computationKey,
+        candidates: [...result.main, ...result.exploration],
+        selectedStyleId: input.selectedStyleId,
+      })
+    : undefined;
   await persistence.persist({
     userId: input.userId,
     planId: input.planId,
@@ -61,6 +75,8 @@ async function run(
     catalogManifestVersion: input.catalogManifestVersion,
     promptVersion: input.promptVersion,
     schemaVersion: input.schemaVersion,
+    recommendationSetId: stored?.recommendationSetId,
+    candidateRecordIds: stored?.candidateRecordIds,
     result,
   });
   return result;
@@ -74,8 +90,9 @@ async function run(
 export function createDualSourceRecommendationTools(deps: {
   adapter: ProviderAdapter;
   persistence: Persistence;
+  candidateStore?: CandidateStore;
 }) {
-  const { adapter, persistence } = deps;
+  const { adapter, persistence, candidateStore } = deps;
   return {
     async recommendStyleDirections(input: SharedToolInput & { catalogAvailable?: boolean }) {
       return run(adapter, persistence, {
@@ -84,7 +101,7 @@ export function createDualSourceRecommendationTools(deps: {
         recalled: recallRuntimeStyleDirections(),
         rules: [],
         catalogAvailable: input.catalogAvailable,
-      });
+      }, candidateStore);
     },
 
     async recommendHairstyles(input: SharedToolInput & {
@@ -109,7 +126,8 @@ export function createDualSourceRecommendationTools(deps: {
         // projection returns [] while physical feasibility has already run.
         rules: recalled.appliedRules,
         catalogAvailable: input.catalogAvailable,
-      });
+        selectedStyleId: input.selectedStyleId,
+      }, candidateStore);
     },
 
     async recommendWardrobe(input: SharedToolInput & {
@@ -125,8 +143,8 @@ export function createDualSourceRecommendationTools(deps: {
         recalled: recallRuntimeWardrobe({ selectedStyleId: input.selectedStyleId }),
         rules: [],
         catalogAvailable: input.catalogAvailable,
-      });
+        selectedStyleId: input.selectedStyleId,
+      }, candidateStore);
     },
   };
 }
-
