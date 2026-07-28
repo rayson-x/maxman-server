@@ -1,0 +1,3896 @@
+{
+  "datasetVersion": "wardrobe-supply-map-cn-v0.1",
+  "generatedAt": "2026-07-27",
+  "targetMarket": "中国大陆男性",
+  "status": "official_catalog_seed",
+  "warning": "该表提供可追溯的官方目录检索入口，不是实时 SKU、库存、价格、尺码或图片授权。每次商品推荐前必须重新核验具体 SKU。",
+  "entries": [
+    {
+      "wardrobeItemId": "wi-t01",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「重磅纯色圆领短袖T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「重磅纯色圆领短袖T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「重磅纯色圆领短袖T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t02",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「合身度受控长袖T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「合身度受控长袖T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「合身度受控长袖T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t03",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「亨利领长袖T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「亨利领长袖T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「亨利领长袖T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t04",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「宽松落肩纯色T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「宽松落肩纯色T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「宽松落肩纯色T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t05",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短款箱型T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短款箱型T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短款箱型T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t06",
+      "supplyCandidates": [
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织短袖T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织短袖T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "hla-cn",
+          "sourceUrl": "https://www.hlamall.cn/wxmall/product/list?menuId=596",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织短袖T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t07",
+      "supplyCandidates": [
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「细针织圆领上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「细针织圆领上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "hla-cn",
+          "sourceUrl": "https://www.hlamall.cn/wxmall/product/list?menuId=596",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「细针织圆领上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t08",
+      "supplyCandidates": [
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「半拉链针织上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「半拉链针织上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "hla-cn",
+          "sourceUrl": "https://www.hlamall.cn/wxmall/product/list?menuId=596",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「半拉链针织上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t09",
+      "supplyCandidates": [
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「V领针织开衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「V领针织开衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "hla-cn",
+          "sourceUrl": "https://www.hlamall.cn/wxmall/product/list?menuId=596",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「V领针织开衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t10",
+      "supplyCandidates": [
+        {
+          "brandLineId": "roaringwild",
+          "sourceUrl": "https://roaringwild.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「无大图案圆领卫衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「无大图案圆领卫衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "vans-cn",
+          "sourceUrl": "https://vans.com.cn/index.php/indexb.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「无大图案圆领卫衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t11",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「连帽卫衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「连帽卫衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「连帽卫衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t12",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「拉链连帽卫衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「拉链连帽卫衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「拉链连帽卫衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t13",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「牛津纺扣领衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「牛津纺扣领衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「牛津纺扣领衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t14",
+      "supplyCandidates": [
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「府绸长袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「府绸长袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "hla-cn",
+          "sourceUrl": "https://www.hlamall.cn/wxmall/product/list?menuId=596",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「府绸长袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t15",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「条纹宽松衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「条纹宽松衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「条纹宽松衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t16",
+      "supplyCandidates": [
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「亚麻长袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「亚麻长袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "hla-cn",
+          "sourceUrl": "https://www.hlamall.cn/wxmall/product/list?menuId=596",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「亚麻长袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t17",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「古巴领短袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「古巴领短袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「古巴领短袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t18",
+      "supplyCandidates": [
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织Polo」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织Polo」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "hla-cn",
+          "sourceUrl": "https://www.hlamall.cn/wxmall/product/list?menuId=596",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织Polo」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t19",
+      "supplyCandidates": [
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「珠地棉Polo」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「珠地棉Polo」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "hla-cn",
+          "sourceUrl": "https://www.hlamall.cn/wxmall/product/list?menuId=596",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「珠地棉Polo」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t20",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「橄榄球衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「橄榄球衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「橄榄球衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t21",
+      "supplyCandidates": [
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「足球球衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「足球球衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "fila-fusion-cn",
+          "sourceUrl": "https://www.fila.com.cn/cms/shop.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「足球球衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t22",
+      "supplyCandidates": [
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「篮球背心」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「篮球背心」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "fila-fusion-cn",
+          "sourceUrl": "https://www.fila.com.cn/cms/shop.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「篮球背心」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t23",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「无袖背心」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「无袖背心」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「无袖背心」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t24",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「保龄球衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「保龄球衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「保龄球衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t25",
+      "supplyCandidates": [
+        {
+          "brandLineId": "roaringwild",
+          "sourceUrl": "https://roaringwild.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「法兰绒格纹衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「法兰绒格纹衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "vans-cn",
+          "sourceUrl": "https://vans.com.cn/index.php/indexb.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「法兰绒格纹衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t26",
+      "supplyCandidates": [
+        {
+          "brandLineId": "roaringwild",
+          "sourceUrl": "https://roaringwild.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「西部牛仔衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「西部牛仔衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "vans-cn",
+          "sourceUrl": "https://vans.com.cn/index.php/indexb.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「西部牛仔衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t27",
+      "supplyCandidates": [
+        {
+          "brandLineId": "roaringwild",
+          "sourceUrl": "https://roaringwild.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「工装短袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「工装短袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "vans-cn",
+          "sourceUrl": "https://vans.com.cn/index.php/indexb.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「工装短袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t28",
+      "supplyCandidates": [
+        {
+          "brandLineId": "icicle-cn",
+          "sourceUrl": "https://www.icicle.com.cn/cn/light-suit-men/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「立领中式衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "qipai-cn",
+          "sourceUrl": "https://sevenbrand.jd.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「立领中式衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "pronounce",
+          "sourceUrl": "https://pronounceofficial.com/collections/all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「立领中式衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t29",
+      "supplyCandidates": [
+        {
+          "brandLineId": "icicle-cn",
+          "sourceUrl": "https://www.icicle.com.cn/cn/light-suit-men/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「盘扣短袖上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "qipai-cn",
+          "sourceUrl": "https://sevenbrand.jd.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「盘扣短袖上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "pronounce",
+          "sourceUrl": "https://pronounceofficial.com/collections/all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「盘扣短袖上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t30",
+      "supplyCandidates": [
+        {
+          "brandLineId": "staffonly",
+          "sourceUrl": "https://staffonlystudio.com/profile-0.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「解构不对称上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「解构不对称上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「解构不对称上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t31",
+      "supplyCandidates": [
+        {
+          "brandLineId": "staffonly",
+          "sourceUrl": "https://staffonlystudio.com/profile-0.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「网纱或透肌内搭」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「网纱或透肌内搭」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「网纱或透肌内搭」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t32",
+      "supplyCandidates": [
+        {
+          "brandLineId": "roaringwild",
+          "sourceUrl": "https://roaringwild.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「图案短袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「图案短袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "vans-cn",
+          "sourceUrl": "https://vans.com.cn/index.php/indexb.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「图案短袖衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t33",
+      "supplyCandidates": [
+        {
+          "brandLineId": "roaringwild",
+          "sourceUrl": "https://roaringwild.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古印花T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古印花T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "vans-cn",
+          "sourceUrl": "https://vans.com.cn/index.php/indexb.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古印花T恤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t34",
+      "supplyCandidates": [
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「机能速干长袖内层」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「机能速干长袖内层」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "fila-fusion-cn",
+          "sourceUrl": "https://www.fila.com.cn/cms/shop.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「机能速干长袖内层」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t35",
+      "supplyCandidates": [
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「抓绒半拉链」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「抓绒半拉链」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "fila-fusion-cn",
+          "sourceUrl": "https://www.fila.com.cn/cms/shop.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「抓绒半拉链」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t36",
+      "supplyCandidates": [
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「高领打底针织」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「高领打底针织」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "hla-cn",
+          "sourceUrl": "https://www.hlamall.cn/wxmall/product/list?menuId=596",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「高领打底针织」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t37",
+      "supplyCandidates": [
+        {
+          "brandLineId": "staffonly",
+          "sourceUrl": "https://staffonlystudio.com/profile-0.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮质或仿皮衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮质或仿皮衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮质或仿皮衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t38",
+      "supplyCandidates": [
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短袖花纱针织衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短袖花纱针织衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "hla-cn",
+          "sourceUrl": "https://www.hlamall.cn/wxmall/product/list?menuId=596",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短袖花纱针织衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t39",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「轻薄防晒衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「轻薄防晒衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「轻薄防晒衬衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t40",
+      "supplyCandidates": [
+        {
+          "brandLineId": "roaringwild",
+          "sourceUrl": "https://roaringwild.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短袖工装Polo」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短袖工装Polo」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "vans-cn",
+          "sourceUrl": "https://vans.com.cn/index.php/indexb.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短袖工装Polo」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t41",
+      "supplyCandidates": [
+        {
+          "brandLineId": "staffonly",
+          "sourceUrl": "https://staffonlystudio.com/profile-0.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「褶皱肌理上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「褶皱肌理上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「褶皱肌理上衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t42",
+      "supplyCandidates": [
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「薄款运动紧身长袖」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「薄款运动紧身长袖」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "fila-fusion-cn",
+          "sourceUrl": "https://www.fila.com.cn/cms/shop.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「薄款运动紧身长袖」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-t43",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「绗缝衬衫式夹层」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「绗缝衬衫式夹层」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「绗缝衬衫式夹层」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o01",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「衬衫外套」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「衬衫外套」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「衬衫外套」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o02",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「Harrington短夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「Harrington短夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「Harrington短夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o03",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dickies-cn",
+          "sourceUrl": "https://www.dickies.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「教练夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「教练夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "lee-cn",
+          "sourceUrl": "https://www.lee.com.cn/men.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「教练夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o04",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「简洁牛仔夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「简洁牛仔夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「简洁牛仔夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o05",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dickies-cn",
+          "sourceUrl": "https://www.dickies.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短款翻领工装夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短款翻领工装夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "lee-cn",
+          "sourceUrl": "https://www.lee.com.cn/men.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短款翻领工装夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o06",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dickies-cn",
+          "sourceUrl": "https://www.dickies.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「飞行夹克MA-1」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「飞行夹克MA-1」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "lee-cn",
+          "sourceUrl": "https://www.lee.com.cn/men.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「飞行夹克MA-1」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o07",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「棒球夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「棒球夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「棒球夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o08",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o09",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「麂皮短夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「麂皮短夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「麂皮短夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o10",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「无结构西装夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「无结构西装夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「无结构西装夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o11",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「双排扣西装夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「双排扣西装夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「双排扣西装夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o12",
+      "supplyCandidates": [
+        {
+          "brandLineId": "staffonly",
+          "sourceUrl": "https://staffonlystudio.com/profile-0.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「解构西装夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「解构西装夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "pronounce",
+          "sourceUrl": "https://pronounceofficial.com/collections/all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「解构西装夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o13",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短款风衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短款风衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短款风衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o14",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「中长风衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「中长风衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「中长风衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o15",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「Mac大衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「Mac大衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「Mac大衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o16",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「直身羊毛大衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「直身羊毛大衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「直身羊毛大衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o17",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「廓形长大衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「廓形长大衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「廓形长大衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o18",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「低光泽羽绒服」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「低光泽羽绒服」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「低光泽羽绒服」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o19",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短款棉服」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短款棉服」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「短款棉服」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o20",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「摇粒绒外套」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「摇粒绒外套」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「摇粒绒外套」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o21",
+      "supplyCandidates": [
+        {
+          "brandLineId": "thenorthface-cn",
+          "sourceUrl": "https://www.thenorthface.com.cn/index.php",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「硬壳冲锋衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "kailas-cn",
+          "sourceUrl": "https://www.kailas.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「硬壳冲锋衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "descente-cn",
+          "sourceUrl": "https://www.descente-china.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「硬壳冲锋衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o22",
+      "supplyCandidates": [
+        {
+          "brandLineId": "thenorthface-cn",
+          "sourceUrl": "https://www.thenorthface.com.cn/index.php",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「城市机能软壳」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "kailas-cn",
+          "sourceUrl": "https://www.kailas.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「城市机能软壳」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "descente-cn",
+          "sourceUrl": "https://www.descente-china.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「城市机能软壳」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o23",
+      "supplyCandidates": [
+        {
+          "brandLineId": "thenorthface-cn",
+          "sourceUrl": "https://www.thenorthface.com.cn/index.php",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「多口袋机能马甲」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "kailas-cn",
+          "sourceUrl": "https://www.kailas.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「多口袋机能马甲」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "descente-cn",
+          "sourceUrl": "https://www.descente-china.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「多口袋机能马甲」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o24",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dickies-cn",
+          "sourceUrl": "https://www.dickies.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「丹宁马甲」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「丹宁马甲」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "lee-cn",
+          "sourceUrl": "https://www.lee.com.cn/men.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「丹宁马甲」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o25",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织背心」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织背心」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织背心」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o26",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「羽绒马甲」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「羽绒马甲」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「羽绒马甲」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o27",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古运动夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古运动夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古运动夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o28",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「足球训练夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「足球训练夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「足球训练夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o29",
+      "supplyCandidates": [
+        {
+          "brandLineId": "thenorthface-cn",
+          "sourceUrl": "https://www.thenorthface.com.cn/index.php",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「长款军装派克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "kailas-cn",
+          "sourceUrl": "https://www.kailas.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「长款军装派克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "descente-cn",
+          "sourceUrl": "https://www.descente-china.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「长款军装派克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o30",
+      "supplyCandidates": [
+        {
+          "brandLineId": "icicle-cn",
+          "sourceUrl": "https://www.icicle.com.cn/cn/light-suit-men/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「改良中式外套」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "qipai-cn",
+          "sourceUrl": "https://sevenbrand.jd.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「改良中式外套」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「改良中式外套」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o31",
+      "supplyCandidates": [
+        {
+          "brandLineId": "icicle-cn",
+          "sourceUrl": "https://www.icicle.com.cn/cn/light-suit-men/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「长款罩衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "qipai-cn",
+          "sourceUrl": "https://sevenbrand.jd.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「长款罩衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「长款罩衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o32",
+      "supplyCandidates": [
+        {
+          "brandLineId": "staffonly",
+          "sourceUrl": "https://staffonlystudio.com/profile-0.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮质长风衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮质长风衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "pronounce",
+          "sourceUrl": "https://pronounceofficial.com/collections/all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮质长风衣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o33",
+      "supplyCandidates": [
+        {
+          "brandLineId": "staffonly",
+          "sourceUrl": "https://staffonlystudio.com/profile-0.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「亮面短夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「亮面短夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "pronounce",
+          "sourceUrl": "https://pronounceofficial.com/collections/all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「亮面短夹克」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o34",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「夏季亚麻西装」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「夏季亚麻西装」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「夏季亚麻西装」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-o35",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「长款针织开衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「长款针织开衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「长款针织开衫」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b01",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「直筒Chino」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「直筒Chino」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「直筒Chino」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b02",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「轻锥形Chino」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「轻锥形Chino」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「轻锥形Chino」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b03",
+      "supplyCandidates": [
+        {
+          "brandLineId": "levis-cn",
+          "sourceUrl": "https://www.levi.com.cn/products?categoryId=MENFIT-1%2301",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「深靛蓝直筒牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "lee-cn",
+          "sourceUrl": "https://www.lee.com.cn/men.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「深靛蓝直筒牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「深靛蓝直筒牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b04",
+      "supplyCandidates": [
+        {
+          "brandLineId": "levis-cn",
+          "sourceUrl": "https://www.levi.com.cn/products?categoryId=MENFIT-1%2301",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「浅色直筒牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "lee-cn",
+          "sourceUrl": "https://www.lee.com.cn/men.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「浅色直筒牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「浅色直筒牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b05",
+      "supplyCandidates": [
+        {
+          "brandLineId": "levis-cn",
+          "sourceUrl": "https://www.levi.com.cn/products?categoryId=MENFIT-1%2301",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「黑色直筒牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "lee-cn",
+          "sourceUrl": "https://www.lee.com.cn/men.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「黑色直筒牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「黑色直筒牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b06",
+      "supplyCandidates": [
+        {
+          "brandLineId": "levis-cn",
+          "sourceUrl": "https://www.levi.com.cn/products?categoryId=MENFIT-1%2301",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「宽直筒牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "lee-cn",
+          "sourceUrl": "https://www.lee.com.cn/men.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「宽直筒牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「宽直筒牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b07",
+      "supplyCandidates": [
+        {
+          "brandLineId": "levis-cn",
+          "sourceUrl": "https://www.levi.com.cn/products?categoryId=MENFIT-1%2301",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「弧形牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "lee-cn",
+          "sourceUrl": "https://www.lee.com.cn/men.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「弧形牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「弧形牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b08",
+      "supplyCandidates": [
+        {
+          "brandLineId": "levis-cn",
+          "sourceUrl": "https://www.levi.com.cn/products?categoryId=MENFIT-1%2301",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「原色赤耳牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "lee-cn",
+          "sourceUrl": "https://www.lee.com.cn/men.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「原色赤耳牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「原色赤耳牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b09",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dickies-cn",
+          "sourceUrl": "https://www.dickies.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「工装直筒裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「工装直筒裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "roaringwild",
+          "sourceUrl": "https://roaringwild.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「工装直筒裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b10",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dickies-cn",
+          "sourceUrl": "https://www.dickies.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「宽松工装裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「宽松工装裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "roaringwild",
+          "sourceUrl": "https://roaringwild.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「宽松工装裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b11",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dickies-cn",
+          "sourceUrl": "https://www.dickies.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「轻量尼龙工装裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「轻量尼龙工装裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "roaringwild",
+          "sourceUrl": "https://roaringwild.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「轻量尼龙工装裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b12",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「松紧腰性能长裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「松紧腰性能长裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「松紧腰性能长裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b13",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「跑步束脚裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「跑步束脚裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「跑步束脚裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b14",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「直筒运动裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「直筒运动裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「直筒运动裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b15",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「足球训练裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「足球训练裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「足球训练裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b16",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「篮球短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「篮球短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「篮球短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b17",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「百慕大短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「百慕大短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「百慕大短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b18",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「尼龙运动短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「尼龙运动短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「尼龙运动短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b19",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「丹宁短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「丹宁短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「丹宁短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b20",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「亚麻直筒长裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「亚麻直筒长裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「亚麻直筒长裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b21",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「褶裥阔腿西裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「褶裥阔腿西裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「褶裥阔腿西裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b22",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「直筒西裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「直筒西裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「直筒西裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b23",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「高腰锥形西裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「高腰锥形西裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「高腰锥形西裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b24",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「灯芯绒直筒裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「灯芯绒直筒裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「灯芯绒直筒裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b25",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「法兰绒西裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「法兰绒西裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「法兰绒西裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b26",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dickies-cn",
+          "sourceUrl": "https://www.dickies.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「军裤复刻直筒裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「军裤复刻直筒裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "roaringwild",
+          "sourceUrl": "https://roaringwild.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「军裤复刻直筒裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b27",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「多袋束口裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「多袋束口裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「多袋束口裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b28",
+      "supplyCandidates": [
+        {
+          "brandLineId": "staffonly",
+          "sourceUrl": "https://staffonlystudio.com/profile-0.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮裤或仿皮直筒裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮裤或仿皮直筒裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮裤或仿皮直筒裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b29",
+      "supplyCandidates": [
+        {
+          "brandLineId": "staffonly",
+          "sourceUrl": "https://staffonlystudio.com/profile-0.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「微喇牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「微喇牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「微喇牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b30",
+      "supplyCandidates": [
+        {
+          "brandLineId": "staffonly",
+          "sourceUrl": "https://staffonlystudio.com/profile-0.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「低腰宽松牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「低腰宽松牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「低腰宽松牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b31",
+      "supplyCandidates": [
+        {
+          "brandLineId": "staffonly",
+          "sourceUrl": "https://staffonlystudio.com/profile-0.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「褶皱肌理长裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「褶皱肌理长裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「褶皱肌理长裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b32",
+      "supplyCandidates": [
+        {
+          "brandLineId": "icicle-cn",
+          "sourceUrl": "https://www.icicle.com.cn/cn/light-suit-men/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「中式宽腿裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "qipai-cn",
+          "sourceUrl": "https://sevenbrand.jd.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「中式宽腿裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "youngor-cn",
+          "sourceUrl": "https://www.youngor.com/about/1.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「中式宽腿裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b33",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b34",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「羊毛短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "cos-men-cn",
+          "sourceUrl": "https://www.cos.cn/men/all-menswear.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「羊毛短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「羊毛短裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b35",
+      "supplyCandidates": [
+        {
+          "brandLineId": "kailas-cn",
+          "sourceUrl": "https://www.kailas.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「登山速干裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "thenorthface-cn",
+          "sourceUrl": "https://www.thenorthface.com.cn/index.php",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「登山速干裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "decathlon-cn",
+          "sourceUrl": "https://www.decathlon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「登山速干裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b36",
+      "supplyCandidates": [
+        {
+          "brandLineId": "kailas-cn",
+          "sourceUrl": "https://www.kailas.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「软壳通勤裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "thenorthface-cn",
+          "sourceUrl": "https://www.thenorthface.com.cn/index.php",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「软壳通勤裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "decathlon-cn",
+          "sourceUrl": "https://www.decathlon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「软壳通勤裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b37",
+      "supplyCandidates": [
+        {
+          "brandLineId": "staffonly",
+          "sourceUrl": "https://staffonlystudio.com/profile-0.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「破坏水洗宽牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「破坏水洗宽牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「破坏水洗宽牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-b38",
+      "supplyCandidates": [
+        {
+          "brandLineId": "staffonly",
+          "sourceUrl": "https://staffonlystudio.com/profile-0.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「涂层黑色牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「涂层黑色牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「涂层黑色牛仔裤」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s01",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「低帮白色板鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "new-balance-lifestyle-cn",
+          "sourceUrl": "https://www.newbalance.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「低帮白色板鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「低帮白色板鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s02",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「德训鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "new-balance-lifestyle-cn",
+          "sourceUrl": "https://www.newbalance.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「德训鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「德训鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s03",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「极简皮质运动鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "new-balance-lifestyle-cn",
+          "sourceUrl": "https://www.newbalance.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「极简皮质运动鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「极简皮质运动鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s04",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古跑鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "new-balance-lifestyle-cn",
+          "sourceUrl": "https://www.newbalance.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古跑鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古跑鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s05",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「厚底复古跑鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "new-balance-lifestyle-cn",
+          "sourceUrl": "https://www.newbalance.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「厚底复古跑鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「厚底复古跑鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s06",
+      "supplyCandidates": [
+        {
+          "brandLineId": "vans-cn",
+          "sourceUrl": "https://vans.com.cn/index.php/indexb.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「滑板鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sb-cn",
+          "sourceUrl": "https://www.nike.com.cn/w/loose-4b30cz6ymx6z8q3a9zy7ok",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「滑板鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "converse-cn",
+          "sourceUrl": "https://www.converse.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「滑板鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s07",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「篮球鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "new-balance-lifestyle-cn",
+          "sourceUrl": "https://www.newbalance.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「篮球鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「篮球鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s08",
+      "supplyCandidates": [
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「足球复古薄底鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "new-balance-lifestyle-cn",
+          "sourceUrl": "https://www.newbalance.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「足球复古薄底鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「足球复古薄底鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s09",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dr-martens-cn",
+          "sourceUrl": "https://www.drmartens.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「乐福鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「乐福鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "red-wing-heritage-cn",
+          "sourceUrl": "https://www.redwingheritage.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「乐福鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s10",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dr-martens-cn",
+          "sourceUrl": "https://www.drmartens.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「便士乐福鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「便士乐福鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "red-wing-heritage-cn",
+          "sourceUrl": "https://www.redwingheritage.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「便士乐福鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s11",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dr-martens-cn",
+          "sourceUrl": "https://www.drmartens.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「德比鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「德比鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "red-wing-heritage-cn",
+          "sourceUrl": "https://www.redwingheritage.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「德比鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s12",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dr-martens-cn",
+          "sourceUrl": "https://www.drmartens.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「孟克鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「孟克鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "red-wing-heritage-cn",
+          "sourceUrl": "https://www.redwingheritage.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「孟克鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s13",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dr-martens-cn",
+          "sourceUrl": "https://www.drmartens.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「切尔西靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「切尔西靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "red-wing-heritage-cn",
+          "sourceUrl": "https://www.redwingheritage.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「切尔西靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s14",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dr-martens-cn",
+          "sourceUrl": "https://www.drmartens.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「工装靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「工装靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "red-wing-heritage-cn",
+          "sourceUrl": "https://www.redwingheritage.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「工装靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s15",
+      "supplyCandidates": [
+        {
+          "brandLineId": "dr-martens-cn",
+          "sourceUrl": "https://www.drmartens.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「沙漠靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「沙漠靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "red-wing-heritage-cn",
+          "sourceUrl": "https://www.redwingheritage.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「沙漠靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s16",
+      "supplyCandidates": [
+        {
+          "brandLineId": "vans-cn",
+          "sourceUrl": "https://vans.com.cn/index.php/indexb.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「帆布高帮鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "nike-sb-cn",
+          "sourceUrl": "https://www.nike.com.cn/w/loose-4b30cz6ymx6z8q3a9zy7ok",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「帆布高帮鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "converse-cn",
+          "sourceUrl": "https://www.converse.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「帆布高帮鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s17",
+      "supplyCandidates": [
+        {
+          "brandLineId": "salomon-cn",
+          "sourceUrl": "https://www.salomon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「越野跑鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "kailas-cn",
+          "sourceUrl": "https://www.kailas.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「越野跑鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "decathlon-cn",
+          "sourceUrl": "https://www.decathlon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「越野跑鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s18",
+      "supplyCandidates": [
+        {
+          "brandLineId": "salomon-cn",
+          "sourceUrl": "https://www.salomon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「徒步靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "kailas-cn",
+          "sourceUrl": "https://www.kailas.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「徒步靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "decathlon-cn",
+          "sourceUrl": "https://www.decathlon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「徒步靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s19",
+      "supplyCandidates": [
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「机能凉鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「机能凉鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「机能凉鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s20",
+      "supplyCandidates": [
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮质凉鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮质凉鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮质凉鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s21",
+      "supplyCandidates": [
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「麻底鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「麻底鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「麻底鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s22",
+      "supplyCandidates": [
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「船鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "zara-men-cn",
+          "sourceUrl": "https://www.zara.cn/cn/zh/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「船鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "timberland-cn",
+          "sourceUrl": "https://www.timberland.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「船鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s23",
+      "supplyCandidates": [
+        {
+          "brandLineId": "fuliansheng-cn",
+          "sourceUrl": "https://www.fuliansheng.com/product/traditional-shoes/beijing/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「中式布鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "qipai-cn",
+          "sourceUrl": "https://sevenbrand.jd.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「中式布鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "pronounce",
+          "sourceUrl": "https://pronounceofficial.com/collections/all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「中式布鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s24",
+      "supplyCandidates": [
+        {
+          "brandLineId": "vibram-cn",
+          "sourceUrl": "https://www.vibram.com/cn/%E5%95%86%E5%9F%8E/shop-all-products",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「尖头短靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "salomon-cn",
+          "sourceUrl": "https://www.salomon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「尖头短靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「尖头短靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s25",
+      "supplyCandidates": [
+        {
+          "brandLineId": "vibram-cn",
+          "sourceUrl": "https://www.vibram.com/cn/%E5%95%86%E5%9F%8E/shop-all-products",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「厚底皮鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "salomon-cn",
+          "sourceUrl": "https://www.salomon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「厚底皮鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「厚底皮鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s26",
+      "supplyCandidates": [
+        {
+          "brandLineId": "vibram-cn",
+          "sourceUrl": "https://www.vibram.com/cn/%E5%95%86%E5%9F%8E/shop-all-products",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「玛丽珍或搭扣鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "salomon-cn",
+          "sourceUrl": "https://www.salomon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「玛丽珍或搭扣鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「玛丽珍或搭扣鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s27",
+      "supplyCandidates": [
+        {
+          "brandLineId": "salomon-cn",
+          "sourceUrl": "https://www.salomon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「橡胶雨靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "kailas-cn",
+          "sourceUrl": "https://www.kailas.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「橡胶雨靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "decathlon-cn",
+          "sourceUrl": "https://www.decathlon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「橡胶雨靴」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s28",
+      "supplyCandidates": [
+        {
+          "brandLineId": "salomon-cn",
+          "sourceUrl": "https://www.salomon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「室内训练鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "kailas-cn",
+          "sourceUrl": "https://www.kailas.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「室内训练鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "decathlon-cn",
+          "sourceUrl": "https://www.decathlon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「室内训练鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-s29",
+      "supplyCandidates": [
+        {
+          "brandLineId": "vibram-cn",
+          "sourceUrl": "https://www.vibram.com/cn/%E5%95%86%E5%9F%8E/shop-all-products",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「分趾或机能鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "salomon-cn",
+          "sourceUrl": "https://www.salomon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「分趾或机能鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "feng-chen-wang",
+          "sourceUrl": "https://fengchenwang.com/zh/collections/shop-all",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「分趾或机能鞋」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a01",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「窄至中宽皮带」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「窄至中宽皮带」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「窄至中宽皮带」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a02",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「编织皮带」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「编织皮带」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「编织皮带」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a03",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「简洁腕表」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「简洁腕表」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「简洁腕表」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a04",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古数字表」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古数字表」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古数字表」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a05",
+      "supplyCandidates": [
+        {
+          "brandLineId": "prada-men-jewelry-cn",
+          "sourceUrl": "https://www.prada.cn/cn/zh/mens/accessories/jewels/c/10622CN",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「金属项链」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "dior-men-jewelry-cn",
+          "sourceUrl": "https://www.dior.cn/zh_cn/fashion/mens-fashion/accessories/silver-jewelry",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「金属项链」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「金属项链」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a06",
+      "supplyCandidates": [
+        {
+          "brandLineId": "prada-men-jewelry-cn",
+          "sourceUrl": "https://www.prada.cn/cn/zh/mens/accessories/jewels/c/10622CN",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮革项链或吊坠」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "dior-men-jewelry-cn",
+          "sourceUrl": "https://www.dior.cn/zh_cn/fashion/mens-fashion/accessories/silver-jewelry",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮革项链或吊坠」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮革项链或吊坠」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a07",
+      "supplyCandidates": [
+        {
+          "brandLineId": "prada-men-jewelry-cn",
+          "sourceUrl": "https://www.prada.cn/cn/zh/mens/accessories/jewels/c/10622CN",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「细戒指组」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "dior-men-jewelry-cn",
+          "sourceUrl": "https://www.dior.cn/zh_cn/fashion/mens-fashion/accessories/silver-jewelry",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「细戒指组」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「细戒指组」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a08",
+      "supplyCandidates": [
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「棒球帽」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「棒球帽」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「棒球帽」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a09",
+      "supplyCandidates": [
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「五片帽」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「五片帽」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「五片帽」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a10",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织帽」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织帽」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「针织帽」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a11",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「渔夫帽」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「渔夫帽」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「渔夫帽」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a12",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮革托特包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮革托特包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「皮革托特包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a13",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「帆布托特包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「帆布托特包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「帆布托特包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a14",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「小型斜挎包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「小型斜挎包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「小型斜挎包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a15",
+      "supplyCandidates": [
+        {
+          "brandLineId": "thenorthface-cn",
+          "sourceUrl": "https://www.thenorthface.com.cn/index.php",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「机能胸包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "decathlon-cn",
+          "sourceUrl": "https://www.decathlon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「机能胸包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "kailas-cn",
+          "sourceUrl": "https://www.kailas.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「机能胸包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a16",
+      "supplyCandidates": [
+        {
+          "brandLineId": "thenorthface-cn",
+          "sourceUrl": "https://www.thenorthface.com.cn/index.php",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「双肩通勤包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "decathlon-cn",
+          "sourceUrl": "https://www.decathlon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「双肩通勤包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "kailas-cn",
+          "sourceUrl": "https://www.kailas.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「双肩通勤包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a17",
+      "supplyCandidates": [
+        {
+          "brandLineId": "thenorthface-cn",
+          "sourceUrl": "https://www.thenorthface.com.cn/index.php",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「登山背包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "decathlon-cn",
+          "sourceUrl": "https://www.decathlon.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「登山背包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "kailas-cn",
+          "sourceUrl": "https://www.kailas.com.cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「登山背包」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a18",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「丝巾或领巾」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「丝巾或领巾」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「丝巾或领巾」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a19",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「窄领带」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「窄领带」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「窄领带」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a20",
+      "supplyCandidates": [
+        {
+          "brandLineId": "uniqlo-lifewear-cn",
+          "sourceUrl": "https://www.uniqlo.cn/seasonless.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「领带夹与袖扣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "massimo-dutti-men-cn",
+          "sourceUrl": "https://www.massimodutti.cn/cn/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「领带夹与袖扣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "muji-labo-cn",
+          "sourceUrl": "https://www.muji.com.cn/cn/mujilabo/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「领带夹与袖扣」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a21",
+      "supplyCandidates": [
+        {
+          "brandLineId": "qeelin-cn",
+          "sourceUrl": "https://www.qeelin.com/sc/jewellery",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「中式玉石或木质配件」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "icicle-cn",
+          "sourceUrl": "https://www.icicle.com.cn/cn/light-suit-men/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「中式玉石或木质配件」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "qipai-cn",
+          "sourceUrl": "https://sevenbrand.jd.com/",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「中式玉石或木质配件」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a22",
+      "supplyCandidates": [
+        {
+          "brandLineId": "prada-men-jewelry-cn",
+          "sourceUrl": "https://www.prada.cn/cn/zh/mens/accessories/jewels/c/10622CN",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「金属腰链」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "dior-men-jewelry-cn",
+          "sourceUrl": "https://www.dior.cn/zh_cn/fashion/mens-fashion/accessories/silver-jewelry",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「金属腰链」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「金属腰链」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a23",
+      "supplyCandidates": [
+        {
+          "brandLineId": "prada-men-jewelry-cn",
+          "sourceUrl": "https://www.prada.cn/cn/zh/mens/accessories/jewels/c/10622CN",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古太阳镜」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "dior-men-jewelry-cn",
+          "sourceUrl": "https://www.dior.cn/zh_cn/fashion/mens-fashion/accessories/silver-jewelry",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古太阳镜」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "sankuanz",
+          "sourceUrl": "https://www.sankuanz.com/collections",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「复古太阳镜」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    },
+    {
+      "wardrobeItemId": "wi-a24",
+      "supplyCandidates": [
+        {
+          "brandLineId": "nike-sportswear-cn",
+          "sourceUrl": "https://www.nike.com.cn/sportswear",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「运动护腕或头带」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "li-ning-sportslife-cn",
+          "sourceUrl": "https://lining.com/sportslife/index.html",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「运动护腕或头带」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        },
+        {
+          "brandLineId": "adidas-originals-cn",
+          "sourceUrl": "https://www.adidas.com.cn/originals",
+          "status": "official_catalog_candidate",
+          "rationale": "官方目录可作为「运动护腕或头带」的品类/版型候选入口；需在具体 SKU 层重验属性与在售状态。"
+        }
+      ]
+    }
+  ]
+}
