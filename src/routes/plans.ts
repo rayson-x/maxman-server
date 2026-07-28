@@ -325,17 +325,29 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
     const updated = await prisma.$transaction(async (tx) => {
       const current = await tx.appearancePlan.findFirst({
         where: { id: planId, userId: user.id },
-        select: { selectedHairstyleId: true },
+        select: { selectedStyle: true },
       });
       if (!current) return false;
-      if (current.selectedHairstyleId) {
-        const selectedHair = await tx.recommendationCandidate.findUnique({
-          where: { id: current.selectedHairstyleId },
-          select: { styleDirectionId: true },
+      const previousStyleId = (current.selectedStyle as { id?: unknown } | null)?.id;
+      if (previousStyleId !== style.id) {
+        // The new three-stage flow lets a user deliberately change style. All
+        // downstream selections and generations are then stale by definition;
+        // preserving them would create an impossible cross-style state.
+        await tx.appearancePlan.update({
+          where: { id: planId },
+          data: {
+            selectedStyle: style as never,
+            selectedHairstyleId: null,
+            selectedOutfitId: null,
+          },
         });
-        if (selectedHair?.styleDirectionId !== style.id) return false;
+        await tx.recommendationSet.updateMany({
+          where: { planId, kind: { in: ["hairstyle", "outfit"] }, status: { in: ["preparing", "ready", "failed"] } },
+          data: { status: "superseded" },
+        });
+      } else {
+        await tx.appearancePlan.update({ where: { id: planId }, data: { selectedStyle: style as never } });
       }
-      await tx.appearancePlan.update({ where: { id: planId }, data: { selectedStyle: style as never } });
       await tx.conversationDecision.create({
         data: { planId, decisionKind: "style_direction_selected", payload: style as never },
       });

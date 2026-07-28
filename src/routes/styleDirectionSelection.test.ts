@@ -150,15 +150,17 @@ test("style and hairstyle are selected atomically and cannot cross the first-rou
   assert.equal((selected.selectedStyle as { id: string }).id, "clean-fit");
   assert.equal(selected.selectedHairstyleId, cleanHair.id);
 
-  const incompatibleSwitch = await app.inject({
+  const styleSwitch = await app.inject({
     method: "POST",
     url: `/plans/${plan.id}/select-style-direction`,
     headers,
     payload: { styleId: "soft-youth" },
   });
-  assert.equal(incompatibleSwitch.statusCode, 422);
-  assert.equal(incompatibleSwitch.json().error, "candidate_not_in_selected_style");
-  const stillSelected = await container.prisma.appearancePlan.findUniqueOrThrow({ where: { id: plan.id } });
-  assert.equal((stillSelected.selectedStyle as { id: string }).id, "clean-fit");
-  assert.equal(stillSelected.selectedHairstyleId, cleanHair.id);
+  assert.equal(styleSwitch.statusCode, 200);
+  const invalidated = await container.prisma.appearancePlan.findUniqueOrThrow({ where: { id: plan.id } });
+  assert.equal((invalidated.selectedStyle as { id: string }).id, "soft-youth");
+  assert.equal(invalidated.selectedHairstyleId, null);
+  assert.equal(invalidated.selectedOutfitId, null);
+  const superseded = await container.prisma.recommendationSet.findUniqueOrThrow({ where: { id: set.id } });
+  assert.equal(superseded.status, "superseded");
 });
