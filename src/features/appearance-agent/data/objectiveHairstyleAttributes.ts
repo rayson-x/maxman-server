@@ -139,15 +139,9 @@ export function findObjectiveHairstyleAttributes(
 }
 
 /**
- * 该款式在补充发量前提下是否可行。**未标注、未收录都返回 false**——见
- * `wigFeasibility` 的 fail closed 说明。
+ * 该款式的假发可行性标注。**未标注、未收录都返回 null**——调用方必须把 null 当
+ * 「不可行」，见 `wigFeasibility` 的 fail closed 说明。
  */
-export function isWigFeasible(name: string): boolean {
-  return findObjectiveHairstyleAttributes(name)?.wigFeasibility?.feasible === true;
-}
-
-/** 做出该款式所需的最低假发工艺档位；不可行或未标注时返回 null。 */
-export function wigCraftTierFor(name: string): WigCraftTier | null {
-  const annotation = findObjectiveHairstyleAttributes(name)?.wigFeasibility;
-  return annotation?.feasible ? annotation.minimumTier : null;
+export function wigFeasibilityFor(name: string): WigFeasibilityAnnotation | null {
+  return findObjectiveHairstyleAttributes(name)?.wigFeasibility ?? null;
 }

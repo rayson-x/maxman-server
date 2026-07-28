@@ -888,8 +888,6 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       generation?: number;
       /** 固定管道传入以审计实际发生的付费 provider 调用。 */
       workflow?: { jobId: string; stepName: string };
-      /** 可用发量前提。缺省 `own_hair` */
-      premise?: AvailableVolumePremise;
     }): Promise<RecommendationSetView> {
       const provider = deps.outfitProvider;
       const selected = await prisma.recommendationCandidate.findUnique({
@@ -920,9 +918,6 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         face: command.face ?? null,
         selectedStyle: command.selectedStyle ?? null,
         provider: `${provider.name}@${provider.version}`,
-        // 前提进指纹：两个前提是两套约束、两批候选，绝不能互相复用。
-        // 少了这一条，第二轮会直接命中第一轮的集合，差集恒为空。
-        premise: command.premise ?? "own_hair",
       });
 
       const { role, setId } = await acquireSet({

@@ -4,8 +4,7 @@ import test from "node:test";
 import {
   OBJECTIVE_HAIRSTYLE_ATTRIBUTES,
   isHairstyleRenderProviderCalibrated,
-  isWigFeasible,
-  wigCraftTierFor,
+  wigFeasibilityFor,
 } from "./objectiveHairstyleAttributes.js";
 
 test("hairstyle render calibration is bound to the exact provider and model", () => {
@@ -33,18 +32,16 @@ test("wig feasibility is fail closed: an unannotated style is not wig-feasible",
   for (const entry of OBJECTIVE_HAIRSTYLE_ATTRIBUTES) {
     if (entry.wigFeasibility === undefined) {
       assert.equal(
-        isWigFeasible(entry.canonicalName),
-        false,
-        `${entry.canonicalName} 未标注假发维度，必须按不可行处理`,
+        wigFeasibilityFor(entry.canonicalName),
+        null,
+        `${entry.canonicalName} 未标注假发维度，查表必须返回 null（调用方按不可行处理）`,
       );
-      assert.equal(wigCraftTierFor(entry.canonicalName), null);
     }
   }
 });
 
 test("wig feasibility lookup treats an unknown style name as not feasible", () => {
-  assert.equal(isWigFeasible("完全不存在的发型"), false);
-  assert.equal(wigCraftTierFor("完全不存在的发型"), null);
+  assert.equal(wigFeasibilityFor("完全不存在的发型"), null);
 });
 
 test("wig feasibility annotations that exist are internally consistent", () => {
@@ -56,13 +53,18 @@ test("wig feasibility annotations that exist are internally consistent", () => {
         annotation.minimumTier.length > 0,
         `${entry.canonicalName} 标注为可行，必须给出最低工艺档位`,
       );
-      assert.equal(wigCraftTierFor(entry.canonicalName), annotation.minimumTier);
+      assert.equal(
+        wigFeasibilityFor(entry.canonicalName)?.feasible === true
+          ? wigFeasibilityFor(entry.canonicalName)
+          : null,
+        annotation,
+      );
     } else {
       assert.ok(
         annotation.reason.length > 0,
         `${entry.canonicalName} 标注为不可行，必须写明原因`,
       );
-      assert.equal(wigCraftTierFor(entry.canonicalName), null);
+      assert.equal(wigFeasibilityFor(entry.canonicalName)?.feasible, false);
     }
   }
 });

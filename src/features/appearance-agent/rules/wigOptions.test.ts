@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import type { WigFeasibilityAnnotation } from "../data/objectiveHairstyleAttributes.js";
+import type { HairSignals } from "./hairConstraints.js";
 import { deriveWigOptions, type WigMatchableCandidate } from "./wigOptions.js";
+
+/** 发际线后移 + 发量偏少：强约束，排除 high 发量档并要求遮额 */
+const CONSTRAINED: HairSignals = { hairline: "receding", volume: "thin" };
 
 /** 只被发量挡住、本身遮额 —— 差集里「只缺量感」那一类 */
 const VOLUME_HUNGRY: WigMatchableCandidate = {
@@ -46,6 +50,7 @@ function input(overrides: Partial<Parameters<typeof deriveWigOptions>[0]> = {}) 
   return {
     amplePremiseCandidates: [ACHIEVABLE, VOLUME_HUNGRY],
     ownHairCandidates: [ACHIEVABLE],
+    hairSignals: CONSTRAINED,
     track: "short_term" as const,
     userDeclaredHairConcern: true,
     feasibilityOf: lookup,
@@ -129,7 +134,7 @@ test("an unannotated style is dropped and raised for human review", () => {
   // fail closed：未标注 = 未判定 = 不可行，并且要有人去补依据。
   const unknown: WigMatchableCandidate = {
     nameZh: "韩式逗号刘海",
-    requiresHairVolume: "medium",
+    requiresHairVolume: "high",
     coversForehead: true,
   };
   const outcome = deriveWigOptions(input({ amplePremiseCandidates: [ACHIEVABLE, unknown] }));
@@ -142,7 +147,7 @@ test("human review records are produced even when the entry stays shut for this 
   // 升级记录是关于**款式表**的，不是关于这个用户的 —— 不该被门槛吞掉。
   const unknown: WigMatchableCandidate = {
     nameZh: "韩式逗号刘海",
-    requiresHairVolume: "medium",
+    requiresHairVolume: "high",
     coversForehead: true,
   };
   const outcome = deriveWigOptions(
@@ -173,9 +178,37 @@ test("the caller's richer candidate objects survive into the options", () => {
   const outcome = deriveWigOptions({
     amplePremiseCandidates: [{ ...ACHIEVABLE, changeInstruction: "把发型改成微碎盖" }, rich],
     ownHairCandidates: [{ ...ACHIEVABLE, changeInstruction: "把发型改成微碎盖" }],
+    hairSignals: CONSTRAINED,
     track: "short_term",
     userDeclaredHairConcern: true,
     feasibilityOf: lookup,
   });
   assert.equal(outcome.options[0]?.candidate.changeInstruction, "把发型改成蓬松纹理烫");
+});
+
+test("a style absent from the own-hair round but not actually blocked is not a wig case", () => {
+  /*
+   * 两轮是两次独立的 LLM 调用，第二轮不是第一轮的子集——排序与采样波动本身就会让
+   * 一个款式只出现在第一轮里。若把这种波动当成差集，用户会被建议为一个他自己剪得出来的
+   * 款式去买假发。所以差集必须再经自身前提的约束核验一次。
+   */
+  const cuttable: WigMatchableCandidate = {
+    nameZh: "法式碎盖",
+    requiresHairVolume: "medium",
+    coversForehead: true,
+  };
+  const outcome = deriveWigOptions(
+    input({ amplePremiseCandidates: [ACHIEVABLE, cuttable], ownHairCandidates: [ACHIEVABLE] }),
+  );
+  assert.equal(outcome.open, false);
+  assert.equal(outcome.closedReason, "no_gap");
+  assert.deepEqual(outcome.unmatched, []);
+});
+
+test("an unconstrained user has no wig case at all", () => {
+  const outcome = deriveWigOptions(
+    input({ hairSignals: { hairline: "normal", volume: "medium" } }),
+  );
+  assert.equal(outcome.open, false);
+  assert.equal(outcome.closedReason, "no_gap");
 });

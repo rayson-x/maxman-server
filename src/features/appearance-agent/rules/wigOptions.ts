@@ -1,17 +1,27 @@
 import {
   findObjectiveHairstyleAttributes,
+  wigFeasibilityFor,
   type WigCraftTier,
   type WigFeasibilityAnnotation,
 } from "../data/objectiveHairstyleAttributes.js";
-import type { HairVolumeRequirement } from "./hairConstraints.js";
+import {
+  applyHairConstraint,
+  computeHairConstraint,
+  type HairSignals,
+  type HairVolumeRequirement,
+} from "./hairConstraints.js";
 
 /**
  * 假发方案推导。**这是本能力唯一新增的接缝** —— 差集、开放条件、形态匹配、fail closed
  * 四类决策全部落在这一个纯函数里，所以不需要数据库、任务队列或模型替身就能测全。
  *
- * 上游怎么用它：推荐能力跑两轮，前提不同（见 hairConstraints 的 AvailableVolumePremise）。
- * 第一轮前提为 `ample`，第二轮为 `own_hair`。**差集 = 第一轮 \ 第二轮**，语义是干净的：
- * 每一项都是「只差发量 / 发际线」的款式，恰好是假发能解决的那一类。
+ * 上游怎么用它：推荐能力跑两轮，前提不同（见 hairConstraints 的 AvailableVolumePremise）——
+ * 一轮前提为 `ample`，一轮为 `own_hair`（执行先后不影响语义）。
+ * **差集 = ample 轮 \ own_hair 轮**，再经自身前提的约束**重新核验**。
+ *
+ * 那一步核验不是冗余：两轮是两次独立的 LLM 调用，own_hair 轮并不是 ample 轮的子集，
+ * 排序与采样波动本身就会让某个款式只出现在 ample 轮里。不核验就会把这种波动当成
+ * 「发量不够」，让用户为一个他自己剪得出来的款式去买假发。
  *
  * 为什么不用「一轮 + 把被剔除的候选回填」：回填省一次调用，但被剔除的候选是理想列表的
  * 残余 —— 数量不确定、排序依据缺失，且与 validateRecommendations 的「不回填被排除项」
@@ -35,6 +45,8 @@ export type WigOptionInput<T extends WigMatchableCandidate> = {
   amplePremiseCandidates: readonly T[];
   /** 第二轮：前提为用户自身发量信号的候选 */
   ownHairCandidates: readonly T[];
+  /** 用户自身的发量信号。用来核验差集里的款式**真的**被自身发量挡住 */
+  hairSignals: HairSignals;
   track: PlanTrack;
   /** 问卷自报「受脱发 / 发量变少困扰」为非「没有困扰」 */
   userDeclaredHairConcern: boolean;
@@ -55,7 +67,12 @@ export type WigOption<T> = {
 export type WigUnmatched<T> = {
   candidate: T;
   reason: string;
-  /** true 表示判据不足而非确定不可行，应建 Human Escalation */
+  /**
+   * true 表示判据不足（属性表未标注）而非确定不可行。
+   *
+   * 这只是**信号**，不是 CONTEXT.md 定义的 Human Escalation 记录——本函数是纯的，
+   * 不建任务。属性表的标注缺口由 WIG-005 直接对着表处理，不依赖运行期是否有人命中。
+   */
   needsHumanReview: boolean;
 };
 
@@ -92,26 +109,43 @@ function identity(name: string): string {
 }
 
 /**
- * 「被什么挡住」推出的最低档位。露额款是被遮额约束挡住的 —— 发片补不了发际线，
- * 所以至少要整顶；只被发量挡住的款式补量感就够。
+ * 做出这个款式**至少**需要哪一档：露额款要整顶（发片补不了发际线），其余补量感就够。
  *
  * 这一步必须与属性表标注取更严的一方：标注讲的是款式本身的工艺门槛，这里讲的是
  * 用户为什么做不到，两者都成立才是真的可行。
  */
-function tierImpliedByBlocker(candidate: WigMatchableCandidate): WigCraftTier {
+function tierRequiredToWear(candidate: WigMatchableCandidate): WigCraftTier {
   return candidate.coversForehead ? "volume_patch" : "full_wig";
 }
 
-function defaultFeasibility(name: string): WigFeasibilityAnnotation | null {
-  return findObjectiveHairstyleAttributes(name)?.wigFeasibility ?? null;
+/** 该款式是否真的被用户自身的发量/发际线挡住。复用同一份确定性过滤，不另写判断。 */
+function isBlockedByOwnHair(
+  candidate: WigMatchableCandidate,
+  constraint: ReturnType<typeof computeHairConstraint>,
+): boolean {
+  return (
+    applyHairConstraint(
+      [
+        {
+          id: candidate.nameZh,
+          requiresHairVolume: candidate.requiresHairVolume,
+          coversForehead: candidate.coversForehead,
+        },
+      ],
+      constraint,
+    ).excluded.length > 0
+  );
 }
 
 export function deriveWigOptions<T extends WigMatchableCandidate>(
   input: WigOptionInput<T>,
 ): WigOptionOutcome<T> {
-  const feasibilityOf = input.feasibilityOf ?? defaultFeasibility;
+  const feasibilityOf = input.feasibilityOf ?? wigFeasibilityFor;
   const achievable = new Set(input.ownHairCandidates.map((c) => identity(c.nameZh)));
-  const gap = input.amplePremiseCandidates.filter((c) => !achievable.has(identity(c.nameZh)));
+  const ownHairConstraint = computeHairConstraint(input.hairSignals, "own_hair");
+  const gap = input.amplePremiseCandidates.filter(
+    (c) => !achievable.has(identity(c.nameZh)) && isBlockedByOwnHair(c, ownHairConstraint),
+  );
 
   if (gap.length === 0) return { open: false, closedReason: "no_gap", options: [], unmatched: [] };
 
@@ -134,7 +168,7 @@ export function deriveWigOptions<T extends WigMatchableCandidate>(
       unmatched.push({ candidate, reason: annotation.reason, needsHumanReview: false });
       continue;
     }
-    const tier = stricter(annotation.minimumTier, tierImpliedByBlocker(candidate));
+    const tier = stricter(annotation.minimumTier, tierRequiredToWear(candidate));
     options.push({ candidate, tier, achievementLabel: ACHIEVEMENT_LABEL[tier] });
   }
 

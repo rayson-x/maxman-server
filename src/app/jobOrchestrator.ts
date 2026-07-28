@@ -17,7 +17,7 @@ import { runWithSingleRetry, type StepContext, type StepDeps } from "../steps/ty
 import { isCatalogDomain, isStyleDomain } from "../features/appearance-agent/data/domains.js";
 import { deriveTaskDimensions } from "../features/appearance-agent/data/taskDimensions.js";
 import { findObjectiveHairstyleAttributes } from "../features/appearance-agent/data/objectiveHairstyleAttributes.js";
-import { deriveWigOptions, type WigMatchableCandidate } from "../features/appearance-agent/rules/wigOptions.js";
+import { deriveWigOptions, type WigMatchableCandidate, type WigOptionOutcome } from "../features/appearance-agent/rules/wigOptions.js";
 import { buildSelectedStyleTaskSpecs } from "../services/selectedStyleTaskService.js";
 import { verifyProgressStep } from "../steps/verifyProgress.js";
 import { DEFAULT_COMPATIBILITY_THRESHOLD } from "../features/appearance-agent/data/styleProfile.js";
@@ -507,10 +507,11 @@ export function createJobOrchestrator(container: AppContainer) {
        * 只在入口有可能开放时才跑——这是一次付费 provider 调用，没人会看到的结果不值得买。
        * 判据不足款式的人工复核不依赖这条路径：那是属性表的数据维护，与具体用户无关。
        */
-      const wigTrack = profile?.track === "short_term" ? "short_term" : "long_term";
+      const isShortTerm = profile?.track === "short_term";
       const wigDeclared = profile?.hairLossConcern === true;
-      let wigOptions: unknown = null;
-      if (wigTrack === "short_term" && wigDeclared) {
+      let wigOptions: WigOptionsView | null = null;
+      const wigMissing: { item: string; reason: string }[] = [];
+      if (isShortTerm && wigDeclared) {
         const amplePremise = await runWithSingleRetry(
           recommendStep,
           {
@@ -524,28 +525,20 @@ export function createJobOrchestrator(container: AppContainer) {
           planCtx,
           deps,
         );
-        // 这一轮失败不影响主方案：假发是附加路径，不是方案的前置条件。
-        if (amplePremise.status !== "failed") {
-          const outcome = deriveWigOptions({
-            amplePremiseCandidates: amplePremise.data.candidates.map(toWigMatchable),
-            ownHairCandidates: s3.data.candidates.map(toWigMatchable),
-            track: wigTrack,
-            userDeclaredHairConcern: wigDeclared,
-          });
-          wigOptions = {
-            open: outcome.open,
-            closedReason: outcome.closedReason ?? null,
-            options: outcome.options.map((o) => ({
-              candidateId: o.candidate.candidateId,
-              nameZh: o.candidate.nameZh,
-              tier: o.tier,
-              // 达成路径标签随方案带走，不只出现在选择那一刻
-              achievementLabel: o.achievementLabel,
-            })),
-            needsHumanReview: outcome.unmatched
-              .filter((u) => u.needsHumanReview)
-              .map((u) => u.candidate.nameZh),
-          };
+        // 这一轮失败不影响主方案：假发是附加路径，不是方案的前置条件。但缺口要如实写明，
+        // 否则「这一轮挂了」和「本来就没有可解锁的款式」在结果里长得一样。
+        if (amplePremise.status === "failed") {
+          wigMissing.push({ item: "假发可选项", reason: "补充发量前提的那一轮推荐未产出候选" });
+        } else {
+          wigOptions = toWigOptionsView(
+            deriveWigOptions({
+              amplePremiseCandidates: amplePremise.data.candidates.map(toWigMatchable),
+              ownHairCandidates: s3.data.candidates.map(toWigMatchable),
+              hairSignals: s2.data.hairSignals,
+              track: "short_term",
+              userDeclaredHairConcern: wigDeclared,
+            }),
+          );
         }
       }
 
@@ -560,7 +553,7 @@ export function createJobOrchestrator(container: AppContainer) {
         wigOptions,
       });
 
-      const missing = s3.status === "completed_partial" ? s3.missing : [];
+      const missing = [...(s3.status === "completed_partial" ? s3.missing : []), ...wigMissing];
       await jobs.complete(p.jobId, { missing: missing.length > 0 ? missing : undefined });
       return {
         status: missing.length > 0 ? "completed_partial" : "completed",
@@ -1339,6 +1332,36 @@ export function createJobOrchestrator(container: AppContainer) {
 }
 
 export type JobOrchestrator = ReturnType<typeof createJobOrchestrator>;
+
+/**
+ * 落到 job 结果里的假发方案视图。**达成路径标签在这里就写死**，好让它随方案一路带走，
+ * 而不是等到用户点选的那一刻才拼出来。
+ */
+type WigOptionsView = {
+  open: boolean;
+  closedReason: string | null;
+  options: { candidateId: string; nameZh: string; tier: string; achievementLabel: string }[];
+  /** 属性表未标注、需要人补依据的款式名。见 WIG-005 */
+  annotationGaps: string[];
+};
+
+function toWigOptionsView<T extends { candidateId: string; nameZh: string }>(
+  outcome: WigOptionOutcome<T & WigMatchableCandidate>,
+): WigOptionsView {
+  return {
+    open: outcome.open,
+    closedReason: outcome.closedReason ?? null,
+    options: outcome.options.map((o) => ({
+      candidateId: o.candidate.candidateId,
+      nameZh: o.candidate.nameZh,
+      tier: o.tier,
+      achievementLabel: o.achievementLabel,
+    })),
+    annotationGaps: outcome.unmatched
+      .filter((u) => u.needsHumanReview)
+      .map((u) => u.candidate.nameZh),
+  };
+}
 
 /**
  * 候选 → 假发匹配所需的最小形状。

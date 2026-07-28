@@ -123,7 +123,13 @@ export function buildStyleRecommendationPrompt(
           .map(([key, value]) => [key.slice(0, 80), value]),
       ),
     },
-    hairSignals: input.hairSignals,
+    /*
+     * 前提为 ample 时**不传原始发量信号**。模型同时看到「发量偏少」和一批高发量需求
+     * 候选，只能自相矛盾或编出假的适配理由；而它需要知道的只是可用发量前提。
+     * 它因此完全不需要知道「假发」这个概念的存在。
+     */
+    hairSignals:
+      input.premise === "ample" ? { availableVolume: "ample" } : input.hairSignals,
     profile: {
       ...input.profile,
       budgetTier: input.profile.budgetTier?.slice(0, 40) ?? null,
