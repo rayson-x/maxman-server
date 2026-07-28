@@ -41,10 +41,10 @@ export function buildSelectedStyleTaskSpecs(input: SelectedStylesInput): Materia
       // 用户自己选的方向，证据基础是自报而非视觉实测
       evidenceBasis: "self_reported",
       changeDescription: `已按选定方向调整发型：${input.hairstyle.nameZh}`,
-      // 发型用属性表里的规范渲染描述，表外（用户自报）才退回目录描述
+      // 只有逐款校准过的发型才能进入图生图。表外候选仍可被用户选中并落为任务，
+      // 但不能把未校验的名称拼成 prompt 后冒充「未来的你」效果。
       renderDescription:
-        findObjectiveHairstyleAttributes(input.hairstyle.nameZh)?.renderDescription
-        ?? `把发型改成${input.hairstyle.nameZh}`,
+        findObjectiveHairstyleAttributes(input.hairstyle.nameZh)?.renderDescription,
       rationale: input.hairstyle.description,
     },
     {

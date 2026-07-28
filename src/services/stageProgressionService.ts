@@ -281,6 +281,10 @@ export function createStageProgressionService(prisma: PrismaClient) {
         ...completedEntries.map((e) => e.renderDescription!),
         ...plannedChanges,
       ];
+      const requiresHairstyleRenderCalibration = [
+        ...completedEntries,
+        ...coreTasks,
+      ].some((entry) => entry.domain === "hairstyle" && entry.renderDescription);
 
       return {
         baselinePhotoId: baseline.id,
@@ -297,6 +301,8 @@ export function createStageProgressionService(prisma: PrismaClient) {
          * 模型只会返回一张磨皮版原图，既费额度又误导用户。
          */
         hasRenderableChange: renderable.length > 0,
+        // 发型文案与图生图 provider/model 强绑定；目标图服务必须据此检查校准。
+        requiresHairstyleRenderCalibration,
         stageIndex: stage.stageIndex,
       };
     },

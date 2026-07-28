@@ -45,3 +45,13 @@ test("style task construction rejects missing or kind-mismatched selections", ()
     /类型与方案字段不匹配/,
   );
 });
+
+test("an uncalibrated hairstyle remains actionable but is never sent to the image generator", () => {
+  const [hairstyle] = buildSelectedStyleTaskSpecs({
+    hairstyle: { kind: "hairstyle", nameZh: "未校准实验发型", description: "用户想尝试的方向" },
+    outfit: { kind: "outfit", nameZh: "素色T恤+直筒裤", description: "纯色上装配直筒下装" },
+  });
+
+  assert.equal(hairstyle?.renderDescription, undefined);
+  assert.match(hairstyle?.changeDescription ?? "", /未校准实验发型/);
+});

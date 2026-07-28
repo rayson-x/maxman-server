@@ -5,6 +5,7 @@ import { recordWorkflowRun } from "../steps/types.js";
 import { persistGeneratedImage } from "../lib/generatedImagePersistence.js";
 import { createGeneratedAssetService } from "./generatedAssetService.js";
 import { createPhotoAccessService } from "./photoAccessService.js";
+import { isHairstyleRenderProviderCalibrated } from "../features/appearance-agent/data/objectiveHairstyleAttributes.js";
 
 /**
  * 目标图生成与质量检查（tasks 8.6-8.8, 7.9）。
@@ -177,6 +178,22 @@ export function createTargetImageService(prisma: PrismaClient, providers: AppCon
         return {
           ok: false,
           reason: "本阶段没有可渲染的外观变化（护肤/健身这类任务画不出来），跳过出图",
+          attempts: 0,
+          stageStillUnlocked: true,
+        };
+      }
+
+      if (
+        input.requiresHairstyleRenderCalibration &&
+        !isHairstyleRenderProviderCalibrated(providers.imageEdit.name)
+      ) {
+        await recordWorkflowRun(prisma, {
+          jobId: params.jobId, planId: params.planId, stepName: "target_image_generation",
+          finalStatus: "skipped", latencyMs: Date.now() - t0,
+        });
+        return {
+          ok: false,
+          reason: `当前图生图模型 ${providers.imageEdit.name} 未完成发型 prompt 校准，跳过个性化效果图`,
           attempts: 0,
           stageStillUnlocked: true,
         };

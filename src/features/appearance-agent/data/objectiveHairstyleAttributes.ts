@@ -40,6 +40,24 @@ export type ObjectiveHairstyleAttributes = {
 };
 
 /**
+ * 发型渲染文案是按 Seedream 4.5 的指令结构逐款校准的。
+ * Provider 或模型一旦变化，名称锚点、约束位置乃至措辞都会失效，必须重新校准；
+ * 未命中本精确标识时，目标图服务会跳过发型变更，不能静默复用旧 prompt。
+ */
+export const HAIRSTYLE_RENDER_CALIBRATION = {
+  providerName: "ark-seedream-image-edit(doubao-seedream-4-5-251128)",
+  promptVersion: "seedream-4-5-hairstyle-v1",
+  status: "render_validated",
+} as const;
+
+export function isHairstyleRenderProviderCalibrated(providerName: string): boolean {
+  return (
+    HAIRSTYLE_RENDER_CALIBRATION.status === "render_validated" &&
+    providerName === HAIRSTYLE_RENDER_CALIBRATION.providerName
+  );
+}
+
+/**
  * Objective construction facts, not aesthetic matching rules. These values say
  * what a named cut physically requires/does; they do not claim who looks good
  * in it. Keeping them outside the LLM prevents feasibility labels from being
