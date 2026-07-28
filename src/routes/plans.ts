@@ -15,6 +15,10 @@ const statusUpdateSchema = z.object({
 const selectSchema = z.object({ styleTag: z.string().min(1) });
 const styleDirectionSelectionSchema = z.object({ styleId: z.string().regex(/^[a-z0-9][a-z0-9_-]{1,39}$/) });
 const customStyleDirectionSchema = z.object({ text: z.string().trim().min(2).max(200) });
+const recommendationOutcomeSchema = z.object({
+  outcomeType: z.enum(["saved", "slot_replaced", "explicitly_disliked", "try_on_saved", "finally_adopted"]),
+  payload: z.record(z.string(), z.unknown()).optional(),
+});
 
 const selectableStyleDirectionSchema = z.object({
   id: z.string().regex(/^[a-z0-9][a-z0-9_-]{1,39}$/),
@@ -380,6 +384,30 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
       error: "deprecated_atomic_selection",
       message: "请先选择风格方向，再从该风格的发型候选中选择，最后选择穿搭",
     });
+  });
+
+  /**
+   * Only explicit, high-signal actions are recorded as outcomes. Views,
+   * scrolling, and dwell time intentionally have no endpoint or database row.
+   */
+  app.post("/recommendation-exposures/:exposureId/outcomes", async (req, reply) => {
+    const user = requireUser(req);
+    const { exposureId } = req.params as { exposureId: string };
+    const input = recommendationOutcomeSchema.parse(req.body);
+    const exposure = await prisma.recommendationExposure.findFirst({
+      where: { id: exposureId, comparison: { userId: user.id } },
+      select: { id: true, comparisonId: true },
+    });
+    if (!exposure) return reply.code(404).send({ error: "recommendation_exposure_not_found" });
+    const outcome = await prisma.recommendationOutcome.create({
+      data: {
+        comparisonId: exposure.comparisonId,
+        exposureId: exposure.id,
+        outcomeType: input.outcomeType,
+        payload: (input.payload ?? undefined) as never,
+      },
+    });
+    return reply.code(201).send({ outcomeId: outcome.id, outcomeType: outcome.outcomeType, occurredAt: outcome.occurredAt });
   });
 
   /**
