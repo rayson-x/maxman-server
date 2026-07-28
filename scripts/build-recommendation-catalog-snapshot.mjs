@@ -20,6 +20,7 @@ const sources = [
   ["wardrobeProfiles", "style-wardrobe-profiles-cn.json"],
   ["wardrobeAssets", "wardrobe-image-assets-cn.json"],
   ["wardrobeSupply", "wardrobe-supply-map-cn.json"],
+  ["hairstylePreviewCalibrations", "hairstyle-preview-calibrations-v1.json"],
 ];
 
 const hash = (contents) => createHash("sha256").update(contents).digest("hex");
@@ -68,7 +69,10 @@ const validators = await Promise.all([
 const targetSources = {};
 const copied = [];
 for (const [id, fileName] of sources) {
-  const contents = await readFile(resolve(clientRoot, "data/style-annotation", fileName), "utf8");
+  const sourceRoot = id === "hairstylePreviewCalibrations"
+    ? resolve(serverRoot, "data/recommendation-catalog")
+    : resolve(clientRoot, "data/style-annotation");
+  const contents = await readFile(resolve(sourceRoot, fileName), "utf8");
   JSON.parse(contents);
   targetSources[id] = {
     fileName,

@@ -7,5 +7,6 @@ test("runtime recommendation catalog is loaded only from the verified deployment
   assert.equal(recommendationCatalogSnapshot.hairstyles.length, 27);
   assert.equal(recommendationCatalogSnapshot.styles.styles.length, 41);
   assert.equal(recommendationCatalogSnapshot.wardrobeItems.items.length, 169);
+  assert.equal((recommendationCatalogSnapshot.hairstylePreviewCalibrations as { entries: unknown[] }).entries.length, 2);
   assert.equal(recommendationCatalogSnapshot.manifest.validators["fit-rules-production"]?.passed, false);
 });

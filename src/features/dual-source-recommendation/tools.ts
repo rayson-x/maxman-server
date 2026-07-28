@@ -41,6 +41,7 @@ async function run(
     rules: unknown[];
     catalogAvailable?: boolean;
     selectedStyleId?: string;
+    previewCalibration?: { provider: string; model: string };
   },
   candidateStore?: CandidateStore,
 ): Promise<DualSourceResult> {
@@ -74,6 +75,7 @@ async function run(
         computationKey: input.computationKey,
         candidates: [...result.main, ...result.exploration],
         selectedStyleId: input.selectedStyleId,
+        previewCalibration: input.previewCalibration,
       })
     : undefined;
   await persistence.persist({
@@ -142,6 +144,7 @@ export function createDualSourceRecommendationTools(deps: {
         rules: recalled.appliedRules,
         catalogAvailable: input.catalogAvailable,
         selectedStyleId: input.selectedStyleId,
+        previewCalibration: { provider: input.renderProvider, model: input.renderModel },
       }, candidateStore);
       if (recalled.catalogCoverage === "partial") {
         await persistence.recordCatalogGap({

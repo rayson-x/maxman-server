@@ -1,6 +1,6 @@
 {
   "manifestVersion": "recommendation-catalog-snapshot-v1",
-  "builtAt": "2026-07-28T09:44:12.215Z",
+  "builtAt": "2026-07-28T17:34:52.372Z",
   "sources": {
     "styles": {
       "fileName": "styles-cn.json",
@@ -55,6 +55,12 @@
       "datasetVersion": "wardrobe-supply-map-cn-v0.1",
       "sha256": "b88082fb4cc29cfc3df5012c563c73e2e12431fde7c1e952a42d5e7a0c0897ed",
       "snapshotSha256": "c8b72c855b1d990a0f988e732f3875d30dbd2f3bdf7d244128440645d629fe26"
+    },
+    "hairstylePreviewCalibrations": {
+      "fileName": "hairstyle-preview-calibrations-v1.json",
+      "datasetVersion": "seedream-4-5-hairstyle-preview-calibrations-v1",
+      "sha256": "94956f2ed53278cbcd544f0ce7fe8c93eddc780adf581b0fea8435df82976342",
+      "snapshotSha256": "d3a696a6b53f188f531fc90558800dc3a20bce13389de87b00bf3a7c2acb5aa0"
     }
   },
   "validators": {

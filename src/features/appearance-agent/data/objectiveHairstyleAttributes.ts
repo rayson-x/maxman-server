@@ -64,6 +64,11 @@ export function isHairstyleRenderProviderCalibrated(providerName: string): boole
  * biased toward whichever answer would pass the current user's constraint.
  */
 export const OBJECTIVE_HAIRSTYLE_ATTRIBUTES: readonly ObjectiveHairstyleAttributes[] = [
+  // These two entries use the exact deployed catalog names. They must be
+  // calibrated independently from their colloquial near-neighbours before a
+  // runtime candidate is allowed to request an image preview.
+  { canonicalName: "自然短碎盖", aliases: [], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留五到七公分并自然向前覆盖，发梢剪出轻碎层次，刘海落到眉毛附近，两侧和后颈修短但不推出渐变线，不留固定分缝"},
+  { canonicalName: "圆寸", aliases: [], requiresHairVolume: "low", coversForehead: false , renderDescription: "全头保持一公分左右的极短长度，顶部轮廓顺着头型形成自然圆弧，两侧和后颈柔和收短，不留刘海，额头完全露出"},
   { canonicalName: "微碎盖", aliases: ["短碎盖", "碎盖"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留五到七公分，发梢斜着不齐剪出凌乱层次，刘海盖到眉毛，两侧和后颈剪到一两公分，鬓角自然不推出渐变线"},
   { canonicalName: "法式碎盖", aliases: ["法式短碎发"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留六到八公分，细碎刘海垂到眉毛且边缘不齐，两侧和后颈推薄"},
   { canonicalName: "纹理前刺", aliases: ["前刺"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留四到五公分，额前头发用发泥往上抓起蓬松，两侧推短，露出额头"},

@@ -16,6 +16,7 @@ const sourceFiles = [
   "style-wardrobe-profiles-cn.json",
   "wardrobe-image-assets-cn.json",
   "wardrobe-supply-map-cn.json",
+  "hairstyle-preview-calibrations-v1.json",
 ] as const;
 
 function loadJson(fileName: string): unknown {
@@ -40,6 +41,7 @@ function loadSnapshot() {
     wardrobeProfiles: JSON.parse(sources["style-wardrobe-profiles-cn.json"]) as { profiles: unknown[] },
     wardrobeAssets: JSON.parse(sources["wardrobe-image-assets-cn.json"]) as { items: unknown[] },
     wardrobeSupply: JSON.parse(sources["wardrobe-supply-map-cn.json"]) as { entries: unknown[] },
+    hairstylePreviewCalibrations: JSON.parse(sources["hairstyle-preview-calibrations-v1.json"]),
   };
 }
 

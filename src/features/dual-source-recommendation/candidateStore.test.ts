@@ -56,3 +56,33 @@ test("candidate store resolves a reviewed concept only for a new candidate recor
   );
   assert.deepEqual(stored.candidateRecordIds, { "concept:wardrobe:external": "candidate" });
 });
+
+test("candidate store writes a render instruction only for an exact calibrated hairstyle", async () => {
+  const created: Array<{ providerCandidateKey: string; renderInstruction: string }> = [];
+  const tx = {
+    conceptCatalogMapping: { findMany: async () => [] },
+    recommendationSet: {
+      findUnique: async () => null,
+      create: async () => ({ id: "set" }),
+      update: async () => ({}),
+    },
+    recommendationCandidate: {
+      create: async (args: { data: { providerCandidateKey: string; renderInstruction: string } }) => {
+        created.push(args.data);
+        return { id: args.data.providerCandidateKey, providerCandidateKey: args.data.providerCandidateKey };
+      },
+    },
+  };
+  const provider = "ark-seedream-image-edit(doubao-seedream-4-5-251128)";
+  const store = createDualSourceCandidateStore({ $transaction: async (fn: (client: typeof tx) => Promise<unknown>) => fn(tx) } as never);
+  await store.store({
+    planId: "plan", domain: "hairstyle", generation: 1, computationKey: "calibrated", selectedStyleId: "clean-fit",
+    previewCalibration: { provider, model: provider },
+    candidates: [
+      { id: "hair-cn-natural-short-cover", canonicalId: "hair-cn-natural-short-cover", rank: 1, nameZh: "自然短碎盖", rationale: "文字可行", systemSupported: true, hardConflict: false, source: "system_supported" },
+      { id: "hair-cn-micro-part-cover", canonicalId: "hair-cn-micro-part-cover", rank: 2, nameZh: "微分碎盖", rationale: "文字可行", systemSupported: true, hardConflict: false, source: "system_supported" },
+    ],
+  });
+  assert.match(created[0]!.renderInstruction, /自然短碎盖/);
+  assert.equal(created[1]!.renderInstruction, "");
+});

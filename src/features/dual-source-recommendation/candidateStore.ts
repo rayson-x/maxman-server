@@ -1,5 +1,6 @@
 import type { PrismaClient } from "../../generated/prisma/client.js";
 import type { AssembledCandidate, RecommendationDomain } from "./engine.js";
+import { resolveHairstylePreviewCalibration } from "../recommendation-catalog/previewCalibration.js";
 
 export type StoredDualSourceCandidates = {
   recommendationSetId: string;
@@ -22,6 +23,8 @@ export function createDualSourceCandidateStore(prisma: PrismaClient) {
       candidates: AssembledCandidate[];
       /** A hairstyle candidate must stay scoped to the persisted style. */
       selectedStyleId?: string;
+      /** Rendering stays off unless this exact provider/model has an accepted calibration. */
+      previewCalibration?: { provider: string; model: string };
     }): Promise<StoredDualSourceCandidates> {
       const kind = input.domain === "hairstyle" ? "hairstyle" : "outfit";
       const setKey = `dual-source:${input.domain}:${input.computationKey}`;
@@ -86,8 +89,15 @@ export function createDualSourceCandidateStore(prisma: PrismaClient) {
           },
         });
         const rows = [...resolved].sort((a, b) => a.candidate.rank - b.candidate.rank || a.candidate.canonicalId.localeCompare(b.candidate.canonicalId));
-        const created = await Promise.all(rows.map(({ candidate }, index) =>
-          tx.recommendationCandidate.create({
+        const created = await Promise.all(rows.map(({ candidate }, index) => {
+          const preview = input.domain === "hairstyle" && input.previewCalibration
+            ? resolveHairstylePreviewCalibration({
+                hairstyleId: candidate.canonicalId,
+                provider: input.previewCalibration.provider,
+                model: input.previewCalibration.model,
+              })
+            : null;
+          return tx.recommendationCandidate.create({
             data: {
               setId: set.id,
               catalogVariantId: candidate.canonicalId.startsWith("concept:") ? null : candidate.canonicalId,
@@ -97,15 +107,14 @@ export function createDualSourceCandidateStore(prisma: PrismaClient) {
               modelRationale: candidate.rationale,
               rank: index + 1,
               visualDirection: candidate.nameZh,
-              // Rendering is deliberately disabled here. A later renderer must
-              // resolve the exact provider/model calibration from the immutable
-              // snapshot; text recommendation is still valid without it.
-              renderInstruction: "",
+              // This exact stable-id/provider/model allow-list never changes
+              // whether a recommendation is available as text.
+              renderInstruction: preview?.renderInstruction ?? "",
               styleDirectionId: input.domain === "hairstyle" ? input.selectedStyleId ?? null : null,
               verificationStatus: "not_checked",
             },
-          }),
-        ));
+          });
+        }));
         await tx.recommendationSet.update({ where: { id: set.id }, data: { status: "ready" } });
         return {
           recommendationSetId: set.id,

@@ -582,7 +582,10 @@ export function createJobOrchestrator(container: AppContainer) {
             modelRationale: candidate.modelRationale,
             styleDirectionId: candidate.styleDirectionId,
             verificationStatus: candidate.verificationStatus,
-            renderReady: false,
+            // Text candidates are always selectable. This flag only tells the
+            // client whether the optional, exact-calibrated image enhancement
+            // may be requested for this candidate.
+            renderReady: candidate.renderInstruction.trim().length > 0,
           })) ?? [],
           catalogCoverage: "unknown",
           degradation: result.audit.degradation,

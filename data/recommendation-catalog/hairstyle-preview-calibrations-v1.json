@@ -1,0 +1,21 @@
+{
+  "datasetVersion": "seedream-4-5-hairstyle-preview-calibrations-v1",
+  "entries": [
+    {
+      "hairstyleId": "hair-cn-natural-short-cover",
+      "provider": "ark-seedream-image-edit(doubao-seedream-4-5-251128)",
+      "model": "ark-seedream-image-edit(doubao-seedream-4-5-251128)",
+      "calibrationStatus": "render_validated",
+      "renderSpecVersion": "seedream-4-5-hairstyle-v1",
+      "renderInstruction": "保持原照片的构图、画面比例、头部朝向与拍摄距离完全不变，只替换头发：改成自然短碎盖，顶部留五到七公分并自然向前覆盖，发梢剪出轻碎层次，刘海落到眉毛附近，两侧和后颈修短但不推出渐变线，不留固定分缝。脸型、五官、表情不变"
+    },
+    {
+      "hairstyleId": "hair-cn-round-buzz",
+      "provider": "ark-seedream-image-edit(doubao-seedream-4-5-251128)",
+      "model": "ark-seedream-image-edit(doubao-seedream-4-5-251128)",
+      "calibrationStatus": "render_validated",
+      "renderSpecVersion": "seedream-4-5-hairstyle-v1",
+      "renderInstruction": "保持原照片的构图、画面比例、头部朝向与拍摄距离完全不变，只替换头发：改成圆寸，全头保持一公分左右的极短长度，顶部轮廓顺着头型形成自然圆弧，两侧和后颈柔和收短，不留刘海，额头完全露出。脸型、五官、表情不变"
+    }
+  ]
+}

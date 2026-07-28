@@ -23,6 +23,7 @@ test("deployment snapshot builder records all validated client catalogs and the 
       "fitRules",
       "hairstyleRenderSchema",
       "hairstyleRelations",
+      "hairstylePreviewCalibrations",
       "hairstyles",
       "styles",
       "wardrobeAssets",
