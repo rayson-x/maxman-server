@@ -1,10 +1,14 @@
 ## 1. 契约与数据模型
 
-- [ ] 1.1 定义共享的双源输入、逐通道结果、领域归一化候选、diff、组装结果和降级状态契约
-- [ ] 1.2 为风格、发型和穿搭定义版本化 schema、canonicalizer、diff policy 和数量策略
-- [ ] 1.3 增加推荐对照、逐通道运行、曝光、选择、强结果事件及 reviewer 状态的数据模型与迁移
-- [ ] 1.4 增加 CatalogGap、AssetGenerationQueue、ConceptCatalogMapping 数据模型与迁移
-- [ ] 1.5 将新增表纳入用户删除、人脸同意撤回和不可逆匿名聚合链路
+- [ ] 1.1 定义服务端部署快照 manifest、源文件哈希、验证器版本与推荐/对照日志引用；禁止运行时读取 `client/` 路径
+- [ ] 1.2 为风格、发型、发型关系、fit-rules、衣柜、资产和供给数据实现“验证通过才构建快照”的单向构建；server 不得手改副本
+- [ ] 1.3 定义关系覆盖、fit-rule production、render calibration 三个独立 readiness gate 及 `catalogCoverage` / asset 状态契约
+- [ ] 1.4 将旧 `OBJECTIVE_HAIRSTYLE_ATTRIBUTES` 收敛为渲染兼容投影；推荐路径迁移到稳定 `hairstyleId`，不得保留第二份适配/关系事实
+- [ ] 1.5 定义共享的双源输入、逐通道结果、领域归一化候选、diff、组装结果和降级状态契约
+- [ ] 1.6 为风格、发型和穿搭定义版本化 schema、canonicalizer、diff policy 和数量策略
+- [ ] 1.7 增加推荐对照、逐通道运行、曝光、选择、强结果事件及 reviewer 状态的数据模型与迁移
+- [ ] 1.8 增加 CatalogGap、AssetGenerationQueue、ConceptCatalogMapping 数据模型与迁移
+- [ ] 1.9 将新增表纳入用户删除、人脸同意撤回和不可逆匿名聚合链路
 
 ## 2. 双源引擎
 
@@ -56,10 +60,10 @@
 
 ## 7. 集成验证与发布
 
-- [ ] 7.1 增加三个选择等待点、422 前置条件和下游失效的 workflow/route 集成测试
-- [ ] 7.2 增加真实多模态 provider 冒烟测试，核对 A/B 同模型参数、schema、延迟和成本记录
-- [ ] 7.3 增加目录超过单次上下文预算的完整分批压测
-- [ ] 7.4 增加内部 feature flag、分阶段启用、监控与回滚开关
-- [ ] 7.5 更新目标 workflow、工具清单、隐私说明和推荐能力文档
-- [ ] 7.6 严格校验 OpenSpec，并在提案获批后才开始实现
-
+- [ ] 7.1 为快照构建、缺失/漂移拒绝、关系覆盖降级、draft rule 零投影、特殊发型排除和未校准渲染跳过添加测试
+- [ ] 7.2 增加三个选择等待点、422 前置条件和下游失效的 workflow/route 集成测试
+- [ ] 7.3 增加真实多模态 provider 冒烟测试，核对 A/B 同模型参数、schema、延迟和成本记录
+- [ ] 7.4 增加目录超过单次上下文预算的完整分批压测
+- [ ] 7.5 增加内部 feature flag、分阶段启用、监控与回滚开关
+- [ ] 7.6 更新目标 workflow、工具清单、隐私说明和推荐能力文档
+- [ ] 7.7 严格校验 OpenSpec，并在提案获批后才开始实现

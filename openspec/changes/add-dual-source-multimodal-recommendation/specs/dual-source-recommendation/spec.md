@@ -85,11 +85,64 @@ batch outputs without silent truncation.
 - **WHEN** the compact applicable context exceeds the configured model budget
 - **THEN** all candidates are assigned to stable deterministic batches, every batch is processed, results are merged by a versioned policy, and the log records counts, bytes, and tokens
 
+### Requirement: Server Catalog Snapshots Have One Build-Time Source of Truth
+
+The system SHALL consume style, hairstyle, hairstyle-relation, fit-rule, wardrobe, asset, and supply
+data only from an immutable server deployment snapshot built from validated client content artifacts. The
+snapshot manifest SHALL record dataset versions, source content hashes, build time, validator versions,
+and pass/fail results. The server SHALL NOT read `client/` paths at runtime or maintain independently
+editable duplicate recommendation facts.
+
+#### Scenario: Validated content is deployed
+
+- **WHEN** a catalog snapshot is built for deployment
+- **THEN** every required source artifact has passed its declared validator, the manifest is persisted with
+  hashes and versions, and recommendation/comparison records reference that manifest version
+
+#### Scenario: Snapshot validation or provenance is missing
+
+- **WHEN** a source artifact, content hash, or validator result is absent or invalid
+- **THEN** the corresponding system catalog is unavailable, the system does not silently use a hand-edited
+  fallback, and any returned A-only result is labeled AI exploration
+
+### Requirement: Unready Hairstyle Data Cannot Be Overclaimed
+
+The system SHALL apply independent readiness gates for hairstyle relations, fit rules, and personalized
+rendering. A relation for a style listed in `servingGate.underfedStyles` SHALL be labeled
+`catalogCoverage=partial` and SHALL NOT be labeled catalog-verified. A `special_opt_in` hairstyle SHALL
+NOT enter default or exploration recall. A fit-rule effect SHALL affect B context or user ranking only
+after the production validator passes and its effect has `effectiveEvidenceLevel` of S2 or higher with
+the required human-reviewed annotations. Existing deterministic physical feasibility constraints remain
+independent of this rule gate.
+
+#### Scenario: A selected style has incomplete hairstyle coverage
+
+- **WHEN** the selected style is listed in the relation snapshot's `underfedStyles`
+- **THEN** the system may return available text candidates but marks coverage partial, creates or updates a
+  catalog gap, and does not claim catalog-verified style-to-hairstyle coordination
+
+#### Scenario: Fit rules are still draft or unreviewed
+
+- **WHEN** the fit-rule production validation fails
+- **THEN** B receives no fit-rule effects, user ranking does not use those effects, and the existing
+  hairline/volume feasibility constraint continues to run
+
+#### Scenario: A special hairstyle is not explicitly requested
+
+- **WHEN** default or exploration hairstyle recall runs without an explicit matching user preference
+- **THEN** no `special_opt_in` hairstyle is returned
+
+#### Scenario: A selected hairstyle lacks provider calibration
+
+- **WHEN** the user selects a text-recommendable hairstyle without a render variant calibrated for the
+  active provider and model
+- **THEN** the textual selection remains valid and personalized hairstyle image generation is skipped
+
 ### Requirement: Both Channels Return Strict Domain-Normalized Candidates
 
 Both channels SHALL return the same versioned schema for the requested domain. Channel A MAY create
 stable concept IDs for catalog-external candidates. Channel B SHALL reference only recalled IDs and
-SHALL attach each applied rule's ID, mechanism, S1/S2/S3 evidence level, applicability conditions, and
+SHALL attach each applied rule's ID, mechanism, effective evidence level of S2/S3/S4, applicability conditions, and
 evaluated applicability result.
 
 #### Scenario: B returns an unknown catalog ID
@@ -246,4 +299,3 @@ signed URLs, raw prompts, raw recommendation payloads, or model transcripts.
 
 - **WHEN** aggregate counts remain after deletion
 - **THEN** they contain no reversible user reference or rare attribute combination capable of reconstructing the deleted profile
-
