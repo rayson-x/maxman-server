@@ -36,7 +36,15 @@ export type ChannelInvocation = {
   systemContext?: { candidates: RecalledCandidate[]; rules: unknown[] };
 };
 
-export type ChannelResult = { candidates: DomainCandidate[] };
+export type ChannelResult = {
+  candidates: DomainCandidate[];
+  /** Structured call metadata only; never a raw prompt or model transcript. */
+  provider?: string;
+  model?: string;
+  modelVersion?: string;
+  latencyMs?: number;
+  cost?: number;
+};
 
 type CandidateSource = "consensus" | "system_supported" | "exploration" | "deterministic_system";
 
@@ -50,7 +58,22 @@ export type DualSourceResult = {
     invalidBIds: string[];
     degradation: "none" | "a_failed" | "b_failed" | "both_failed" | "catalog_unavailable";
     diff: { diffScore: number; severity: "none" | "low" | "high"; hardConflict: boolean; diffPolicyVersion: "dual-source-diff-v1" };
+    channels: {
+      A: ChannelAudit;
+      B: ChannelAudit;
+    };
   };
+};
+
+export type ChannelAudit = {
+  status: "completed" | "failed" | "timed_out" | "not_run";
+  candidates: DomainCandidate[];
+  provider?: string;
+  model?: string;
+  modelVersion?: string;
+  latencyMs?: number;
+  cost?: number;
+  failureCode?: string;
 };
 
 export class DualSourceRecommendationEngine {
@@ -108,6 +131,11 @@ export class DualSourceRecommendationEngine {
       : [];
     const fallback = this.normalize(input.deterministicFallback);
 
+    const channelAudit = {
+      A: this.channelAudit(aSettled),
+      B: catalogAvailable ? this.channelAudit(bSettled) : { status: "not_run" as const, candidates: [] },
+    };
+
     if (!catalogAvailable) {
       return this.result({
         main: [],
@@ -117,13 +145,14 @@ export class DualSourceRecommendationEngine {
         degradation: "catalog_unavailable",
         aCandidates,
         bCandidates: [],
+        channels: channelAudit,
       });
     }
     if (aSettled.status === "rejected" && bSettled.status === "rejected") {
-      return this.result({ main: this.withSource(fallback, "deterministic_system"), exploration: [], retrieval, invalidBIds, degradation: "both_failed", aCandidates, bCandidates });
+      return this.result({ main: this.withSource(fallback, "deterministic_system"), exploration: [], retrieval, invalidBIds, degradation: "both_failed", aCandidates, bCandidates, channels: channelAudit });
     }
     if (aSettled.status === "rejected") {
-      return this.result({ main: this.withSource(bCandidates, "system_supported"), exploration: [], retrieval, invalidBIds, degradation: "a_failed", aCandidates, bCandidates });
+      return this.result({ main: this.withSource(bCandidates, "system_supported"), exploration: [], retrieval, invalidBIds, degradation: "a_failed", aCandidates, bCandidates, channels: channelAudit });
     }
     if (bSettled.status === "rejected") {
       return this.result({
@@ -134,6 +163,7 @@ export class DualSourceRecommendationEngine {
         degradation: "b_failed",
         aCandidates,
         bCandidates,
+        channels: channelAudit,
       });
     }
     // A schema-valid response that references no recalled B candidate is not a
@@ -148,6 +178,7 @@ export class DualSourceRecommendationEngine {
         degradation: "b_failed",
         aCandidates,
         bCandidates,
+        channels: channelAudit,
       });
     }
 
@@ -160,7 +191,7 @@ export class DualSourceRecommendationEngine {
       ...this.withSource(systemSupported, "system_supported"),
     ].slice(0, this.config.maxMainCandidates);
     const exploration = this.safeExploration(aCandidates.filter((candidate) => !bByCanonical.has(candidate.canonicalId)));
-    return this.result({ main, exploration, retrieval, invalidBIds, degradation: "none", aCandidates, bCandidates });
+    return this.result({ main, exploration, retrieval, invalidBIds, degradation: "none", aCandidates, bCandidates, channels: channelAudit });
   }
 
   private batches(rows: RecalledCandidate[]): RecalledCandidate[][] {
@@ -222,6 +253,28 @@ export class DualSourceRecommendationEngine {
     return candidates.slice(0, this.config.maxMainCandidates).map((candidate) => ({ ...candidate, source }));
   }
 
+  private channelAudit(settled: PromiseSettledResult<ChannelResult | ChannelResult[]>): ChannelAudit {
+    if (settled.status === "fulfilled") {
+      const runs = Array.isArray(settled.value) ? settled.value : [settled.value];
+      const first = runs[0];
+      return {
+        status: "completed",
+        candidates: runs.flatMap((run) => run.candidates),
+        provider: first?.provider,
+        model: first?.model,
+        modelVersion: first?.modelVersion,
+        latencyMs: runs.reduce((total, run) => total + (run.latencyMs ?? 0), 0) || undefined,
+        cost: runs.reduce((total, run) => total + (run.cost ?? 0), 0) || undefined,
+      };
+    }
+    const message = settled.reason instanceof Error ? settled.reason.message : "channel_failed";
+    return {
+      status: /_channel_timeout$/.test(message) ? "timed_out" : "failed",
+      candidates: [],
+      failureCode: /_channel_timeout$/.test(message) ? "channel_timeout" : "channel_failed",
+    };
+  }
+
   private safeExploration(candidates: DomainCandidate[]): AssembledCandidate[] {
     const candidate = candidates.find((row) => !row.hardConflict);
     return candidate ? [{ ...candidate, source: "exploration" }] : [];
@@ -235,6 +288,7 @@ export class DualSourceRecommendationEngine {
     degradation: DualSourceResult["audit"]["degradation"];
     aCandidates: DomainCandidate[];
     bCandidates: DomainCandidate[];
+    channels: DualSourceResult["audit"]["channels"];
   }): DualSourceResult {
     const a = new Set(input.aCandidates.map((candidate) => candidate.canonicalId));
     const b = new Set(input.bCandidates.map((candidate) => candidate.canonicalId));
@@ -255,6 +309,7 @@ export class DualSourceRecommendationEngine {
           hardConflict,
           diffPolicyVersion: "dual-source-diff-v1",
         },
+        channels: input.channels,
       },
     };
   }

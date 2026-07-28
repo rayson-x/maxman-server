@@ -73,7 +73,7 @@ test("style direction must be selected before outfit generation and must come fr
   assert.equal(nextGate.json().error, "hairstyle_not_selected");
 });
 
-test("style and hairstyle are selected atomically and cannot cross the first-round pairing", async () => {
+test("hairstyle selection follows style selection and invalidates downstream wardrobe", async () => {
   const session = await app.inject({ method: "POST", url: "/auth/device-session" });
   assert.equal(session.statusCode, 201);
   const deviceSessionId = session.json().deviceSessionId as string;
@@ -98,57 +98,119 @@ test("style and hairstyle are selected atomically and cannot cross the first-rou
       },
     },
   });
-  const set = await container.prisma.recommendationSet.create({
+  const hairSet = await container.prisma.recommendationSet.create({
     data: {
       planId: plan.id,
       kind: "hairstyle",
       status: "ready",
-      computationKey: `style-pair-${plan.id}`,
+      computationKey: `hairstyle-selection-${plan.id}`,
       inputFingerprint: "test",
       source: "multimodal_agent",
       capabilityStatus: {} as never,
     },
   });
-  const [cleanHair, softHair] = await Promise.all([
+  const [cleanHair, cleanHairAlternative, softHair] = await Promise.all([
     container.prisma.recommendationCandidate.create({
       data: {
-        setId: set.id, providerCandidateKey: "clean", nameZh: "法式碎盖", description: "自然碎发",
+        setId: hairSet.id, providerCandidateKey: "clean", nameZh: "法式碎盖", description: "自然碎发",
         modelRationale: "利落", rank: 1, visualDirection: "自然短碎发", renderInstruction: "自然短碎发",
         styleDirectionId: "clean-fit",
       },
     }),
     container.prisma.recommendationCandidate.create({
       data: {
-        setId: set.id, providerCandidateKey: "soft", nameZh: "微碎盖", description: "轻薄层次",
-        modelRationale: "亲和", rank: 2, visualDirection: "轻薄碎发", renderInstruction: "轻薄碎发",
+        setId: hairSet.id, providerCandidateKey: "clean-alt", nameZh: "短碎发", description: "清爽短层次",
+        modelRationale: "轻快", rank: 2, visualDirection: "清爽短碎发", renderInstruction: "清爽短碎发",
+        styleDirectionId: "clean-fit",
+      },
+    }),
+    container.prisma.recommendationCandidate.create({
+      data: {
+        setId: hairSet.id, providerCandidateKey: "soft", nameZh: "微碎盖", description: "轻薄层次",
+        modelRationale: "亲和", rank: 3, visualDirection: "轻薄碎发", renderInstruction: "轻薄碎发",
         styleDirectionId: "soft-youth",
       },
     }),
   ]);
   const headers = { cookie: `${SESSION_COOKIE_NAME}=${deviceSessionId}` };
 
-  const rejected = await app.inject({
+  const atomic = await app.inject({
     method: "POST",
     url: `/plans/${plan.id}/select-style-hairstyle`,
     headers,
     payload: { styleId: "clean-fit", candidateId: softHair.id },
   });
-  assert.equal(rejected.statusCode, 422);
-  assert.equal(rejected.json().error, "candidate_not_in_selected_style");
+  assert.equal(atomic.statusCode, 410);
+  assert.equal(atomic.json().error, "deprecated_atomic_selection");
   const unchanged = await container.prisma.appearancePlan.findUniqueOrThrow({ where: { id: plan.id } });
   assert.equal(unchanged.selectedStyle, null);
   assert.equal(unchanged.selectedHairstyleId, null);
 
+  const style = await app.inject({
+    method: "POST",
+    url: `/plans/${plan.id}/select-style-direction`,
+    headers,
+    payload: { styleId: "clean-fit" },
+  });
+  assert.equal(style.statusCode, 200);
+
+  const rejected = await app.inject({
+    method: "POST",
+    url: `/plans/${plan.id}/select-hairstyle`,
+    headers,
+    payload: { candidateId: softHair.id },
+  });
+  assert.equal(rejected.statusCode, 422);
+  assert.equal(rejected.json().error, "candidate_not_in_selected_style");
+
   const accepted = await app.inject({
     method: "POST",
-    url: `/plans/${plan.id}/select-style-hairstyle`,
+    url: `/plans/${plan.id}/select-hairstyle`,
     headers,
-    payload: { styleId: "clean-fit", candidateId: cleanHair.id },
+    payload: { candidateId: cleanHair.id },
   });
   assert.equal(accepted.statusCode, 200);
   const selected = await container.prisma.appearancePlan.findUniqueOrThrow({ where: { id: plan.id } });
   assert.equal((selected.selectedStyle as { id: string }).id, "clean-fit");
   assert.equal(selected.selectedHairstyleId, cleanHair.id);
+
+  const outfitSet = await container.prisma.recommendationSet.create({
+    data: {
+      planId: plan.id,
+      kind: "outfit",
+      status: "ready",
+      computationKey: `outfit-selection-${plan.id}`,
+      inputFingerprint: "test",
+      source: "multimodal_agent",
+      capabilityStatus: {} as never,
+    },
+  });
+  const outfit = await container.prisma.recommendationCandidate.create({
+    data: {
+      setId: outfitSet.id, providerCandidateKey: "outfit", nameZh: "简约通勤", description: "基础通勤组合",
+      modelRationale: "利落", rank: 1, visualDirection: "简约通勤", renderInstruction: "简约通勤",
+    },
+  });
+  const selectedOutfit = await app.inject({
+    method: "POST",
+    url: `/plans/${plan.id}/select-outfit`,
+    headers,
+    payload: { candidateId: outfit.id },
+  });
+  assert.equal(selectedOutfit.statusCode, 200);
+
+  const changedHair = await app.inject({
+    method: "POST",
+    url: `/plans/${plan.id}/select-hairstyle`,
+    headers,
+    payload: { candidateId: cleanHairAlternative.id },
+  });
+  assert.equal(changedHair.statusCode, 200);
+  const afterHairChange = await container.prisma.appearancePlan.findUniqueOrThrow({ where: { id: plan.id } });
+  assert.equal(afterHairChange.selectedHairstyleId, cleanHairAlternative.id);
+  assert.equal(afterHairChange.selectedOutfitId, null);
+  const hairInvalidatedOutfit = await container.prisma.recommendationSet.findUniqueOrThrow({ where: { id: outfitSet.id } });
+  assert.equal(hairInvalidatedOutfit.status, "superseded");
 
   const styleSwitch = await app.inject({
     method: "POST",
@@ -161,6 +223,10 @@ test("style and hairstyle are selected atomically and cannot cross the first-rou
   assert.equal((invalidated.selectedStyle as { id: string }).id, "soft-youth");
   assert.equal(invalidated.selectedHairstyleId, null);
   assert.equal(invalidated.selectedOutfitId, null);
-  const superseded = await container.prisma.recommendationSet.findUniqueOrThrow({ where: { id: set.id } });
-  assert.equal(superseded.status, "superseded");
+  const [supersededHair, supersededOutfit] = await Promise.all([
+    container.prisma.recommendationSet.findUniqueOrThrow({ where: { id: hairSet.id } }),
+    container.prisma.recommendationSet.findUniqueOrThrow({ where: { id: outfitSet.id } }),
+  ]);
+  assert.equal(supersededHair.status, "superseded");
+  assert.equal(supersededOutfit.status, "superseded");
 });

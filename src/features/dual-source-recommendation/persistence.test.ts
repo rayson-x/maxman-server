@@ -1,0 +1,43 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { createDualSourceRecommendationPersistence } from "./persistence.js";
+import type { DualSourceResult } from "./engine.js";
+
+const result: DualSourceResult = {
+  main: [{ id: "catalog-a", canonicalId: "catalog-a", rank: 1, nameZh: "目录项", rationale: "可行", systemSupported: true, hardConflict: false, source: "consensus" }],
+  exploration: [],
+  audit: {
+    retrieval: { retrievedCount: 1, submittedCount: 1, batchCount: 1, bytes: 20 },
+    invalidBIds: [], degradation: "none",
+    diff: { diffScore: 0, severity: "none", hardConflict: false, diffPolicyVersion: "dual-source-diff-v1" },
+    channels: {
+      A: { status: "completed", candidates: [], provider: "provider", model: "model" },
+      B: { status: "completed", candidates: [], provider: "provider", model: "model" },
+    },
+  },
+};
+
+test("persists structured comparison, both channel outcomes, and exposure before returning", async () => {
+  const calls: Array<{ table: string; args: unknown }> = [];
+  const tx = {
+    recommendationComparisonLog: { upsert: async (args: unknown) => { calls.push({ table: "comparison", args }); return { id: "comparison-1" }; } },
+    recommendationChannelRun: { upsert: async (args: unknown) => { calls.push({ table: "channel", args }); return {}; } },
+    recommendationExposure: { upsert: async (args: unknown) => { calls.push({ table: "exposure", args }); return {}; } },
+    recommendationReviewerResult: { upsert: async (args: unknown) => { calls.push({ table: "reviewer", args }); return {}; } },
+  };
+  const prisma = { $transaction: async (fn: (client: typeof tx) => Promise<unknown>) => fn(tx) };
+  const persistence = createDualSourceRecommendationPersistence(prisma as never);
+  await persistence.persist({
+    userId: "user", planId: "plan", domain: "style", generation: 1, computationKey: "key",
+    commonInput: { profileSnapshotRef: "profile-v1", originalAssetRefs: ["original-photo"], selectedUpstream: {}, model: { provider: "provider", model: "model", temperature: 0, tokenLimit: 100 } },
+    promptVersion: "prompt-v1", schemaVersion: "schema-v1", result,
+  });
+  assert.deepEqual(calls.map((call) => call.table), ["comparison", "channel", "channel", "exposure"]);
+  const comparison = calls[0]!.args as { create: { photoAssetRefs: string[]; retrievalAudit: unknown } };
+  assert.deepEqual(comparison.create.photoAssetRefs, ["original-photo"]);
+  assert.deepEqual(comparison.create.retrievalAudit, result.audit.retrieval);
+  const exposure = calls[3]!.args as { create: { source: string; position: number; candidateSnapshot: { canonicalId: string } } };
+  assert.equal(exposure.create.source, "consensus");
+  assert.equal(exposure.create.position, 1);
+  assert.equal(exposure.create.candidateSnapshot.canonicalId, "catalog-a");
+});

@@ -139,6 +139,7 @@ export type SelectionResult =
         | "not_owned"
         | "set_not_ready"
         | "style_not_selected"
+        | "hairstyle_not_selected"
         | "style_not_offered"
         | "candidate_not_in_selected_style";
     };
@@ -255,23 +256,6 @@ function isFirstRoundOutput(value: unknown): value is FirstRoundAgentOutput {
 }
 
 /** 从已完成首轮的持久化结果中重新取回风格，不能相信请求体带来的整段对象。 */
-function findPersistedStyleDirection(
-  partialResult: unknown,
-  styleId: string,
-): FirstRoundAgentOutput["styleRecommendations"][number] | null {
-  const rows = (partialResult as { styleRecommendations?: unknown } | null)?.styleRecommendations;
-  if (!Array.isArray(rows)) return null;
-  const style = rows.find((row) => (row as { id?: unknown } | null)?.id === styleId);
-  if (!style || typeof style !== "object") return null;
-  const candidate = style as Partial<FirstRoundAgentOutput["styleRecommendations"][number]>;
-  return (
-    typeof candidate.id === "string"
-    && typeof candidate.nameZh === "string"
-    && typeof candidate.description === "string"
-    && typeof candidate.rationale === "string"
-  ) ? candidate as FirstRoundAgentOutput["styleRecommendations"][number] : null;
-}
-
 export function createRecommendationApplication(deps: RecommendationApplicationDeps) {
   const { prisma } = deps;
   const photoAccess = createPhotoAccessService(prisma);
@@ -958,16 +942,31 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
     },
 
     /** 只接受属于本用户、且所属集合为 ready 的候选 */
-    async selectCandidate(command: { userId: string; planId: string; candidateId: string }): Promise<SelectionResult> {
+    async selectCandidate(command: {
+      userId: string;
+      planId: string;
+      candidateId: string;
+      expectedKind?: RecommendationKind;
+    }): Promise<SelectionResult> {
       const candidate = await prisma.recommendationCandidate.findUnique({
         where: { id: command.candidateId },
-        include: { set: { include: { plan: { select: { userId: true, selectedStyle: true } } } } },
+        include: {
+          set: {
+            include: {
+              plan: { select: { userId: true, selectedStyle: true, selectedHairstyleId: true } },
+              comparisonLog: { select: { id: true } },
+            },
+          },
+        },
       });
       if (!candidate) return { ok: false, reason: "not_found" };
       if (candidate.set.planId !== command.planId || candidate.set.plan.userId !== command.userId) {
         return { ok: false, reason: "not_owned" };
       }
       if (candidate.set.status !== "ready") return { ok: false, reason: "set_not_ready" };
+      if (command.expectedKind && candidate.set.kind !== command.expectedKind) {
+        return { ok: false, reason: "not_found" };
+      }
       if (candidate.set.kind === "hairstyle") {
         const selectedStyleId = (candidate.set.plan.selectedStyle as { id?: unknown } | null)?.id;
         if (typeof selectedStyleId !== "string") return { ok: false, reason: "style_not_selected" };
@@ -975,74 +974,61 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
           return { ok: false, reason: "candidate_not_in_selected_style" };
         }
       }
+      if (candidate.set.kind === "outfit" && !candidate.set.plan.selectedHairstyleId) {
+        return { ok: false, reason: "hairstyle_not_selected" };
+      }
 
-      const field = candidate.set.kind === "hairstyle" ? "selectedHairstyleId" : "selectedOutfitId";
       await prisma.$transaction(async (tx) => {
-        await tx.appearancePlan.update({ where: { id: command.planId }, data: { [field]: candidate.id } });
+        if (candidate.set.kind === "hairstyle") {
+          const hairstyleChanged = candidate.set.plan.selectedHairstyleId !== candidate.id;
+          await tx.appearancePlan.update({
+            where: { id: command.planId },
+            data: {
+              selectedHairstyleId: candidate.id,
+              // An outfit is conditioned on the exact selected hairstyle. It is
+              // never valid to keep it after that upstream selection changes.
+              ...(hairstyleChanged ? { selectedOutfitId: null } : {}),
+            },
+          });
+          if (hairstyleChanged) {
+            await tx.recommendationSet.updateMany({
+              where: {
+                planId: command.planId,
+                kind: "outfit",
+                status: { in: ["preparing", "ready", "failed"] },
+              },
+              data: { status: "superseded" },
+            });
+          }
+        } else {
+          await tx.appearancePlan.update({ where: { id: command.planId }, data: { selectedOutfitId: candidate.id } });
+        }
         await tx.conversationDecision.create({
           data: {
             planId: command.planId,
-            decisionKind: "style_selected",
+            decisionKind: candidate.set.kind === "hairstyle" ? "hairstyle_selected" : "outfit_selected",
             payload: { kind: candidate.set.kind, candidateId: candidate.id, nameZh: candidate.nameZh },
           },
         });
+        // A choice is behavioral evidence only when this particular candidate
+        // was actually exposed for the comparison that produced its set.
+        const comparisonId = candidate.set.comparisonLog?.id;
+        if (comparisonId) {
+          const exposure = await tx.recommendationExposure.findFirst({
+            where: { comparisonId, candidateId: candidate.id },
+            orderBy: { position: "asc" },
+            select: { id: true },
+          });
+          if (exposure) {
+            await tx.recommendationChoice.upsert({
+              where: { comparisonId_exposureId: { comparisonId, exposureId: exposure.id } },
+              create: { comparisonId, exposureId: exposure.id, candidateId: candidate.id },
+              update: {},
+            });
+          }
+        }
       });
       return { ok: true, candidateId: candidate.id, nameZh: candidate.nameZh };
-    },
-
-    /** 原子选定首轮提供的一个风格—发型组合，避免短暂写入跨风格状态。 */
-    async selectStyleAndHairstyle(command: {
-      userId: string;
-      planId: string;
-      styleId: string;
-      candidateId: string;
-    }): Promise<SelectionResult> {
-      return prisma.$transaction(async (tx): Promise<SelectionResult> => {
-        const plan = await tx.appearancePlan.findFirst({
-          where: { id: command.planId, userId: command.userId },
-          select: { id: true },
-        });
-        if (!plan) return { ok: false, reason: "not_owned" };
-        const firstRound = await tx.analysisJob.findFirst({
-          where: {
-            userId: command.userId,
-            planId: command.planId,
-            jobType: "initial_analysis",
-            status: { in: ["completed", "completed_partial"] },
-          },
-          orderBy: { createdAt: "desc" },
-          select: { partialResult: true },
-        });
-        const style = findPersistedStyleDirection(firstRound?.partialResult, command.styleId);
-        if (!style) return { ok: false, reason: "style_not_offered" };
-        const candidate = await tx.recommendationCandidate.findUnique({
-          where: { id: command.candidateId },
-          include: { set: true },
-        });
-        if (!candidate) return { ok: false, reason: "not_found" };
-        if (candidate.set.planId !== command.planId) return { ok: false, reason: "not_owned" };
-        if (candidate.set.kind !== "hairstyle" || candidate.set.status !== "ready") {
-          return { ok: false, reason: "set_not_ready" };
-        }
-        if (candidate.styleDirectionId !== style.id) {
-          return { ok: false, reason: "candidate_not_in_selected_style" };
-        }
-        await tx.appearancePlan.update({
-          where: { id: command.planId },
-          data: { selectedStyle: style as never, selectedHairstyleId: candidate.id },
-        });
-        await tx.conversationDecision.createMany({
-          data: [
-            { planId: command.planId, decisionKind: "style_direction_selected", payload: style as never },
-            {
-              planId: command.planId,
-              decisionKind: "style_selected",
-              payload: { kind: "hairstyle", candidateId: candidate.id, nameZh: candidate.nameZh },
-            },
-          ],
-        });
-        return { ok: true, candidateId: candidate.id, nameZh: candidate.nameZh };
-      });
     },
 
     /** 仅供测试与运维观察 */

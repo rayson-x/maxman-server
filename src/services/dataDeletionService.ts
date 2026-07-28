@@ -53,7 +53,11 @@ export function createDataDeletionService(prisma: PrismaClient) {
           where: { userId, deletionStatus: "active" },
           data: { deletionStatus: "pending" },
         });
-        affectedCount = r.count;
+        // A comparison log contains versioned face/body/profile references.
+        // Revoking face processing must not leave that identifiable chain
+        // behind merely because it is not an image row.
+        const comparisons = await prisma.recommendationComparisonLog.count({ where: { userId } });
+        affectedCount = r.count + comparisons;
         break;
       }
       case "single_target_image":
@@ -204,8 +208,14 @@ export function createDataDeletionService(prisma: PrismaClient) {
           break;
         }
         case "all_photos": {
-          const r = await prisma.userPhoto.deleteMany({ where: { userId, deletionStatus: "pending" } });
-          rowsDeleted = r.count;
+          const [photos, comparisons] = await prisma.$transaction([
+            prisma.userPhoto.deleteMany({ where: { userId, deletionStatus: "pending" } }),
+            // Cascades remove channel runs, exposures, choices, outcomes,
+            // reviewer results and catalog-gap links. Anonymous aggregates, if
+            // introduced later, must be written separately without user refs.
+            prisma.recommendationComparisonLog.deleteMany({ where: { userId } }),
+          ]);
+          rowsDeleted = photos.count + comparisons.count;
           break;
         }
         case "single_target_image": {
