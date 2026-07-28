@@ -369,6 +369,14 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
           where: { planId, kind: { in: ["hairstyle", "outfit"] }, status: { in: ["preparing", "ready", "failed"] } },
           data: { status: "superseded" },
         });
+        await tx.generatedAsset.updateMany({
+          where: {
+            planId,
+            kind: { in: ["hairstyle_preview", "outfit_preview"] },
+            status: "active",
+          },
+          data: { status: "invalidated" },
+        });
       } else {
         await tx.appearancePlan.update({ where: { id: planId }, data: { selectedStyle: style as never } });
       }

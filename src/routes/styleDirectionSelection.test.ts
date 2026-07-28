@@ -153,6 +153,9 @@ test("hairstyle selection follows style selection and invalidates downstream war
     payload: { styleId: "clean-fit" },
   });
   assert.equal(style.statusCode, 200);
+  // In the staged flow a pre-existing hairstyle set is superseded by the
+  // style choice. This fixture represents the fresh set produced afterward.
+  await container.prisma.recommendationSet.update({ where: { id: hairSet.id }, data: { status: "ready" } });
 
   const rejected = await app.inject({
     method: "POST",
@@ -198,6 +201,18 @@ test("hairstyle selection follows style selection and invalidates downstream war
     payload: { candidateId: outfit.id },
   });
   assert.equal(selectedOutfit.statusCode, 200);
+  const preview = await container.prisma.generatedAsset.create({
+    data: {
+      userId: user.id,
+      planId: plan.id,
+      candidateId: outfit.id,
+      recommendationSetId: outfitSet.id,
+      kind: "outfit_preview",
+      storageKey: `generated/${plan.id}/outfit.png`,
+      provider: "test",
+      disclosure: "AI 生成模拟效果",
+    },
+  });
 
   const changedHair = await app.inject({
     method: "POST",
@@ -211,6 +226,7 @@ test("hairstyle selection follows style selection and invalidates downstream war
   assert.equal(afterHairChange.selectedOutfitId, null);
   const hairInvalidatedOutfit = await container.prisma.recommendationSet.findUniqueOrThrow({ where: { id: outfitSet.id } });
   assert.equal(hairInvalidatedOutfit.status, "superseded");
+  assert.equal((await container.prisma.generatedAsset.findUniqueOrThrow({ where: { id: preview.id } })).status, "invalidated");
 
   const styleSwitch = await app.inject({
     method: "POST",
