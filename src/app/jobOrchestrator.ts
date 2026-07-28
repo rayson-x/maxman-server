@@ -11,7 +11,7 @@ import { moderateInputStep } from "../steps/moderateInput.js";
 import { analyzeVisionStep } from "../steps/analyzeVision.js";
 import { recommendStep } from "../steps/recommend.js";
 import { createRecommendationApplication } from "../services/recommendationApplication.js";
-import { renderOutfitPreviewsStep } from "../steps/renderPreviews.js";
+import { renderOutfitPreviewsStep, renderPreviewsStep } from "../steps/renderPreviews.js";
 import { materializePlanStep, type MaterializeTaskSpec } from "../steps/materializePlan.js";
 import { runWithSingleRetry, type StepContext, type StepDeps } from "../steps/types.js";
 import { isCatalogDomain, isStyleDomain } from "../features/appearance-agent/data/domains.js";
@@ -20,6 +20,7 @@ import { buildSelectedStyleTaskSpecs } from "../services/selectedStyleTaskServic
 import { verifyProgressStep } from "../steps/verifyProgress.js";
 import { DEFAULT_COMPATIBILITY_THRESHOLD } from "../features/appearance-agent/data/styleProfile.js";
 import { createPhotoAccessService } from "../services/photoAccessService.js";
+import { selectRenderablePreviewCandidates } from "../services/previewCandidateSelector.js";
 import { createDualSourceWorkflowApplication } from "../features/dual-source-recommendation/workflowApplication.js";
 import {
   checkCompatibility,
@@ -675,6 +676,57 @@ export function createJobOrchestrator(container: AppContainer) {
       return { status: "completed", detail: { candidates: set.candidates.length } };
     },
 
+    /** Optional comparison images after style selection; candidate text remains the source of truth. */
+    async hairstyle_preview_generation(p: JobPayload): Promise<OrchestratorResult> {
+      if (!dualSourceWorkflow || !p.planId) {
+        await jobs.fail(p.jobId, "双源发型预览当前未启用或缺少 planId");
+        return { status: "failed" };
+      }
+      const ctx: StepContext = { jobId: p.jobId, userId: p.userId, planId: p.planId };
+      const [plan, photos, set] = await Promise.all([
+        prisma.appearancePlan.findFirst({ where: { id: p.planId, userId: p.userId } }),
+        loadPhotos(p.userId),
+        prisma.recommendationSet.findFirst({
+          where: { planId: p.planId, kind: "hairstyle", status: "ready" },
+          include: { candidates: { orderBy: { rank: "asc" } } },
+        }),
+      ]);
+      if (!plan?.selectedStyle || !photos.front || !set) {
+        await jobs.complete(p.jobId, { missing: [{ item: "本人发型预览图", reason: "缺少当前风格、正面照或发型候选集" }] });
+        return { status: "completed_partial", detail: { candidates: 0 } };
+      }
+      const candidates = selectRenderablePreviewCandidates(set.candidates);
+      if (candidates.length === 0) {
+        await jobs.mergePartialResult(p.jobId, { hairstyle: { previews: [] } });
+        await jobs.complete(p.jobId, { missing: [{ item: "本人发型预览图", reason: "候选尚无当前模型的校准渲染规格" }] });
+        return { status: "completed_partial", detail: { candidates: 0, previewSkipped: true } };
+      }
+      await step(p.jobId, "rendering");
+      const rendered = await runWithSingleRetry(
+        renderPreviewsStep,
+        {
+          baselinePhotoStorageKey: photos.front.storageKey,
+          kind: "hairstyle",
+          candidates: candidates.map((candidate) => ({
+            candidateId: candidate.id,
+            nameZh: candidate.nameZh,
+            renderInstruction: candidate.renderInstruction,
+            modelRationale: candidate.modelRationale,
+          })),
+        },
+        ctx,
+        deps,
+      );
+      if (rendered.status === "failed") {
+        await jobs.mergePartialResult(p.jobId, { hairstyle: { previews: [] } });
+        await jobs.complete(p.jobId, { missing: [{ item: "本人发型预览图", reason: rendered.error }] });
+        return { status: "completed_partial", detail: { candidates: 0 } };
+      }
+      await jobs.mergePartialResult(p.jobId, { hairstyle: { previews: rendered.data.previews } });
+      await jobs.complete(p.jobId, { missing: rendered.status === "completed_partial" ? rendered.missing : undefined });
+      return { status: rendered.status, detail: { candidates: rendered.data.previews.length } };
+    },
+
     /** S4′ 穿搭预览。无全身照时降级为文字+示意图（决策 11），不造全身照。 */
     async outfit_preview_generation(p: JobPayload): Promise<OrchestratorResult> {
       if (!p.planId) {
@@ -696,60 +748,50 @@ export function createJobOrchestrator(container: AppContainer) {
       }
 
       if (dualSourceWorkflow) {
-        if (!plan.selectedOutfitId) {
-          await jobs.fail(p.jobId, "尚未选定穿搭候选，无法生成预览");
-          return { status: "failed" };
+        if (plan.selectedOutfitId) {
+          await jobs.complete(p.jobId, { missing: [{ item: "本人穿搭预览图", reason: "穿搭已选定，不再生成比较预览" }] });
+          return { status: "completed_partial", detail: { candidates: 0 } };
         }
-        const selectedOutfit = await prisma.recommendationCandidate.findUnique({
-          where: { id: plan.selectedOutfitId },
-          include: { set: true },
-        });
-        if (!selectedOutfit || selectedOutfit.set.planId !== p.planId || selectedOutfit.set.kind !== "outfit") {
-          await jobs.fail(p.jobId, "已选穿搭候选无效");
-          return { status: "failed" };
-        }
-        // The current immutable wardrobe snapshot has no provider/model
-        // calibrated personalized outfit render variant. Do not fall back to
-        // the legacy free-form provider: textual selection remains valid.
-        if (!selectedOutfit.renderInstruction) {
+        const [selectedHairstyle, outfitSet] = await Promise.all([
+          prisma.recommendationCandidate.findUnique({ where: { id: plan.selectedHairstyleId } }),
+          prisma.recommendationSet.findFirst({
+            where: { planId: p.planId, kind: "outfit", status: "ready" },
+            include: { candidates: { orderBy: { rank: "asc" } } },
+          }),
+        ]);
+        const selectedOutfits = outfitSet ? selectRenderablePreviewCandidates(outfitSet.candidates) : [];
+        if (!selectedHairstyle?.renderInstruction || selectedOutfits.length === 0) {
           await jobs.mergePartialResult(p.jobId, {
             outfit: {
               mode: "text_and_reference_only",
-              previews: [{
-                candidateId: selectedOutfit.id,
-                nameZh: selectedOutfit.nameZh,
-                storageKey: null,
-                readUrl: null,
-                latencyMs: 0,
-                referenceOnly: true,
-                rationale: selectedOutfit.modelRationale,
-              }],
+              previews: [],
               supplementaryPrompt: "这套方案当前先以文字内容呈现。",
             },
           });
           await jobs.complete(p.jobId, {
-            missing: [{ item: "本人穿搭预览图", reason: "所选候选缺少当前 provider/model 的渲染校准" }],
+            missing: [{ item: "本人穿搭预览图", reason: "发型或穿搭候选缺少当前模型的校准渲染规格" }],
           });
-          return { status: "completed_partial", detail: { candidates: 1, previewSkipped: true } };
+          return { status: "completed_partial", detail: { candidates: 0, previewSkipped: true } };
         }
         await step(p.jobId, "rendering");
         const rendered = await runWithSingleRetry(
           renderOutfitPreviewsStep,
           {
             fullBodyPhotoStorageKey: fullBody?.storageKey,
-            candidates: [{
-              candidateId: selectedOutfit.id,
-              nameZh: selectedOutfit.nameZh,
-              renderInstruction: selectedOutfit.renderInstruction,
-              modelRationale: selectedOutfit.modelRationale,
-            }],
+            candidates: selectedOutfits.map((outfit) => ({
+              candidateId: outfit.id,
+              nameZh: outfit.nameZh,
+              renderInstruction: `${selectedHairstyle.renderInstruction}\n${outfit.renderInstruction}`,
+              modelRationale: outfit.modelRationale,
+            })),
           },
           ctx,
           deps,
         );
         if (rendered.status === "failed") {
-          await jobs.fail(p.jobId, `S4′ 失败: ${rendered.error}`);
-          return { status: "failed" };
+          await jobs.mergePartialResult(p.jobId, { outfit: { mode: "text_and_reference_only", previews: [] } });
+          await jobs.complete(p.jobId, { missing: [{ item: "本人穿搭预览图", reason: rendered.error }] });
+          return { status: "completed_partial", detail: { candidates: 0 } };
         }
         await jobs.mergePartialResult(p.jobId, {
           outfit: {
@@ -759,7 +801,7 @@ export function createJobOrchestrator(container: AppContainer) {
           },
         });
         await jobs.complete(p.jobId, { missing: rendered.status === "completed_partial" ? rendered.missing : undefined });
-        return { status: rendered.status, detail: { candidates: 1 } };
+        return { status: rendered.status, detail: { candidates: rendered.data.previews.length } };
       }
 
       /*
