@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import test from "node:test";
 
 import {
@@ -68,4 +70,24 @@ test("aggregation keeps unknown-cost usage out of known totals", () => {
     { provider: "volcengine", operation: "clothing_swap", model: "dressing_diffusion", currency: "CNY", operationCount: 1, knownCost: 1, unknownCostOperationCount: 0, usage: { acceptedTaskCount: 1 } },
     { provider: "volcengine", operation: "image_edit", model: "seededit_v3.0", currency: null, operationCount: 1, knownCost: 0, unknownCostOperationCount: 1, usage: { acceptedTaskCount: 1 } },
   ]);
+});
+
+test("local pricing migrations cover every currently metered provider operation", () => {
+  const sql = readFileSync(
+    resolve(process.cwd(), "prisma/migrations/20260729050000_complete_provider_cost_rules/migration.sql"),
+    "utf8",
+  );
+  for (const ruleId of [
+    "pricing-zhipu-style-recommendation-v1",
+    "pricing-zhipu-hairstyle-recommendation-v1",
+    "pricing-zhipu-outfit-recommendation-v1",
+    "pricing-zhipu-dual-source-recommendation-v1",
+    "pricing-open-meteo-geocoding-v1",
+    "pricing-open-meteo-historical-weather-v1",
+    "pricing-open-meteo-forecast-weather-v1",
+    "pricing-aliyun-oss-put-object-v1",
+    "pricing-aliyun-oss-delete-object-v1",
+  ]) {
+    assert.match(sql, new RegExp(`'${ruleId}'`));
+  }
 });

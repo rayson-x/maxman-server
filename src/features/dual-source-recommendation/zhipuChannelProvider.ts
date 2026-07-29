@@ -2,6 +2,7 @@ import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { generateText } from "ai";
 import { z } from "zod";
 import { env, required } from "../../config/env.js";
+import { recordActiveProviderOperation, usageFromProviderResult } from "../../services/providerOperationMeter.js";
 import type { DualSourceProviderRequest, RawProviderResponse } from "./providerAdapter.js";
 
 const OUTPUT_SCHEMA = z.object({
@@ -61,48 +62,73 @@ export function createZhipuDualSourceChannelProvider(options: {
   const modelId = options.modelId ?? process.env.DUAL_SOURCE_RECOMMENDATION_MODEL ?? "glm-4.6v";
   const modelVersion = options.modelVersion ?? modelId;
   return async (request: DualSourceProviderRequest): Promise<RawProviderResponse> => {
-    const prompt = buildDualSourceProviderPrompt(request);
-    if (options.invoke) return options.invoke({
-      prompt,
-      photoReadUrls: options.originalPhotoReadUrls,
-      temperature: request.commonInput.model.temperature,
-      tokenLimit: request.commonInput.model.tokenLimit,
-    });
-    const provider = createOpenAICompatible({
-      name: "zhipu",
-      apiKey: required("ZHIPU_API_KEY"),
-      baseURL: env.zhipu.baseURL,
-    });
-    const startedAt = Date.now();
-    const response = await generateText({
-      model: provider(modelId),
-      messages: [{
-        role: "user",
-        content: [
-          { type: "text", text: prompt },
-          ...options.originalPhotoReadUrls.map((image) => ({ type: "image" as const, image })),
-        ],
-      }],
-      tools: {
-        submit_recommendations: {
-          description: "提交严格结构化的领域推荐候选。",
-          inputSchema: OUTPUT_SCHEMA,
-        },
-      },
-      toolChoice: "auto",
-      temperature: request.commonInput.model.temperature,
-      maxOutputTokens: request.commonInput.model.tokenLimit,
-      providerOptions: { zhipu: { thinking: { type: "disabled" } } },
-    });
-    const call = response.toolCalls.find((item) => item.toolName === "submit_recommendations");
-    if (!call) throw new Error("dual_source_schema_missing");
-    const output = OUTPUT_SCHEMA.parse(call.input);
-    return {
-      candidates: output.candidates,
-      provider: "zhipu",
-      model: modelId,
-      modelVersion,
-      latencyMs: Date.now() - startedAt,
-    };
+    try {
+      const prompt = buildDualSourceProviderPrompt(request);
+      const result = options.invoke
+        ? await options.invoke({
+          prompt,
+          photoReadUrls: options.originalPhotoReadUrls,
+          temperature: request.commonInput.model.temperature,
+          tokenLimit: request.commonInput.model.tokenLimit,
+        })
+        : await (async (): Promise<RawProviderResponse> => {
+          const provider = createOpenAICompatible({
+            name: "zhipu",
+            apiKey: required("ZHIPU_API_KEY"),
+            baseURL: env.zhipu.baseURL,
+          });
+          const startedAt = Date.now();
+          const response = await generateText({
+            model: provider(modelId),
+            messages: [{
+              role: "user",
+              content: [
+                { type: "text", text: prompt },
+                ...options.originalPhotoReadUrls.map((image) => ({ type: "image" as const, image })),
+              ],
+            }],
+            tools: {
+              submit_recommendations: {
+                description: "提交严格结构化的领域推荐候选。",
+                inputSchema: OUTPUT_SCHEMA,
+              },
+            },
+            toolChoice: "auto",
+            temperature: request.commonInput.model.temperature,
+            maxOutputTokens: request.commonInput.model.tokenLimit,
+            providerOptions: { zhipu: { thinking: { type: "disabled" } } },
+          });
+          const call = response.toolCalls.find((item) => item.toolName === "submit_recommendations");
+          if (!call) throw new Error("dual_source_schema_missing");
+          const output = OUTPUT_SCHEMA.parse(call.input);
+          return {
+            candidates: output.candidates,
+            provider: "zhipu",
+            model: modelId,
+            modelVersion,
+            latencyMs: Date.now() - startedAt,
+            callId: response.response.id,
+            usage: response.usage,
+          };
+        })();
+      await recordActiveProviderOperation({
+        provider: "zhipu",
+        operation: "dual_source_recommendation",
+        model: modelId,
+        status: "completed",
+        providerCallId: result.callId,
+        usage: usageFromProviderResult(result),
+      });
+      return result;
+    } catch (error) {
+      await recordActiveProviderOperation({
+        provider: "zhipu",
+        operation: "dual_source_recommendation",
+        model: modelId,
+        status: "failed",
+        usage: { apiRequestCount: 1 },
+      });
+      throw error;
+    }
   };
 }

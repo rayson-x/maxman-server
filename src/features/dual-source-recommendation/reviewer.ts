@@ -2,6 +2,7 @@ import { generateObject } from "ai";
 import { z } from "zod";
 import type { PrismaClient } from "../../generated/prisma/client.js";
 import { createDeepSeekModel } from "../appearance-agent/providers/llm/deepseekModel.js";
+import { recordActiveProviderOperation, usageFromProviderResult } from "../../services/providerOperationMeter.js";
 
 const REVIEW_SCHEMA = z.object({
   classification: z.enum(["agree", "rule_gap", "rule_conflict", "rule_misapplied", "llm_hallucination"]),
@@ -40,7 +41,33 @@ export function reviewerPrompt(input: { domain: string; diffResult: unknown; cha
 }
 
 /** Reviewer is asynchronous and non-authoritative: it never updates exposures or candidates. */
-export function createDualSourceReviewer(prisma: PrismaClient) {
+type ReviewGeneration = {
+  object: z.infer<typeof REVIEW_SCHEMA>;
+  usage?: unknown;
+  response?: { id?: string };
+};
+
+type ReviewerOptions = {
+  generateReview?: (input: {
+    model: ReturnType<typeof createDeepSeekModel>;
+    schema: typeof REVIEW_SCHEMA;
+    prompt: string;
+  }) => Promise<ReviewGeneration>;
+};
+
+export function createDualSourceReviewer(prisma: PrismaClient, options: ReviewerOptions = {}) {
+  const generateReview = options.generateReview ?? (async (input: {
+    model: ReturnType<typeof createDeepSeekModel>;
+    schema: typeof REVIEW_SCHEMA;
+    prompt: string;
+  }): Promise<ReviewGeneration> => {
+    const result = await generateObject(input);
+    return {
+      object: REVIEW_SCHEMA.parse(result.object),
+      usage: result.usage,
+      response: result.response,
+    };
+  });
   return {
     async review(comparisonId: string) {
       const comparison = await prisma.recommendationComparisonLog.findUnique({
@@ -49,8 +76,9 @@ export function createDualSourceReviewer(prisma: PrismaClient) {
       });
       if (!comparison) return { status: "missing" as const };
       if (comparison.reviewerStatus !== "pending") return { status: "not_required" as const };
+      let providerCompleted = false;
       try {
-        const { object } = await generateObject({
+        const generated = await generateReview({
           model: createDeepSeekModel(),
           schema: REVIEW_SCHEMA,
           prompt: reviewerPrompt({
@@ -59,6 +87,16 @@ export function createDualSourceReviewer(prisma: PrismaClient) {
             channels: comparison.channelRuns,
           }),
         });
+        providerCompleted = true;
+        await recordActiveProviderOperation({
+          provider: "deepseek",
+          operation: "dual_source_review",
+          model: "deepseek-v4-flash",
+          status: "completed",
+          providerCallId: generated.response?.id,
+          usage: usageFromProviderResult(generated),
+        });
+        const { object } = generated;
         await prisma.$transaction([
           prisma.recommendationReviewerResult.upsert({
             where: { comparisonId },
@@ -84,6 +122,15 @@ export function createDualSourceReviewer(prisma: PrismaClient) {
         ]);
         return { status: "completed" as const, classification: object.classification };
       } catch (error) {
+        if (!providerCompleted) {
+          await recordActiveProviderOperation({
+            provider: "deepseek",
+            operation: "dual_source_review",
+            model: "deepseek-v4-flash",
+            status: "failed",
+            usage: { apiRequestCount: 1 },
+          });
+        }
         await prisma.$transaction([
           prisma.recommendationReviewerResult.upsert({
             where: { comparisonId },

@@ -25,7 +25,7 @@ test("provider operation decorator records provider-reported tokens once", async
     operation: "text_planning",
     model: "deepseek-v4-flash",
     status: "completed",
-    usage: { apiRequestCount: 1, inputTokens: 100, outputTokens: 20 },
+    usage: { apiRequestCount: 1, inputTokens: 100, outputTokens: 20, cacheMissInputTokens: 100 },
     providerCallId: undefined,
   }]);
 });

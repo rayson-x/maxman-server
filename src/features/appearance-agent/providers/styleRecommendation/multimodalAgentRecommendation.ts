@@ -145,12 +145,12 @@ function toFirstRoundOutput(output: FirstRoundToolOutput): FirstRoundAgentOutput
 export type FirstRoundInvocation = (input: {
   prompt: string;
   photoReadUrl?: string;
-}) => Promise<{ output: FirstRoundToolOutput; callId?: string }>;
+}) => Promise<{ output: FirstRoundToolOutput; callId?: string; usage?: unknown }>;
 
 export type OutfitInvocation = (input: {
   prompt: string;
   photoReadUrl?: string;
-}) => Promise<{ output: OutfitToolOutput; callId?: string }>;
+}) => Promise<{ output: OutfitToolOutput; callId?: string; usage?: unknown }>;
 
 export type MultimodalAgentOptions = {
   invokeFirstRound?: FirstRoundInvocation;
@@ -160,7 +160,7 @@ export type MultimodalAgentOptions = {
 async function invokeFirstRoundWithTool(input: {
   prompt: string;
   photoReadUrl?: string;
-}): Promise<{ output: FirstRoundToolOutput; callId?: string }> {
+}): Promise<{ output: FirstRoundToolOutput; callId?: string; usage?: unknown }> {
   const result = await generateText({
     model: model(),
     messages: [{
@@ -191,13 +191,13 @@ async function invokeFirstRoundWithTool(input: {
       `首轮 Agent 未调用 submit_first_round tool（finish=${result.finishReason}，文本前 200 字：${result.text.slice(0, 200)}）`,
     );
   }
-  return { output: FIRST_ROUND_TOOL_SCHEMA.parse(call.input), callId: result.response.id };
+  return { output: FIRST_ROUND_TOOL_SCHEMA.parse(call.input), callId: result.response.id, usage: result.usage };
 }
 
 async function invokeOutfitWithTool(input: {
   prompt: string;
   photoReadUrl?: string;
-}): Promise<{ output: OutfitToolOutput; callId?: string }> {
+}): Promise<{ output: OutfitToolOutput; callId?: string; usage?: unknown }> {
   const result = await generateText({
     model: model(),
     messages: [{
@@ -223,7 +223,7 @@ async function invokeOutfitWithTool(input: {
       `穿搭 Agent 未调用 submit_outfit_recommendations tool（finish=${result.finishReason}，文本前 200 字：${result.text.slice(0, 200)}）`,
     );
   }
-  return { output: OUTFIT_TOOL_SCHEMA.parse(call.input), callId: result.response.id };
+  return { output: OUTFIT_TOOL_SCHEMA.parse(call.input), callId: result.response.id, usage: result.usage };
 }
 
 export function buildFirstRoundPrompt(input: {
@@ -291,6 +291,7 @@ export function createHairstyleMultimodalAgentProvider(options: MultimodalAgentO
       candidates: ProviderCandidate[];
       firstRound: FirstRoundAgentOutput;
       callId?: string;
+      usage?: unknown;
       latencyMs: number;
       provider: string;
       modelVersion: string;
@@ -304,6 +305,7 @@ export function createHairstyleMultimodalAgentProvider(options: MultimodalAgentO
         candidates: toHairstyleCandidates(result.output.hairstyleSuggestions),
         firstRound: toFirstRoundOutput(result.output),
         callId: result.callId,
+        usage: result.usage,
         latencyMs: Date.now() - startedAt,
         provider: "zhipu",
         modelVersion: MODEL_ID,
@@ -322,6 +324,7 @@ export function createOutfitMultimodalAgentProvider(options: MultimodalAgentOpti
     async recommend(input: unknown): Promise<{
       candidates: ProviderCandidate[];
       callId?: string;
+      usage?: unknown;
       latencyMs: number;
       provider: string;
       modelVersion: string;
@@ -332,6 +335,7 @@ export function createOutfitMultimodalAgentProvider(options: MultimodalAgentOpti
       return {
         candidates: toCandidates(result.output.candidates),
         callId: result.callId,
+        usage: result.usage,
         latencyMs: Date.now() - startedAt,
         provider: "zhipu",
         modelVersion: MODEL_ID,

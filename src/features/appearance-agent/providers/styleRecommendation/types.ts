@@ -174,6 +174,8 @@ export interface StyleRecommendationResult {
   latencyMs: number;
   /** 供应商调用 id，用于成本追溯 */
   callId?: string;
+  /** 供应商实际返回的 token/图像用量，供 provider-operation meter 归一化。 */
+  usage?: unknown;
 }
 
 export interface StyleRecommendationProvider {

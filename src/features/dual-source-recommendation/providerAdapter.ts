@@ -24,6 +24,9 @@ export type RawProviderResponse = {
   modelVersion?: string;
   latencyMs?: number;
   cost?: number;
+  /** Provider response id and usage stay at the adapter boundary for metering only. */
+  callId?: string;
+  usage?: unknown;
 };
 
 function conceptId(domain: RecommendationDomain, nameZh: string): string {

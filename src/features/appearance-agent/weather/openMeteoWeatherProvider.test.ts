@@ -5,6 +5,7 @@ import {
   WeatherLocationError,
   createOpenMeteoWeatherProvider,
 } from "./openMeteoWeatherProvider.js";
+import { setActiveProviderOperationRecorder, type ProviderOperationRecorder } from "../../../services/providerOperationMeter.js";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -227,7 +228,11 @@ test("provider rejects malformed parallel temperature arrays", async () => {
   );
 });
 
-test("provider aborts a weather request after the configured timeout", async () => {
+test("provider aborts a weather request after the configured timeout", async (t) => {
+  const records: unknown[] = [];
+  const recorder: ProviderOperationRecorder = { record: async (record) => { records.push(record); } };
+  setActiveProviderOperationRecorder(recorder);
+  t.after(() => setActiveProviderOperationRecorder({ record: async () => {} }));
   const provider = createOpenMeteoWeatherProvider({
     requestTimeoutMs: 100,
     fetchImpl: async (_input, init) =>
@@ -246,6 +251,12 @@ test("provider aborts a weather request after the configured timeout", async () 
       error instanceof Error &&
       (error.name === "TimeoutError" || /timeout/i.test(error.message)),
   );
+  assert.deepEqual(records, [{
+    provider: "open-meteo",
+    operation: "geocoding",
+    status: "failed",
+    usage: { apiRequestCount: 1 },
+  }]);
 });
 
 test("provider rejects a response larger than the configured limit", async () => {

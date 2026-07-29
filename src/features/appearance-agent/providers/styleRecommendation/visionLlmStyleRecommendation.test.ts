@@ -98,6 +98,7 @@ test("provider 通过结构化多模态请求发送签名图片并返回诚实�
           ],
         },
         response: { id: "call-123" },
+        usage: { inputTokens: 240, outputTokens: 36 },
       };
     },
   });
@@ -117,6 +118,7 @@ test("provider 通过结构化多模态请求发送签名图片并返回诚实�
   assert.equal(result.candidates[0]?.source, "vision_llm");
   assert.equal(result.candidates[0]?.confidence, "low");
   assert.equal(result.callId, "call-123");
+  assert.deepEqual((result as unknown as { usage?: unknown }).usage, { inputTokens: 240, outputTokens: 36 });
 });
 
 test("机械可行性校验对缺标注与违反发量约束的候选 fail closed", () => {

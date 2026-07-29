@@ -14,6 +14,7 @@ test("首轮 provider 用一次 tool 输出同时携带人脸结论、风格和�
       receivedPrompt = prompt;
       return {
         callId: "first-round-call",
+        usage: { inputTokens: 111, outputTokens: 22 },
         output: {
           faceAnalysis: {
             narrative: "轮廓与当前发型的关系清晰，建议从自然层次开始。",
@@ -58,6 +59,7 @@ test("首轮 provider 用一次 tool 输出同时携带人脸结论、风格和�
   });
 
   assert.equal(result.callId, "first-round-call");
+  assert.deepEqual((result as unknown as { usage?: unknown }).usage, { inputTokens: 111, outputTokens: 22 });
   assert.equal(result.candidates[0]?.nameZh, "法式碎盖");
   assert.equal(result.candidates[0]?.styleDirectionId, "clean-fit");
   assert.notEqual(result.candidates[0]?.visualDirection, undefined);

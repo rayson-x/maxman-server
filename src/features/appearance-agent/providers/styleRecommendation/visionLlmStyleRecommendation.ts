@@ -68,6 +68,7 @@ export type StyleRecommendationGenerateObject = (
 ) => Promise<{
   object: z.infer<typeof RESPONSE_SCHEMA>;
   response?: { id?: string };
+  usage?: unknown;
 }>;
 
 export type VisionLlmStyleRecommendationOptions = {
@@ -305,7 +306,7 @@ export function createVisionLlmStyleRecommendationProvider(
     options.generateObject ??
     (async (request) => {
       const result = await generateObject(request);
-      return { object: result.object, response: result.response };
+      return { object: result.object, response: result.response, usage: result.usage };
     });
 
   return {
@@ -375,6 +376,7 @@ export function createVisionLlmStyleRecommendationProvider(
         ],
         latencyMs: Date.now() - startedAt,
         callId: generated.response?.id,
+        usage: generated.usage,
       };
     },
   };
