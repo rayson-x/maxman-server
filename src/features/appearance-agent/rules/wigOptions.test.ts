@@ -2,19 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import type { WigFeasibilityAnnotation } from "../data/objectiveHairstyleAttributes.js";
-import type { HairSignals } from "./hairConstraints.js";
 import { deriveWigOptions, type WigMatchableCandidate } from "./wigOptions.js";
 
-/** 发际线后移 + 发量偏少：强约束，排除 high 发量档并要求遮额 */
-const CONSTRAINED: HairSignals = { hairline: "receding", volume: "thin" };
-
-/** 只被发量挡住、本身遮额 —— 差集里「只缺量感」那一类 */
+/** 只被发量挡住、本身遮额 —— 「只缺量感」那一类 */
 const VOLUME_HUNGRY: WigMatchableCandidate = {
   nameZh: "蓬松纹理烫",
   requiresHairVolume: "high",
   coversForehead: true,
 };
-/** 露额、非极短 —— 差集里「被遮额挡住」那一类 */
+/** 露额、非极短 —— 「被遮额挡住」那一类 */
 const BARES_FOREHEAD: WigMatchableCandidate = {
   nameZh: "大背头",
   requiresHairVolume: "medium",
@@ -26,15 +22,22 @@ const BUZZ_CUT: WigMatchableCandidate = {
   requiresHairVolume: "low",
   coversForehead: false,
 };
-const ACHIEVABLE: WigMatchableCandidate = {
-  nameZh: "微碎盖",
-  requiresHairVolume: "medium",
+/** 属性表未标注 */
+const UNANNOTATED: WigMatchableCandidate = {
+  nameZh: "韩式逗号刘海",
+  requiresHairVolume: "high",
+  coversForehead: true,
+};
+const CURLY: WigMatchableCandidate = {
+  nameZh: "自然卷短发",
+  requiresHairVolume: "high",
   coversForehead: true,
 };
 
 const ANNOTATIONS: Record<string, WigFeasibilityAnnotation> = {
   蓬松纹理烫: { feasible: true, minimumTier: "volume_patch", evidenceStrength: "reasoned" },
-  大背头: { feasible: true, minimumTier: "full_wig", evidenceStrength: "reasoned" },
+  自然卷短发: { feasible: true, minimumTier: "volume_patch", evidenceStrength: "reasoned" },
+  大背头: { feasible: true, minimumTier: "full_wig_front_lace", evidenceStrength: "reasoned" },
   圆寸: {
     feasible: false,
     reason: "极短款式头皮可见度高，整顶假发的发根藏不住",
@@ -48,9 +51,8 @@ function lookup(name: string): WigFeasibilityAnnotation | null {
 
 function input(overrides: Partial<Parameters<typeof deriveWigOptions>[0]> = {}) {
   return {
-    amplePremiseCandidates: [ACHIEVABLE, VOLUME_HUNGRY],
-    ownHairCandidates: [ACHIEVABLE],
-    hairSignals: CONSTRAINED,
+    blockedCandidates: [VOLUME_HUNGRY],
+    modelRankedNames: ["蓬松纹理烫"],
     track: "short_term" as const,
     userDeclaredHairConcern: true,
     feasibilityOf: lookup,
@@ -58,22 +60,20 @@ function input(overrides: Partial<Parameters<typeof deriveWigOptions>[0]> = {}) 
   };
 }
 
-test("the gap set is the first-round candidates minus what the user can already achieve", () => {
+test("a style the user's own hair blocks becomes a wig option", () => {
   const outcome = deriveWigOptions(input());
   assert.equal(outcome.open, true);
   assert.deepEqual(outcome.options.map((o) => o.candidate.nameZh), ["蓬松纹理烫"]);
 });
 
-test("an empty gap set produces no options at all", () => {
-  const outcome = deriveWigOptions(
-    input({ amplePremiseCandidates: [ACHIEVABLE], ownHairCandidates: [ACHIEVABLE] }),
-  );
+test("nothing blocked means no options and no entry", () => {
+  const outcome = deriveWigOptions(input({ blockedCandidates: [], modelRankedNames: [] }));
   assert.equal(outcome.open, false);
   assert.equal(outcome.closedReason, "no_gap");
   assert.deepEqual(outcome.options, []);
 });
 
-test("a long-term track never opens the entry, even with a non-empty gap", () => {
+test("a long-term track never opens the entry, even with blocked styles", () => {
   // 「就是日常」这类通勤场景不收目标日期，系统无从主张「短期内来不及剪」。
   const outcome = deriveWigOptions(input({ track: "long_term" }));
   assert.equal(outcome.open, false);
@@ -81,7 +81,7 @@ test("a long-term track never opens the entry, even with a non-empty gap", () =>
 });
 
 test("without a user-side declaration the entry stays shut", () => {
-  // 视觉信号可以影响「推荐哪些发型」，但不能触发「建议你花钱买东西」。
+  // 视觉信号可以影响「推荐哪些发型」，但不能替用户决定他该买东西。
   const outcome = deriveWigOptions(input({ userDeclaredHairConcern: false }));
   assert.equal(outcome.open, false);
   assert.equal(outcome.closedReason, "no_user_declaration");
@@ -95,23 +95,22 @@ test("an explicit in-flow confirmation substitutes for the questionnaire answer"
 });
 
 test("a style blocked only by volume needs no more than a volume patch", () => {
-  const outcome = deriveWigOptions(input());
-  assert.equal(outcome.options[0]?.tier, "volume_patch");
+  assert.equal(deriveWigOptions(input()).options[0]?.tier, "volume_patch");
 });
 
 test("a style blocked by forehead exposure requires a full wig, not a patch", () => {
   const outcome = deriveWigOptions(
-    input({ amplePremiseCandidates: [ACHIEVABLE, BARES_FOREHEAD] }),
+    input({ blockedCandidates: [BARES_FOREHEAD], modelRankedNames: ["大背头"] }),
   );
-  assert.equal(outcome.options[0]?.tier, "full_wig");
+  assert.equal(outcome.options[0]?.tier, "full_wig_front_lace");
 });
 
 test("the required tier is the stricter of what blocked the style and what the table claims", () => {
   // 标注只说「补量感就够」，但这一款是露额的 —— 发片补不了发际线，必须升到整顶。
   const outcome = deriveWigOptions(
     input({
-      amplePremiseCandidates: [{ ...BARES_FOREHEAD, nameZh: "蓬松纹理烫", coversForehead: false }],
-      ownHairCandidates: [],
+      blockedCandidates: [{ ...VOLUME_HUNGRY, coversForehead: false }],
+      modelRankedNames: ["蓬松纹理烫"],
     }),
   );
   assert.equal(outcome.options[0]?.tier, "full_wig");
@@ -119,39 +118,34 @@ test("the required tier is the stricter of what blocked the style and what the t
 
 test("a style the table marks infeasible is dropped with the table's reason", () => {
   const outcome = deriveWigOptions(
-    input({ amplePremiseCandidates: [ACHIEVABLE, BUZZ_CUT] }),
+    input({ blockedCandidates: [BUZZ_CUT], modelRankedNames: ["圆寸"] }),
   );
   assert.deepEqual(outcome.options, []);
   assert.equal(outcome.open, false);
   assert.equal(outcome.closedReason, "no_feasible_option");
   assert.equal(outcome.unmatched.length, 1);
-  assert.equal(outcome.unmatched[0]?.candidate.nameZh, "圆寸");
   assert.match(outcome.unmatched[0]?.reason ?? "", /头皮/);
   assert.equal(outcome.unmatched[0]?.needsHumanReview, false);
 });
 
-test("an unannotated style is dropped and raised for human review", () => {
+test("an unannotated style is dropped and flagged for human review", () => {
   // fail closed：未标注 = 未判定 = 不可行，并且要有人去补依据。
-  const unknown: WigMatchableCandidate = {
-    nameZh: "韩式逗号刘海",
-    requiresHairVolume: "high",
-    coversForehead: true,
-  };
-  const outcome = deriveWigOptions(input({ amplePremiseCandidates: [ACHIEVABLE, unknown] }));
+  const outcome = deriveWigOptions(
+    input({ blockedCandidates: [UNANNOTATED], modelRankedNames: ["韩式逗号刘海"] }),
+  );
   assert.deepEqual(outcome.options, []);
   assert.equal(outcome.closedReason, "no_feasible_option");
   assert.equal(outcome.unmatched[0]?.needsHumanReview, true);
 });
 
-test("human review records are produced even when the entry stays shut for this user", () => {
-  // 升级记录是关于**款式表**的，不是关于这个用户的 —— 不该被门槛吞掉。
-  const unknown: WigMatchableCandidate = {
-    nameZh: "韩式逗号刘海",
-    requiresHairVolume: "high",
-    coversForehead: true,
-  };
+test("annotation gaps are reported even when the entry stays shut for this user", () => {
+  // 缺口是关于**款式表**的，不是关于这个用户的 —— 不该被门槛吞掉。
   const outcome = deriveWigOptions(
-    input({ amplePremiseCandidates: [ACHIEVABLE, unknown], track: "long_term" }),
+    input({
+      blockedCandidates: [UNANNOTATED],
+      modelRankedNames: ["韩式逗号刘海"],
+      track: "long_term",
+    }),
   );
   assert.equal(outcome.open, false);
   assert.equal(outcome.closedReason, "not_short_term");
@@ -162,7 +156,7 @@ test("human review records are produced even when the entry stays shut for this 
 test("each option carries a templated achievement label rather than model prose", () => {
   const patch = deriveWigOptions(input()).options[0];
   const full = deriveWigOptions(
-    input({ amplePremiseCandidates: [ACHIEVABLE, BARES_FOREHEAD] }),
+    input({ blockedCandidates: [BARES_FOREHEAD], modelRankedNames: ["大背头"] }),
   ).options[0];
 
   assert.notEqual(patch?.achievementLabel, full?.achievementLabel);
@@ -176,9 +170,8 @@ test("each option carries a templated achievement label rather than model prose"
 test("the caller's richer candidate objects survive into the options", () => {
   const rich = { ...VOLUME_HUNGRY, changeInstruction: "把发型改成蓬松纹理烫" };
   const outcome = deriveWigOptions({
-    amplePremiseCandidates: [{ ...ACHIEVABLE, changeInstruction: "把发型改成微碎盖" }, rich],
-    ownHairCandidates: [{ ...ACHIEVABLE, changeInstruction: "把发型改成微碎盖" }],
-    hairSignals: CONSTRAINED,
+    blockedCandidates: [rich],
+    modelRankedNames: ["蓬松纹理烫"],
     track: "short_term",
     userDeclaredHairConcern: true,
     feasibilityOf: lookup,
@@ -186,29 +179,36 @@ test("the caller's richer candidate objects survive into the options", () => {
   assert.equal(outcome.options[0]?.candidate.changeInstruction, "把发型改成蓬松纹理烫");
 });
 
-test("a style absent from the own-hair round but not actually blocked is not a wig case", () => {
-  /*
-   * 两轮是两次独立的 LLM 调用，第二轮不是第一轮的子集——排序与采样波动本身就会让
-   * 一个款式只出现在第一轮里。若把这种波动当成差集，用户会被建议为一个他自己剪得出来的
-   * 款式去买假发。所以差集必须再经自身前提的约束核验一次。
-   */
-  const cuttable: WigMatchableCandidate = {
-    nameZh: "法式碎盖",
-    requiresHairVolume: "medium",
-    coversForehead: true,
-  };
+/*
+ * 排序：模型通道看着照片给出的候选自带排序与针对这个人的理由，所以它提过的款式排在前面、
+ * 且按它的顺序。它没提过的仍然保留 —— 用户要的是「戴假发我能多哪些」这个完整集合，
+ * 只是那部分没有个人化排序依据，排在后面。
+ */
+
+test("styles the model ranked come first, in the model's own order", () => {
   const outcome = deriveWigOptions(
-    input({ amplePremiseCandidates: [ACHIEVABLE, cuttable], ownHairCandidates: [ACHIEVABLE] }),
+    input({
+      // 输入顺序与模型顺序刻意相反，用来证明排序真的来自模型
+      blockedCandidates: [VOLUME_HUNGRY, CURLY],
+      modelRankedNames: ["自然卷短发", "蓬松纹理烫"],
+    }),
   );
-  assert.equal(outcome.open, false);
-  assert.equal(outcome.closedReason, "no_gap");
-  assert.deepEqual(outcome.unmatched, []);
+  assert.deepEqual(outcome.options.map((o) => o.candidate.nameZh), ["自然卷短发", "蓬松纹理烫"]);
 });
 
-test("an unconstrained user has no wig case at all", () => {
+test("a blocked style the model never mentioned is still offered, just after the ranked ones", () => {
   const outcome = deriveWigOptions(
-    input({ hairSignals: { hairline: "normal", volume: "medium" } }),
+    input({
+      blockedCandidates: [CURLY, VOLUME_HUNGRY],
+      modelRankedNames: ["蓬松纹理烫"],
+    }),
   );
-  assert.equal(outcome.open, false);
-  assert.equal(outcome.closedReason, "no_gap");
+  assert.deepEqual(outcome.options.map((o) => o.candidate.nameZh), ["蓬松纹理烫", "自然卷短发"]);
+});
+
+test("an empty model ranking still yields the full blocked set", () => {
+  // 模型通道降级时假发入口不该跟着消失 —— 少的只是排序依据。
+  const outcome = deriveWigOptions(input({ modelRankedNames: [] }));
+  assert.equal(outcome.open, true);
+  assert.deepEqual(outcome.options.map((o) => o.candidate.nameZh), ["蓬松纹理烫"]);
 });

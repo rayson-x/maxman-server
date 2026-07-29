@@ -4,30 +4,23 @@ import {
   type WigCraftTier,
   type WigFeasibilityAnnotation,
 } from "../data/objectiveHairstyleAttributes.js";
-import {
-  applyHairConstraint,
-  computeHairConstraint,
-  type HairSignals,
-  type HairVolumeRequirement,
-} from "./hairConstraints.js";
+import type { HairVolumeRequirement } from "./hairConstraints.js";
 
 /**
  * 假发方案推导。**这是本能力唯一新增的接缝** —— 差集、开放条件、形态匹配、fail closed
  * 四类决策全部落在这一个纯函数里，所以不需要数据库、任务队列或模型替身就能测全。
  *
- * 上游怎么用它：推荐能力跑两轮，前提不同（见 hairConstraints 的 AvailableVolumePremise）——
- * 一轮前提为 `ample`，一轮为 `own_hair`（执行先后不影响语义）。
- * **差集 = ample 轮 \ own_hair 轮**，再经自身前提的约束**重新核验**。
+ * 输入是发型可行集计算时**被发量/发际线约束剔除**的那批款式。它们是确定性过滤算出来的
+ * 完整补集，不是某次模型输出的残余 —— 所以不需要再跑一轮推荐来取差集，也不存在采样波动。
  *
- * 那一步核验不是冗余：两轮是两次独立的 LLM 调用，own_hair 轮并不是 ample 轮的子集，
- * 排序与采样波动本身就会让某个款式只出现在 ample 轮里。不核验就会把这种波动当成
- * 「发量不够」，让用户为一个他自己剪得出来的款式去买假发。
+ * `modelRankedNames` 是同一步里模型通道给出的候选名，按它的排序。它看着照片工作，因此
+ * 它提过的款式带个人化的取舍依据，排在前面；它没提过的仍然保留在后面 —— 用户要的是
+ * 「戴假发我能多哪些」这个完整集合，缺的只是排序依据。**不新增模型调用。**
  *
- * 为什么不用「一轮 + 把被剔除的候选回填」：回填省一次调用，但被剔除的候选是理想列表的
- * 残余 —— 数量不确定、排序依据缺失，且与 validateRecommendations 的「不回填被排除项」
- * 原则冲突。两轮的代价是多一次调用，换来两个列表各自完整、各自有排序与理由。
+ * 与「不回填被排除项」原则不冲突：那条原则防的是拿模型做不出来的东西凑数，而这里每一项
+ * 都带明确排除原因、被单独呈现、带达成路径标签，不混进默认列表充数。
  *
- * 推荐能力自己**始终不知道「假发」这个概念存在**，它只是在不同前提下工作。
+ * 推荐能力自己**始终不知道「假发」这个概念存在**。
  */
 
 /** 参与假发匹配所需的最小候选形状。调用方更丰富的候选对象会原样带出。 */
@@ -41,12 +34,10 @@ export type WigMatchableCandidate = {
 export type PlanTrack = "short_term" | "long_term";
 
 export type WigOptionInput<T extends WigMatchableCandidate> = {
-  /** 第一轮：前提为「补充发量后充足」的候选 */
-  amplePremiseCandidates: readonly T[];
-  /** 第二轮：前提为用户自身发量信号的候选 */
-  ownHairCandidates: readonly T[];
-  /** 用户自身的发量信号。用来核验差集里的款式**真的**被自身发量挡住 */
-  hairSignals: HairSignals;
+  /** 被发量/发际线约束剔除的款式。确定性补集，每一项定义上就是用户自己做不到的 */
+  blockedCandidates: readonly T[];
+  /** 模型通道给出的候选名，按其排序。仅用于排序，不用于取舍 */
+  modelRankedNames: readonly string[];
   track: PlanTrack;
   /** 问卷自报「受脱发 / 发量变少困扰」为非「没有困扰」 */
   userDeclaredHairConcern: boolean;
@@ -82,7 +73,7 @@ export type WigOptionOutcome<T> = {
   /** 未开放的原因。用于日志与排查，不面向用户 */
   closedReason?: "no_gap" | "not_short_term" | "no_user_declaration" | "no_feasible_option";
   options: WigOption<T>[];
-  /** 差集里无法用假发达成的款式。与 open 无关，始终产出 */
+  /** 被挡住但无法用假发达成的款式。与 open 无关，始终产出 */
   unmatched: WigUnmatched<T>[];
 };
 
@@ -118,34 +109,29 @@ function tierRequiredToWear(candidate: WigMatchableCandidate): WigCraftTier {
   return candidate.coversForehead ? "volume_patch" : "full_wig";
 }
 
-/** 该款式是否真的被用户自身的发量/发际线挡住。复用同一份确定性过滤，不另写判断。 */
-function isBlockedByOwnHair(
-  candidate: WigMatchableCandidate,
-  constraint: ReturnType<typeof computeHairConstraint>,
-): boolean {
-  return (
-    applyHairConstraint(
-      [
-        {
-          id: candidate.nameZh,
-          requiresHairVolume: candidate.requiresHairVolume,
-          coversForehead: candidate.coversForehead,
-        },
-      ],
-      constraint,
-    ).excluded.length > 0
-  );
+/**
+ * 模型提过的排前面、按模型的顺序；没提过的按原顺序排在后面。
+ *
+ * 不丢掉「模型没提过」的那些：模型一次只给几个候选，据此取舍会让入口在多数情况下空着，
+ * 而用户想看的是完整的「戴假发能多哪些」。
+ */
+function byModelPreference<T extends WigMatchableCandidate>(
+  candidates: readonly T[],
+  modelRankedNames: readonly string[],
+): T[] {
+  const rank = new Map(modelRankedNames.map((name, i) => [identity(name), i]));
+  const ranked = candidates
+    .filter((c) => rank.has(identity(c.nameZh)))
+    .sort((a, b) => rank.get(identity(a.nameZh))! - rank.get(identity(b.nameZh))!);
+  const rest = candidates.filter((c) => !rank.has(identity(c.nameZh)));
+  return [...ranked, ...rest];
 }
 
 export function deriveWigOptions<T extends WigMatchableCandidate>(
   input: WigOptionInput<T>,
 ): WigOptionOutcome<T> {
   const feasibilityOf = input.feasibilityOf ?? wigFeasibilityFor;
-  const achievable = new Set(input.ownHairCandidates.map((c) => identity(c.nameZh)));
-  const ownHairConstraint = computeHairConstraint(input.hairSignals, "own_hair");
-  const gap = input.amplePremiseCandidates.filter(
-    (c) => !achievable.has(identity(c.nameZh)) && isBlockedByOwnHair(c, ownHairConstraint),
-  );
+  const gap = byModelPreference(input.blockedCandidates, input.modelRankedNames);
 
   if (gap.length === 0) return { open: false, closedReason: "no_gap", options: [], unmatched: [] };
 
