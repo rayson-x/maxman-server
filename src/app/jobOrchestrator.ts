@@ -52,6 +52,23 @@ export type JobPayload = {
 
 export type OrchestratorResult = { status: string; detail?: Record<string, unknown> };
 
+type SavedVision = {
+  geometry?: unknown;
+  hairSignals?: unknown;
+  clientSignals?: unknown;
+  portraitProfile?: unknown;
+};
+
+/** Keep the measured portrait available to every dual-source recommendation stage. */
+export function buildWardrobeRecommendationContext(vision: SavedVision | undefined): Record<string, unknown> {
+  return {
+    geometry: vision?.geometry ?? null,
+    hairSignals: vision?.hairSignals ?? null,
+    clientSignals: vision?.clientSignals ?? {},
+    portraitProfile: vision?.portraitProfile ?? null,
+  };
+}
+
 type Season = "春" | "夏" | "秋" | "冬";
 
 function seasonForDate(date: Date | null | undefined): Season {
@@ -529,10 +546,15 @@ export function createJobOrchestrator(container: AppContainer) {
         return { status: "failed" };
       }
       const ctx: StepContext = { jobId: p.jobId, userId: p.userId, planId: p.planId };
-      const [plan, profile, photos] = await Promise.all([
+      const [plan, profile, photos, prior] = await Promise.all([
         prisma.appearancePlan.findFirst({ where: { id: p.planId, userId: p.userId } }),
         prisma.appearanceProfile.findUnique({ where: { userId: p.userId } }),
         loadPhotos(p.userId),
+        prisma.analysisJob.findFirst({
+          where: { userId: p.userId, planId: p.planId, jobType: "initial_analysis", status: { in: ["completed", "completed_partial"] } },
+          orderBy: { createdAt: "desc" },
+          select: { id: true, partialResult: true },
+        }),
       ]);
       const styleId = (plan?.selectedStyle as { id?: unknown } | null)?.id;
       if (!plan || typeof styleId !== "string") {
@@ -547,6 +569,7 @@ export function createJobOrchestrator(container: AppContainer) {
         await jobs.fail(p.jobId, "缺少正面照");
         return { status: "failed" };
       }
+      const vision = (prior?.partialResult as { vision?: SavedVision } | null)?.vision;
       await step(p.jobId, "recommending");
       const result = await dualSourceWorkflow.recommendWardrobe({
         userId: p.userId,
@@ -555,11 +578,13 @@ export function createJobOrchestrator(container: AppContainer) {
         generation: await dualSourceGeneration(p.planId, "wardrobe", `wardrobe:${p.jobId}`),
         originalPhotos: [photos.front, ...(photos.fullBody ? [photos.fullBody] : [])],
         profileSnapshotRef: `appearance-profile:${p.userId}:${profile?.updatedAt.toISOString() ?? "missing"}`,
+        appearanceAnalysisRef: prior ? `analysis-job:${prior.id}:vision-v1` : undefined,
         questionnaireSnapshotRef: profile ? `appearance-profile:${profile.id}:${profile.updatedAt.toISOString()}` : undefined,
         selectedUpstream: { styleId, hairstyleCandidateId: plan.selectedHairstyleId },
         selectedStyleId: styleId,
         selectedHairstyleId: plan.selectedHairstyleId,
         userContext: {
+          ...buildWardrobeRecommendationContext(vision),
           selectedStyle: plan.selectedStyle,
           selectedHairstyleCandidateId: plan.selectedHairstyleId,
           body: profile ? {
