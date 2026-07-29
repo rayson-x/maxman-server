@@ -1055,6 +1055,55 @@ model ProviderCallLog {
   @@index([status, provider])
 }
 
+/// 本地公开/合同费率的版本快照。模型选择器用 `*` 表示该 provider-operation 的通配规则；
+/// 每条用量记录绑定规则 id，后续调价不得改写既有估算。
+model ProviderPricingRule {
+  id          String   @id @default(cuid())
+  provider    String
+  operation   String
+  model       String   @default("*")
+  version     Int
+  costState   String   @default("known")
+  currency    String?
+  unitPrices  Json
+  effectiveAt DateTime
+  checkedAt   DateTime
+  sourceUrl   String?
+  sourceScope String?
+  createdAt   DateTime @default(now())
+
+  operations ProviderOperationUsage[]
+
+  @@unique([provider, operation, model, version])
+  @@index([provider, operation, model, effectiveAt])
+}
+
+/// 所有外部 provider 的业务操作用量。这里的 operation 是业务单元而非 HTTP 请求；
+/// transport request 只能作为诊断用量，是否计费由关联费率规则决定。
+model ProviderOperationUsage {
+  id            String   @id @default(cuid())
+  provider      String
+  operation     String
+  model         String?
+  status        String
+  providerCallId String?
+  pricingRuleId String?
+  pricingRuleVersion Int?
+  costState     String
+  estimatedCost Float?
+  currency      String?
+  usage         Json
+  sourceUsage   Json?
+  occurredAt    DateTime @default(now())
+  completedAt   DateTime?
+
+  pricingRule ProviderPricingRule? @relation(fields: [pricingRuleId], references: [id], onDelete: SetNull)
+
+  @@index([occurredAt, provider, operation])
+  @@index([provider, model, occurredAt])
+  @@unique([provider, providerCallId])
+}
+
 // ---------------------------------------------------------------------------
 // 对话
 // ---------------------------------------------------------------------------

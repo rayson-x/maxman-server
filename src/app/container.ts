@@ -3,6 +3,7 @@ import { createPrismaClient } from "../lib/prisma.js";
 import { createQueues, type QueueBundle } from "../lib/queues.js";
 import { setActiveTaskLedger } from "../lib/taskLedger.js";
 import { createPrismaTaskLedger } from "../lib/prismaTaskLedger.js";
+import { createPrismaProviderOperationRecorder, setActiveProviderOperationRecorder } from "../services/providerOperationMeter.js";
 import {
   getVisionAnalysisProvider,
   getImageEditProvider,
@@ -82,6 +83,7 @@ export function createContainer(opts: ContainerOptions = {}): AppContainer {
   // 一个 worker 崩了，另一个能凭 callId 接管轮询。文件版在多进程下各写各的文件，
   // 恢复能力形同虚设。测试脚本不经过组装根，仍用默认的文件版，零配置可跑。
   setActiveTaskLedger(createPrismaTaskLedger(prisma));
+  setActiveProviderOperationRecorder(createPrismaProviderOperationRecorder(prisma));
 
   const queues = withQueues ? createQueues() : ({ queues: {}, connection: null, close: async () => {} } as unknown as QueueBundle);
 

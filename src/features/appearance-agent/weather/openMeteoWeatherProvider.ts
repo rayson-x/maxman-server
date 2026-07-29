@@ -8,6 +8,7 @@ import type {
   ResolvedWeatherLocation,
   WeatherProvider,
 } from "./types.js";
+import { recordActiveProviderOperation } from "../../../services/providerOperationMeter.js";
 
 const DEFAULT_GEOCODING_ORIGIN = "https://geocoding-api.open-meteo.com";
 const DEFAULT_ARCHIVE_ORIGIN = "https://archive-api.open-meteo.com";
@@ -246,6 +247,7 @@ export function createOpenMeteoWeatherProvider(
       url.searchParams.set("countryCode", "CN");
 
       const parsed = geocodingResponseSchema.parse(await fetchJson(url));
+      await recordActiveProviderOperation({ provider: "open-meteo", operation: "geocoding", status: "completed", usage: { apiRequestCount: 1 } });
       const matches = (parsed.results ?? []).filter((candidate) => {
         if (candidate.country_code && candidate.country_code !== "CN") {
           return false;
@@ -302,6 +304,7 @@ export function createOpenMeteoWeatherProvider(
       url.searchParams.set("temperature_unit", "celsius");
 
       const parsed = historicalResponseSchema.parse(await fetchJson(url));
+      await recordActiveProviderOperation({ provider: "open-meteo", operation: "historical_weather", status: "completed", usage: { apiRequestCount: 1 } });
       const { daily } = parsed;
       assertParallelArrays("Historical weather response", [
         daily.time,
@@ -346,6 +349,7 @@ export function createOpenMeteoWeatherProvider(
       url.searchParams.set("temperature_unit", "celsius");
 
       const parsed = liveResponseSchema.parse(await fetchJson(url));
+      await recordActiveProviderOperation({ provider: "open-meteo", operation: "forecast_weather", status: "completed", usage: { apiRequestCount: 1 } });
       const { daily } = parsed;
       assertParallelArrays("Forecast weather response", [
         daily.time,

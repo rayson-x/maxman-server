@@ -25,7 +25,7 @@ export function createDeepSeekInputReviewProvider(): InputReviewProvider {
     name: "deepseek-input-review",
     async review(input: InputReviewInput): Promise<InputReviewResult> {
       const start = Date.now();
-      const { object } = await generateObject({
+      const { object, usage } = await generateObject({
         model,
         schema: VERDICT_SCHEMA,
         prompt:
@@ -62,6 +62,7 @@ export function createDeepSeekInputReviewProvider(): InputReviewProvider {
         },
         latencyMs: Date.now() - start,
         raw: object,
+        usage,
       };
     },
   };

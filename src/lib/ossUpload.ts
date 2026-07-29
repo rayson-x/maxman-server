@@ -1,5 +1,6 @@
 import OSS from "ali-oss";
 import { env, required } from "../config/env.js";
+import { recordActiveProviderOperation } from "../services/providerOperationMeter.js";
 
 /**
  * 对象存储访问（tasks 1.5）。
@@ -107,6 +108,7 @@ export function createPresignedReadUrl(storageKey: string, opts: { expiresSecond
 /** 服务端直传（用于生成结果回存等服务端产生的内容） */
 export async function putBuffer(storageKey: string, buffer: Buffer): Promise<{ storageKey: string }> {
   await getClient().put(storageKey, buffer);
+  await recordActiveProviderOperation({ provider: "aliyun-oss", operation: "put_object", status: "completed", usage: { putRequestCount: 1 } });
   return { storageKey };
 }
 
@@ -114,6 +116,7 @@ export async function putBuffer(storageKey: string, buffer: Buffer): Promise<{ s
 export async function deleteObject(storageKey: string): Promise<void> {
   try {
     await getClient().delete(storageKey);
+    await recordActiveProviderOperation({ provider: "aliyun-oss", operation: "delete_object", status: "completed", usage: { deleteRequestCount: 1 } });
   } catch (err) {
     const code = (err as { code?: string })?.code;
     if (code === "NoSuchKey") return;
@@ -132,6 +135,8 @@ export async function deleteObjects(storageKeys: string[]): Promise<{ requested:
   const failed = ((res.deleted ?? []) as unknown[])
     .map((d) => (typeof d === "string" ? d : (d as { Key?: string })?.Key))
     .filter((k): k is string => Boolean(k));
+  const completed = storageKeys.length - failed.length;
+  if (completed > 0) await recordActiveProviderOperation({ provider: "aliyun-oss", operation: "delete_object", status: "completed", usage: { deleteRequestCount: completed } });
   return { requested: storageKeys.length, failed };
 }
 

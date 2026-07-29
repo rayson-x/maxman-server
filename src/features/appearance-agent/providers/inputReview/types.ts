@@ -41,6 +41,7 @@ export type InputReviewResult = {
   verdict: InputReviewVerdict;
   latencyMs: number;
   raw?: unknown;
+  usage?: unknown;
 };
 
 export interface InputReviewProvider {

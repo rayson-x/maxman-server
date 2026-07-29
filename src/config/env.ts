@@ -97,6 +97,8 @@ export const env = {
     allowPendingModeration:
       process.env.ALLOW_PENDING_MODERATION === "1" && process.env.NODE_ENV !== "production",
     isProduction: (optional("NODE_ENV") ?? "development") === "production",
+    /** Internal cost aggregation is deliberately not exposed to anonymous product sessions. */
+    adminCostApiToken: optional("ADMIN_COST_API_TOKEN"),
   },
 };
 

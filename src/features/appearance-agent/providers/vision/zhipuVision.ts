@@ -17,7 +17,7 @@ export function createZhipuVisionProvider(): VisionAnalysisProvider {
     name: "zhipu-glm-4v",
     async analyze(input: VisionAnalysisInput): Promise<VisionAnalysisResult> {
       const start = Date.now();
-      const { text } = await generateText({
+      const { text, usage } = await generateText({
         model,
         messages: [
           {
@@ -34,6 +34,7 @@ export function createZhipuVisionProvider(): VisionAnalysisProvider {
         model: MODEL_ID,
         rawText: text,
         latencyMs: Date.now() - start,
+        usage,
       };
     },
   };

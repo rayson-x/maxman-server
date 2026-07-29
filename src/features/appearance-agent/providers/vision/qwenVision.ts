@@ -21,7 +21,7 @@ export function createQwenVisionProvider(): VisionAnalysisProvider {
     name: "qwen-vl",
     async analyze(input: VisionAnalysisInput): Promise<VisionAnalysisResult> {
       const start = Date.now();
-      const { text } = await generateText({
+      const { text, usage } = await generateText({
         model,
         messages: [
           {
@@ -38,6 +38,7 @@ export function createQwenVisionProvider(): VisionAnalysisProvider {
         model: MODEL_ID,
         rawText: text,
         latencyMs: Date.now() - start,
+        usage,
       };
     },
   };
