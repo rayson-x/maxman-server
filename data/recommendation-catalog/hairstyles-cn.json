@@ -161,28 +161,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "none",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "sharp",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "sleek",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -350,28 +352,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "none",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "sleek",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -532,28 +536,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "partial",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "mixed",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "natural",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -769,29 +775,31 @@
     "fitAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
-        "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "value": "low",
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "none",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "mixed",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "piecey",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -984,28 +992,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "full",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "natural",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -1163,28 +1173,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "partial",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "natural",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -1353,29 +1365,31 @@
     "fitAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
-        "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "value": "medium",
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "partial",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "natural",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -1545,28 +1559,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "none",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "mixed",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "asymmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "piecey",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -1722,29 +1738,31 @@
     "fitAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
-        "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "value": "medium",
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "partial",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "asymmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "natural",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -1932,28 +1950,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "none",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "mixed",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "asymmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "natural",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -2153,28 +2173,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "none",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "mixed",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "piecey",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -2349,28 +2371,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "partial",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "piecey",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -2547,28 +2571,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
-        "value": "partial",
-        "provenance": "ai_draft_pending_review"
+        "value": "full",
+        "provenance": "human_reviewed"
       },
       "contourLine": {
-        "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "value": "mixed",
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "asymmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
-        "value": "natural",
-        "provenance": "ai_draft_pending_review"
-      }
+        "value": "piecey",
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -2749,29 +2775,31 @@
     "fitAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
-        "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "value": "medium",
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "high",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "partial",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "natural",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -2940,28 +2968,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "none",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
-        "value": "sharp",
-        "provenance": "ai_draft_pending_review"
+        "value": "soft",
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "asymmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "sleek",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -3100,28 +3130,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "high",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "partial",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "natural",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -3260,29 +3292,31 @@
     "fitAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
-        "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "value": "medium",
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "partial",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
-        "value": "asymmetric",
-        "provenance": "ai_draft_pending_review"
+        "value": "symmetric",
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "natural",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -3422,28 +3456,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "high",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
-        "value": "partial",
-        "provenance": "ai_draft_pending_review"
+        "value": "none",
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "sleek",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -3581,29 +3617,31 @@
     "fitAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
-        "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "value": "medium",
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "high",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "partial",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "natural",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -3748,28 +3786,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "none",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "mixed",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "sleek",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -3915,28 +3955,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "high",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "none",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "mixed",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "sleek",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -4082,28 +4124,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "high",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "none",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "mixed",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "sleek",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -4249,28 +4293,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "none",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "mixed",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "sleek",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -4417,28 +4463,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "partial",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "natural",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -4585,28 +4633,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "partial",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "asymmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "piecey",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -4737,28 +4787,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "none",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "sharp",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "sleek",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",
@@ -4890,28 +4942,30 @@
       "schemaVersion": "hairstyle-fit-v1",
       "topHeight": {
         "value": "low",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "sideVolume": {
         "value": "medium",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "foreheadCoverage": {
         "value": "none",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "contourLine": {
         "value": "soft",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "symmetry": {
         "value": "symmetric",
-        "provenance": "ai_draft_pending_review"
+        "provenance": "human_reviewed"
       },
       "surfaceTexture": {
         "value": "piecey",
-        "provenance": "ai_draft_pending_review"
-      }
+        "provenance": "human_reviewed"
+      },
+      "reviewedBy": "rayson",
+      "reviewedAt": "2026-07-28T15:32:34.331Z"
     },
     "feasibilityAttributes": {
       "schemaVersion": "hairstyle-fit-v1",

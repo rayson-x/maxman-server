@@ -1,0 +1,363 @@
+{
+  "datasetVersion": "fit-rules-bodyoutfit-cn-v0.1",
+  "generatedAt": "2026-07-28",
+  "status": "draft",
+  "targetMarket": "中国大陆",
+  "boundSchemaVersion": "outfit-fit-v1",
+  "warning": "体型×穿搭适配规则。当前全部来自中文互联网从业者内容的多源归纳（调研 docs/research-outfit-formula-cn.md），无考纲/教科书级来源，证据天花板 S1；部分规则的机制有 S2 级经典著作原则支撑（Flusser 比例平衡、drape 原则），在 evidenceTrail 注明但不上调规则等级——教材摘编完成前，本文件规则 UI 不得给「依据」展示。所有规则 effectType=soft_ranking。规则只允许引用 boundSchemaVersion 声明的维度与枚举。",
+  "design": {
+    "purpose": "连接身体数据（client/lib/body.ts 的测量/估算，三档输入分级 measured/estimated/missing）与穿搭公式目录（outfits-cn.json 的 fitAttributes），为双源推荐 B 通道提供可解释规则。",
+    "researchBasis": "docs/research-outfit-formula-cn.md §4（R-01~R-14，R-11 因词表缺口暂缓）",
+    "inputTiers": "条件输入分三档：measured（用户实填）= 完整置信；estimated（estimateMeasurements 占位估算）= 软排序降权，禁止硬过滤，禁止喂回体脂估算（循环论证护栏见 client/lib/body.ts）；missing = missingInputBehavior"
+  },
+  "evidenceLevelScale": "与 fit-rules-cn.json 相同（S0–S4）。本域当前最高 S1：多从业者共识但无机构级来源。",
+  "conditionVocabulary": {
+    "heightBand": {"values": ["short", "average", "tall"], "source": "身高（必填）；阈值待定（参考国内 P25≈168 / P75≈176，provenance: internal_derivation）", "missingInputBehavior": "skip_rule"},
+    "buildIndex": {"values": ["slim", "standard", "stocky", "heavy"], "source": "BMI×体脂率交叉（client/lib/body.ts estimateBodyFat），provenance: internal_derivation，置信度继承体脂估算", "missingInputBehavior": "skip_rule"},
+    "bodyTypeYABC": {"values": ["Y", "A", "B", "C"], "source": "GB/T 1335.1-2008 胸腰差分型；measured（实填胸/腰围）或 estimated（占位估算，标来源降权）", "missingInputBehavior": "skip_rule"},
+    "legToHeightRatio": {"values": ["low", "normal", "high"], "source": "腿身比——当前未采集，需全身照分析或问卷新增", "missingInputBehavior": "skip_rule"},
+    "shoulderSlope": {"values": ["normal", "sloped"], "source": "溜肩判定——当前未采集，需全身照分析或问卷自报题", "missingInputBehavior": "skip_rule"},
+    "waistChestRatio": {"values": ["normal", "high"], "source": "腰胸比 ≥0.92 = high（client/lib/body.ts bodyShapeHint 雏形）；measured only", "missingInputBehavior": "skip_rule"}
+  },
+  "rules": [
+    {
+      "id": "rule-bodyoutfit-short-toplength",
+      "ruleVersion": 1,
+      "domain": "body-outfit",
+      "status": "source_verified",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"field": "heightBand", "op": "eq", "value": "short"}],
+      "conclusion": {
+        "verdict": "compatible",
+        "attributeEffects": [
+          {"attribute": "topLengthBand", "value": ["cropped", "waist"], "direction": "increase", "weight": 1, "supportType": "direct_source"},
+          {"attribute": "waistEmphasis", "value": ["defined"], "direction": "increase", "weight": 1, "supportType": "direct_source"}
+        ]
+      },
+      "mechanism": {"text": "缩短上身占比、上提腰线可拉长下肢纵线（调研 R-01，●●● 多源共识；机制与 Flusser 比例平衡原则一致）。", "provenance": "research_synthesis"},
+      "evidenceLevel": "S1",
+      "downgradeFactors": ["practitioner_content_only", "thresholds_internal_derivation"],
+      "conflictsWith": [],
+      "sourceRefs": [{"title": "research-outfit-formula-cn.md §4.1 R-01（smzdm / Esquire HK 等，含营销定性标注）", "url": "docs/research-outfit-formula-cn.md", "accessedAt": "2026-07-28"}],
+      "evidenceTrail": {"sourceLevelNote": "中文多源共识 + 机制 S2 支撑（Flusser proportion）；教材摘编后可升 S2。身高阈值 P25 为 internal_derivation，需用真实用户分布校准。"}
+    },
+    {
+      "id": "rule-bodyoutfit-short-colorcontinuity",
+      "ruleVersion": 1,
+      "domain": "body-outfit",
+      "status": "source_verified",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"field": "heightBand", "op": "eq", "value": "short"}],
+      "conclusion": {
+        "verdict": "compatible",
+        "attributeEffects": [
+          {"attribute": "colorBlockContinuity", "value": ["continuous"], "direction": "increase", "weight": 1, "supportType": "direct_source"},
+          {"attribute": "colorBlockContinuity", "value": ["broken"], "direction": "decrease", "weight": 1, "supportType": "direct_source"}
+        ]
+      },
+      "mechanism": {"text": "上下顺色=纵向视觉延伸；大面积撞色截断身高（调研 R-02，●●●）。", "provenance": "research_synthesis"},
+      "evidenceLevel": "S1",
+      "downgradeFactors": ["practitioner_content_only"],
+      "conflictsWith": [],
+      "sourceRefs": [{"title": "research-outfit-formula-cn.md §4.1 R-02", "url": "docs/research-outfit-formula-cn.md", "accessedAt": "2026-07-28"}],
+      "evidenceTrail": {"sourceLevelNote": "同 R-01。"}
+    },
+    {
+      "id": "rule-bodyoutfit-short-bottomcut",
+      "ruleVersion": 1,
+      "domain": "body-outfit",
+      "status": "source_verified",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"field": "heightBand", "op": "eq", "value": "short"}],
+      "conclusion": {
+        "verdict": "compatible",
+        "attributeEffects": [
+          {"attribute": "bottomCut", "value": ["straight"], "direction": "increase", "weight": 1, "supportType": "direct_source"},
+          {"attribute": "volumeBalance", "value": ["oversized"], "direction": "decrease", "weight": 1, "supportType": "direct_source"},
+          {"attribute": "topLengthBand", "value": ["long"], "direction": "decrease", "weight": 1, "supportType": "direct_source"}
+        ]
+      },
+      "mechanism": {"text": "直筒裤+裤长卡踝维持纵线（R-03，●●●）；过量体积与落肩长款压低视觉重心（R-04，●●）。", "provenance": "research_synthesis"},
+      "evidenceLevel": "S1",
+      "downgradeFactors": ["practitioner_content_only"],
+      "conflictsWith": [],
+      "sourceRefs": [{"title": "research-outfit-formula-cn.md §4.1 R-03/R-04", "url": "docs/research-outfit-formula-cn.md", "accessedAt": "2026-07-28"}],
+      "evidenceTrail": {"sourceLevelNote": "「裤脚不堆叠」已是目录 constraints 的既有约束，与规则方向一致。"}
+    },
+    {
+      "id": "rule-bodyoutfit-stocky-fitcloseness",
+      "ruleVersion": 1,
+      "domain": "body-outfit",
+      "status": "source_verified",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"anyOf": [
+        {"field": "buildIndex", "op": "in", "values": ["stocky", "heavy"]},
+        {"field": "bodyTypeYABC", "op": "in", "values": ["B", "C"]}
+      ]}],
+      "conclusion": {
+        "verdict": "compatible",
+        "attributeEffects": [
+          {"attribute": "fitCloseness", "value": ["regular", "loose"], "direction": "increase", "weight": 1, "supportType": "direct_source"},
+          {"attribute": "fitCloseness", "value": ["tight", "oversized"], "direction": "decrease", "weight": 1, "supportType": "direct_source"}
+        ]
+      },
+      "mechanism": {"text": "过紧暴露赘肉轮廓，过垮放大体积；「合身略宽松」中式中间态遮蔽且不增量（调研 R-05，●●●；机制同 drape 原则 S2）。", "provenance": "research_synthesis"},
+      "evidenceLevel": "S1",
+      "downgradeFactors": ["practitioner_content_only"],
+      "conflictsWith": [],
+      "sourceRefs": [{"title": "research-outfit-formula-cn.md §4.2 R-05", "url": "docs/research-outfit-formula-cn.md", "accessedAt": "2026-07-28"}],
+      "evidenceTrail": {"sourceLevelNote": "buildIndex 与 Y/A/B/C 双入口（anyOf）：有围度走国标分型，没有走 BMI×体脂。"}
+    },
+    {
+      "id": "rule-bodyoutfit-stocky-fabricstructure",
+      "ruleVersion": 1,
+      "domain": "body-outfit",
+      "status": "source_verified",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"anyOf": [
+        {"field": "buildIndex", "op": "in", "values": ["stocky", "heavy"]},
+        {"field": "bodyTypeYABC", "op": "in", "values": ["B", "C"]}
+      ]}],
+      "conclusion": {
+        "verdict": "compatible",
+        "attributeEffects": [
+          {"attribute": "fabricStructure", "value": ["structured"], "direction": "increase", "weight": 1, "supportType": "direct_source"},
+          {"attribute": "fabricStructure", "value": ["soft"], "direction": "decrease", "weight": 1, "supportType": "direct_source"}
+        ]
+      },
+      "mechanism": {"text": "挺括面料自建轮廓线、不随身体曲线；软塌贴肤面料暴露体积（调研 R-06，●●●；与骨格诊断 W 型逻辑反向印证）。", "provenance": "research_synthesis"},
+      "evidenceLevel": "S1",
+      "downgradeFactors": ["practitioner_content_only"],
+      "conflictsWith": [],
+      "sourceRefs": [{"title": "research-outfit-formula-cn.md §4.2 R-06", "url": "docs/research-outfit-formula-cn.md", "accessedAt": "2026-07-28"}],
+      "evidenceTrail": {"sourceLevelNote": "同 R-05。"}
+    },
+    {
+      "id": "rule-bodyoutfit-stocky-colorconvergence",
+      "ruleVersion": 1,
+      "domain": "body-outfit",
+      "status": "source_verified",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"anyOf": [
+        {"field": "buildIndex", "op": "in", "values": ["stocky", "heavy"]},
+        {"field": "bodyTypeYABC", "op": "in", "values": ["B", "C"]}
+      ]}],
+      "conclusion": {
+        "verdict": "compatible",
+        "attributeEffects": [
+          {"attribute": "colorBlockContinuity", "value": ["continuous", "semi"], "direction": "increase", "weight": 1, "supportType": "editorial_derivation"}
+        ]
+      },
+      "mechanism": {"text": "深色/低饱和收敛、明度后移=视觉收缩（调研 R-07，●●●）。词表无颜色深浅维度，映射到色块连续性是编辑性降级。", "provenance": "research_synthesis"},
+      "evidenceLevel": "S1",
+      "downgradeFactors": ["practitioner_content_only", "value_mapping_is_editorial"],
+      "conflictsWith": [],
+      "sourceRefs": [{"title": "research-outfit-formula-cn.md §4.2 R-07", "url": "docs/research-outfit-formula-cn.md", "accessedAt": "2026-07-28"}],
+      "evidenceTrail": {"sourceLevelNote": "颜色深浅（深色收敛）在 v1 词表无对应维度，只保留连续性效果；领口维度（V 领 +1）同样在缺口清单。"}
+    },
+    {
+      "id": "rule-bodyoutfit-stocky-waistline",
+      "ruleVersion": 1,
+      "domain": "body-outfit",
+      "status": "source_verified",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"anyOf": [
+        {"field": "buildIndex", "op": "in", "values": ["stocky", "heavy"]},
+        {"field": "bodyTypeYABC", "op": "in", "values": ["B", "C"]}
+      ]}],
+      "conclusion": {
+        "verdict": "caution",
+        "attributeEffects": [
+          {"attribute": "waistEmphasis", "value": ["dropped"], "direction": "decrease", "weight": 1, "supportType": "direct_source"},
+          {"attribute": "bottomCut", "value": ["straight"], "direction": "increase", "weight": 1, "supportType": "direct_source"}
+        ]
+      },
+      "mechanism": {"text": "低腰切割比例并暴露腰腹；直筒+腰部余量维持纵向引导（调研 R-08，●●）。", "provenance": "research_synthesis"},
+      "evidenceLevel": "S1",
+      "downgradeFactors": ["practitioner_content_only"],
+      "conflictsWith": [],
+      "sourceRefs": [{"title": "research-outfit-formula-cn.md §4.2 R-08", "url": "docs/research-outfit-formula-cn.md", "accessedAt": "2026-07-28"}],
+      "evidenceTrail": {"sourceLevelNote": "双源级（●●），弱于 R-05~07 的多源共识。"}
+    },
+    {
+      "id": "rule-bodyoutfit-slopeshoulder-structure",
+      "ruleVersion": 1,
+      "domain": "body-outfit",
+      "status": "source_verified",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"field": "shoulderSlope", "op": "eq", "value": "sloped"}],
+      "conclusion": {
+        "verdict": "compatible",
+        "attributeEffects": [
+          {"attribute": "fabricStructure", "value": ["structured"], "direction": "increase", "weight": 1, "supportType": "direct_source"},
+          {"attribute": "fabricStructure", "value": ["soft"], "direction": "decrease", "weight": 1, "supportType": "direct_source"},
+          {"attribute": "volumeBalance", "value": ["top-heavy"], "direction": "increase", "weight": 1, "supportType": "editorial_derivation"}
+        ]
+      },
+      "mechanism": {"text": "溜肩使落肩款肩线进一步下滑；硬挺肩线+正肩剪裁重建肩部水平线，叠穿增加上部量感（调研 R-09，●●●，本土化增量核心）。", "provenance": "research_synthesis"},
+      "evidenceLevel": "S1",
+      "downgradeFactors": ["practitioner_content_only", "input_not_yet_collected"],
+      "conflictsWith": [],
+      "sourceRefs": [{"title": "research-outfit-formula-cn.md §4.3 R-09", "url": "docs/research-outfit-formula-cn.md", "accessedAt": "2026-07-28"}],
+      "evidenceTrail": {"sourceLevelNote": "shoulderSlope 当前无采集路径（全身照/问卷题），规则入库但 missingInputBehavior=skip_rule，输入上线前实际不可触发。「落肩款 −1」在 7 维词表无肩线维度，记入 coverageGaps。"}
+    },
+    {
+      "id": "rule-bodyoutfit-stocky-slopeshoulder-synthesis",
+      "ruleVersion": 1,
+      "domain": "body-outfit",
+      "status": "draft",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male"},
+      "effectType": "soft_ranking",
+      "conditions": [
+        {"anyOf": [
+          {"field": "buildIndex", "op": "in", "values": ["stocky", "heavy"]},
+          {"field": "bodyTypeYABC", "op": "in", "values": ["B", "C"]}
+        ]},
+        {"field": "shoulderSlope", "op": "eq", "value": "sloped"}
+      ],
+      "conclusion": {
+        "verdict": "compatible",
+        "attributeEffects": [
+          {"attribute": "fabricStructure", "value": ["structured"], "direction": "increase", "weight": 1, "supportType": "editorial_derivation"},
+          {"attribute": "colorBlockContinuity", "value": ["continuous", "semi"], "direction": "increase", "weight": 1, "supportType": "editorial_derivation"},
+          {"attribute": "fitCloseness", "value": ["regular"], "direction": "increase", "weight": 1, "supportType": "editorial_derivation"}
+        ]
+      },
+      "mechanism": {"text": "「微胖选插肩袖」与「溜肩需强化肩线」在该组合下直接冲突（调研 R-10 ⚡）：折中为硬挺面料+深色收敛+合身剪裁，不用插肩袖也不用夸张垫肩。", "provenance": "research_synthesis_original"},
+      "evidenceLevel": "S0",
+      "downgradeFactors": ["original_synthesis_no_direct_source", "input_not_yet_collected"],
+      "conflictsWith": ["rule-bodyoutfit-stocky-fabricstructure 的插肩袖变体解读"],
+      "sourceRefs": [{"title": "research-outfit-formula-cn.md §4.3 R-10（冲突缝合为调研原创建议）", "url": "docs/research-outfit-formula-cn.md", "accessedAt": "2026-07-28"}],
+      "evidenceTrail": {"sourceLevelNote": "⚠️ S0 原创合成规则：冲突双方各为多源但缝合方案无直接来源，必须经专家复核或用户行为数据验证后才能升级。这条规则的存在价值是防止两条单条件规则在组合条件下给出矛盾推荐。"}
+    },
+    {
+      "id": "rule-bodyoutfit-lowlegratio-proportion",
+      "ruleVersion": 1,
+      "domain": "body-outfit",
+      "status": "source_verified",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"field": "legToHeightRatio", "op": "eq", "value": "low"}],
+      "conclusion": {
+        "verdict": "compatible",
+        "attributeEffects": [
+          {"attribute": "topLengthBand", "value": ["cropped", "waist"], "direction": "increase", "weight": 1, "supportType": "direct_source"},
+          {"attribute": "waistEmphasis", "value": ["defined"], "direction": "increase", "weight": 1, "supportType": "direct_source"},
+          {"attribute": "colorBlockContinuity", "value": ["continuous"], "direction": "increase", "weight": 1, "supportType": "direct_source"}
+        ]
+      },
+      "mechanism": {"text": "五五分比例（腿身比≈1:1）独立于绝对身高处理，结论集与小个子相同：高腰+短上衣+顺色，可半塞露腰头（调研 R-12，●●）。", "provenance": "research_synthesis"},
+      "evidenceLevel": "S1",
+      "downgradeFactors": ["practitioner_content_only", "input_not_yet_collected"],
+      "conflictsWith": [],
+      "sourceRefs": [{"title": "research-outfit-formula-cn.md §4.4 R-12", "url": "docs/research-outfit-formula-cn.md", "accessedAt": "2026-07-28"}],
+      "evidenceTrail": {"sourceLevelNote": "legToHeightRatio 无采集路径，同 shoulderSlope 处理。中文内容把比例独立于身高处理是本条的本土化增量。"}
+    },
+    {
+      "id": "rule-bodyoutfit-tallslim-volume",
+      "ruleVersion": 1,
+      "domain": "body-outfit",
+      "status": "source_verified",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male"},
+      "effectType": "soft_ranking",
+      "conditions": [
+        {"field": "buildIndex", "op": "eq", "value": "slim"},
+        {"field": "heightBand", "op": "eq", "value": "tall"}
+      ],
+      "conclusion": {
+        "verdict": "compatible",
+        "attributeEffects": [
+          {"attribute": "fitCloseness", "value": ["regular", "loose"], "direction": "increase", "weight": 1, "supportType": "direct_source"},
+          {"attribute": "fitCloseness", "value": ["tight"], "direction": "decrease", "weight": 1, "supportType": "direct_source"},
+          {"attribute": "volumeBalance", "value": ["top-heavy"], "direction": "increase", "weight": 1, "supportType": "editorial_derivation"}
+        ]
+      },
+      "mechanism": {"text": "瘦高纵向过剩需横向元素与层叠平衡；过修身放大「竹竿感」（调研 R-13，●●；机制=比例平衡 S2）。", "provenance": "research_synthesis"},
+      "evidenceLevel": "S1",
+      "downgradeFactors": ["practitioner_content_only"],
+      "conflictsWith": [],
+      "sourceRefs": [{"title": "research-outfit-formula-cn.md §4.4 R-13", "url": "docs/research-outfit-formula-cn.md", "accessedAt": "2026-07-28"}],
+      "evidenceTrail": {"sourceLevelNote": "双源级，「横条纹/格纹可接受」无对应词表维度，记入 coverageGaps。"}
+    },
+    {
+      "id": "rule-bodyoutfit-ytype-bottomvolume",
+      "ruleVersion": 1,
+      "domain": "body-outfit",
+      "status": "source_verified",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"field": "bodyTypeYABC", "op": "eq", "value": "Y"}],
+      "conclusion": {
+        "verdict": "compatible",
+        "attributeEffects": [
+          {"attribute": "volumeBalance", "value": ["bottom-heavy"], "direction": "increase", "weight": 1, "supportType": "direct_source", "pendingCatalog": true},
+          {"attribute": "bottomCut", "value": ["relaxed", "wide"], "direction": "increase", "weight": 1, "supportType": "direct_source"}
+        ]
+      },
+      "mechanism": {"text": "宽肩窄臀（倒三角/Y 型）下装增加体积平衡肩宽：宽直裤、双褶（调研 R-14，●●）。", "provenance": "research_synthesis"},
+      "evidenceLevel": "S1",
+      "downgradeFactors": ["practitioner_content_only"],
+      "conflictsWith": [],
+      "sourceRefs": [{"title": "research-outfit-formula-cn.md §4.4 R-14", "url": "docs/research-outfit-formula-cn.md", "accessedAt": "2026-07-28"}],
+      "evidenceTrail": {"sourceLevelNote": "Y 型判定依赖围度（胸腰差），estimated 档降权。"}
+    },
+    {
+      "id": "rule-bodyoutfit-highwaistchest-straight",
+      "ruleVersion": 1,
+      "domain": "body-outfit",
+      "status": "source_verified",
+      "reviewStatus": "pending_human_review",
+      "scope": {"market": "中国大陆", "sex": "male"},
+      "effectType": "soft_ranking",
+      "conditions": [{"field": "waistChestRatio", "op": "eq", "value": "high"}],
+      "conclusion": {
+        "verdict": "caution",
+        "attributeEffects": [
+          {"attribute": "fitCloseness", "value": ["tight"], "direction": "decrease", "weight": 1, "supportType": "direct_source"},
+          {"attribute": "volumeBalance", "value": ["fitted"], "direction": "decrease", "weight": 1, "supportType": "editorial_derivation"}
+        ]
+      },
+      "mechanism": {"text": "腰腹偏厚（腰胸比≥0.92）避开紧身款，选直筒/微廓形（client/lib/body.ts bodyShapeHint 既有雏形，与 R-05 方向一致）。", "provenance": "internal_derivation"},
+      "evidenceLevel": "S1",
+      "downgradeFactors": ["internal_derivation"],
+      "conflictsWith": [],
+      "sourceRefs": [{"title": "client/lib/body.ts bodyShapeHint（内部既有逻辑）", "url": "client/lib/body.ts", "accessedAt": "2026-07-28"}],
+      "evidenceTrail": {"sourceLevelNote": "waistChestRatio 仅 measured 档可用（实填胸/腰围）；这条是把客户端已有的散落判断收编进规则库。"}
+    }
+  ],
+  "coverageGaps": [
+    {"gap": "领口维度（V 领+1 / 小领口修饰溜肩，R-08 部分与 R-11）：7 维词表 v1 无 neckline 维度", "blockedUntil": "schema_v2"},
+    {"gap": "肩线维度（落肩款 −1，R-09 部分）：同上", "blockedUntil": "schema_v2"},
+    {"gap": "颜色深浅维度（深色收敛，R-07 原始结论）：当前映射到 colorBlockContinuity 是降级", "blockedUntil": "schema_v2"},
+    {"gap": "图案横向元素（横条纹/格纹对瘦高可接受，R-13 部分）", "blockedUntil": "schema_v2"},
+    {"gap": "骨格类型 × fabricStructure/topLengthBand（R-18）、量感直曲（R-19）：骨格类型无采集路径，且属商业体系需标注无实证", "blockedUntil": "input_plus_labeling"},
+    {"gap": "shoulderSlope / legToHeightRatio 输入采集：全身照分析或问卷新增题", "blockedUntil": "product_decision"},
+    {"gap": "R-15~17 全局语法（三色原则/上松下紧/三明治叠穿）：进 outfits constraints 字段而非规则库", "blockedUntil": "constraints_structuring"},
+    {"gap": "深冬层公式（羽绒服/棉服）、针织叠穿、上长下短、大衣+卫衣：目录补缺清单", "blockedUntil": "catalog_expansion"},
+    {"gap": "bottom-heavy（下部增量）公式缺失：rule-bodyoutfit-ytype-bottomvolume 推荐宽直裤/双褶但目录 0 套命中（编译器实测），Y 型用户无对应候选", "blockedUntil": "catalog_expansion"}
+  ],
+  "upgradePath": {
+    "to_S2": "Flusser《Dressing the Man》/ Roetzel《Gentleman》摘编版型与体型章节，逐条互证；R-10 必须经专家复核或行为数据验证",
+    "qualityControl": "专家复核（付费形象顾问 2-3 小时）后 reviewStatus 转 human_reviewed；用户行为数据（双源对比日志）持续校准"
+  }
+}

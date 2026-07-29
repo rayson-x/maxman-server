@@ -1,6 +1,6 @@
 {
   "manifestVersion": "recommendation-catalog-snapshot-v1",
-  "builtAt": "2026-07-28T17:34:52.372Z",
+  "builtAt": "2026-07-29T14:01:31.076Z",
   "sources": {
     "styles": {
       "fileName": "styles-cn.json",
@@ -10,9 +10,9 @@
     },
     "hairstyles": {
       "fileName": "hairstyles-cn.json",
-      "datasetVersion": "content-sha256:0673136aedba24bb6546fc92e1ebb8cad9eb0446d426d9950c943d95878b9fb6",
-      "sha256": "035a12ad4cd443e7c5487d8e01a04c92b90e53458fd29a275018f9b761be0cae",
-      "snapshotSha256": "0673136aedba24bb6546fc92e1ebb8cad9eb0446d426d9950c943d95878b9fb6"
+      "datasetVersion": "content-sha256:c4387ceb821eda65e33d575001247315f051d9cb019f398855d3b1b636d535ea",
+      "sha256": "45fa7862eb8db4c0c127c0a6ab9196f0ccd816810c8a5afaf9f4c125b3911914",
+      "snapshotSha256": "c4387ceb821eda65e33d575001247315f051d9cb019f398855d3b1b636d535ea"
     },
     "hairstyleRelations": {
       "fileName": "style-hairstyle-relations-cn.json",
@@ -25,6 +25,24 @@
       "datasetVersion": "fit-rules-cn-v0.2",
       "sha256": "04479594dedf852be6c2c1c16e821ff1b66963aeaabeda10ced4db20e9d66ebd",
       "snapshotSha256": "b56b639ea814d09c8f16ccd077f1a77cfe5a281412d8dcd14ae17993516c2eb8"
+    },
+    "outfitFitSchema": {
+      "fileName": "outfit-fit-schema-v1.json",
+      "datasetVersion": "outfit-fit-v1",
+      "sha256": "157ea3012b20786907ff1f2ee4b11cdf22cec3d7f6b1f1a573100d12b89eee07",
+      "snapshotSha256": "d05e5d928ceefec48eae4ebc19929d3370fc4baa38588706ea4b3cc6ce93ee5c"
+    },
+    "fitRulesBodyOutfit": {
+      "fileName": "fit-rules-bodyoutfit-cn.json",
+      "datasetVersion": "fit-rules-bodyoutfit-cn-v0.1",
+      "sha256": "39d5bd67f0543f059785153bf79422c91642aea0e3927752bae3d674be942b22",
+      "snapshotSha256": "f396585efc6fd3123c226d70d4dae760c8bf411a94f2995e6957dea6fb54576c"
+    },
+    "outfits": {
+      "fileName": "outfits-cn.json",
+      "datasetVersion": "content-sha256:345459449b4e30a6958b3ce0649a31be311762cd8453ed203cb1a2fc2562c5a3",
+      "sha256": "844a9369847433d8d5606f7d7c0a404af7bcda20855d25c1ef1a1993b48816ad",
+      "snapshotSha256": "345459449b4e30a6958b3ce0649a31be311762cd8453ed203cb1a2fc2562c5a3"
     },
     "hairstyleRenderSchema": {
       "fileName": "hairstyle-render-schema-v1.json",
@@ -86,12 +104,12 @@
     },
     "fit-rules-compile": {
       "id": "fit-rules-compile",
-      "version": "sha256:bd1bea6c685770b1affc0c17d8d0171fc9b2ba50532251822333242bf688f19c",
+      "version": "sha256:1ffc54ca61150125d3ec56bd61328641a854e37e1a512874b357f30a2da2f015",
       "passed": true
     },
     "fit-rules-production": {
       "id": "fit-rules-production",
-      "version": "sha256:bd1bea6c685770b1affc0c17d8d0171fc9b2ba50532251822333242bf688f19c",
+      "version": "sha256:1ffc54ca61150125d3ec56bd61328641a854e37e1a512874b357f30a2da2f015",
       "passed": false,
       "readinessGate": true
     }

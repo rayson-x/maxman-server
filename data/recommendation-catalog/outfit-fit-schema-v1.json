@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "outfit-fit-v1",
+  "status": "active",
+  "createdAt": "2026-07-28",
+  "purpose": "穿搭公式适配计算的封闭词表（7 维软排序）。与发型域（hairstyle-fit-v1）同构但独立演进。规则与目录标注只能引用本文件声明的维度和枚举；未知维度/值/类型在编译阶段拒绝并记 unexecutable_rule。",
+  "warning": "穿搭域 v1 全部是 soft_ranking：不存在「长度不够剪不了」式的物理硬约束，禁止在本词表加可行性硬过滤。体型×穿搭无 S2 以上公开中文来源（见 docs/research-outfit-formula-cn.md），规则证据等级天花板当前为 S1 + 机制级 S2 支撑，UI 不得给「依据」展示。",
+  "fitAttributes": {
+    "topLengthBand": {
+      "enum": [
+        "cropped",
+        "waist",
+        "regular",
+        "long"
+      ],
+      "description": "上衣/外套长度带：cropped = 及腰以上短装；waist = 腰线附近短外套；regular = 常规胯上；long = 过胯长款（长风衣/大衣/长开衫）",
+      "labelZh": "上衣长度",
+      "hintZh": "外套/上衣的下摆到哪",
+      "valueHints": {
+        "cropped": "超短（腰以上）",
+        "waist": "及腰短款",
+        "regular": "常规（胯上）",
+        "long": "长款（过胯/大衣）"
+      }
+    },
+    "waistEmphasis": {
+      "enum": [
+        "defined",
+        "natural",
+        "dropped",
+        "hidden"
+      ],
+      "description": "腰线处理：defined = 明确腰线（高腰/塞衣角/收腰）；natural = 不强调；dropped = 低腰/腰线以下视觉；hidden = 遮盖腰线",
+      "labelZh": "腰线存在感",
+      "hintZh": "这套穿搭能不能看出腰在哪个高度（收腰西装算 defined；直筒长上衣算 hidden）",
+      "valueHints": {
+        "defined": "明显（高腰/塞衣角/收腰剪裁）",
+        "natural": "顺其自然",
+        "dropped": "低腰",
+        "hidden": "完全盖住（直筒长上衣，无收腰）"
+      }
+    },
+    "bottomCut": {
+      "enum": [
+        "slim",
+        "straight",
+        "relaxed",
+        "wide"
+      ],
+      "description": "下装剪裁锥度：slim = 修身/小脚/束脚；straight = 直筒/微锥；relaxed = 宽松直身；wide = 阔腿/喇叭",
+      "labelZh": "裤型",
+      "hintZh": "裤子的剪裁形状",
+      "valueHints": {
+        "slim": "修身/小脚/束脚",
+        "straight": "直筒",
+        "relaxed": "宽松",
+        "wide": "阔腿"
+      }
+    },
+    "volumeBalance": {
+      "enum": [
+        "fitted",
+        "balanced",
+        "oversized",
+        "top-heavy",
+        "bottom-heavy"
+      ],
+      "description": "整体体积策略：fitted = 整体收敛合身；balanced = 上宽下窄或上窄下宽的均衡对比；oversized = 整体宽松；top-heavy = 上部增量（叠穿/廓形上装）；bottom-heavy = 下部增量（宽直裤/双褶）",
+      "labelZh": "上下体积配比",
+      "hintZh": "上半身和下半身哪边更膨胀",
+      "valueHints": {
+        "fitted": "整体合身收敛",
+        "balanced": "有松有紧·均衡",
+        "oversized": "整体宽松",
+        "top-heavy": "上半身膨胀（叠穿/阔外套）",
+        "bottom-heavy": "下半身膨胀（宽裤）"
+      }
+    },
+    "fabricStructure": {
+      "enum": [
+        "soft",
+        "medium",
+        "structured"
+      ],
+      "description": "面料挺括度（公式整体印象）：structured = 牛仔/斜纹/呢料/工装等自建轮廓；soft = 针织/细棉/软塌贴肤；medium = 中间态",
+      "labelZh": "面料挺括度",
+      "hintZh": "面料是软塌还是有型",
+      "valueHints": {
+        "soft": "软（针织/卫衣）",
+        "medium": "中等",
+        "structured": "挺括（牛仔/西装/风衣）"
+      }
+    },
+    "fitCloseness": {
+      "enum": [
+        "tight",
+        "tailored",
+        "regular",
+        "loose",
+        "oversized"
+      ],
+      "description": "贴身程度：tight = 紧身贴体；tailored = 修身合体；regular = 合身略宽松（中式中间态）；loose = 宽松；oversized = 廓形",
+      "labelZh": "贴身程度",
+      "hintZh": "衣服贴着身体的程度",
+      "valueHints": {
+        "tight": "紧身",
+        "tailored": "修身合体",
+        "regular": "合身略宽",
+        "loose": "宽松",
+        "oversized": "廓形"
+      }
+    },
+    "colorBlockContinuity": {
+      "enum": [
+        "continuous",
+        "semi",
+        "broken"
+      ],
+      "description": "纵向色块连续性。两层模型：中心纵线（内搭→裤子的交界）决定基调，外框架（外套与裤子的关系）可升半档。敞开穿看内搭vs裤子，扣上看外套vs裤子；外套与裤子同色升半档（broken→semi→continuous）。continuous = 中心纵线不断；broken = 明度/色相强反差截断",
+      "labelZh": "颜色连贯度",
+      "hintZh": "眯眼看纵线：敞开穿看内搭vs裤子，扣上看外套vs裤子；外套与裤子同色可升半档",
+      "valueHints": {
+        "continuous": "顺色/同色（一身黑、浅色套装，连成一条）",
+        "semi": "低对比（藏蓝+黑、米白+浅蓝，分界柔和）",
+        "broken": "明显截断（白T+深色裤、亮色+深色）"
+      }
+    }
+  },
+  "constraintCandidates": {
+    "note": "三色原则（主色≤3 / 60-30-10）、上松下紧二选一、三明治叠穿（R-15~17）是全局语法，不做公式条目也不做适配规则，应进 outfits-cn.json 的 constraints 可校验字段（见 research-outfit-formula-cn.md §5.3）"
+  },
+  "provenanceEnum": [
+    "ai_draft_pending_review",
+    "derived_from_catalog",
+    "human_reviewed",
+    "textbook_excerpt"
+  ],
+  "annotationPolicy": {
+    "completeness": "所有 active 公式的 fitAttributes 必须 7 维 100% 完整标注",
+    "review": "脚本/AI 只能初标；人工（或付费专家）逐套确认后才能改 human_reviewed",
+    "perDimensionProvenance": "provenance 挂在每个维度上"
+  }
+}
