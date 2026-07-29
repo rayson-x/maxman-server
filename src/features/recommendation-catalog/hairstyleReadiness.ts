@@ -2,6 +2,7 @@ import {
   applyHairConstraint,
   computeHairConstraint,
   type HairSignals,
+  type HairVolumeRequirement,
 } from "../appearance-agent/rules/hairConstraints.js";
 
 type RawHairstyle = {
@@ -45,7 +46,18 @@ export type HairstyleCatalogProjection = {
     verificationStatus: "catalog_verified" | "not_checked";
     rendering: { status: "ready" | "not_calibrated" };
   }>;
-  excluded: Array<{ hairstyleId: string; reason: string }>;
+  /**
+   * 被可行性约束剔除的款式。**带出款式名与过滤实际使用的两个属性** —— 下游要靠它们判断
+   * 「这一款靠假发能不能拿回来、需要哪一档工艺」。不让下游另找一处重新查这两项：
+   * 那会产生第二个真相来源，而这里这份才是过滤真正用过的。
+   */
+  excluded: Array<{
+    hairstyleId: string;
+    nameZh: string;
+    requiresHairVolume: HairVolumeRequirement;
+    coversForehead: boolean;
+    reason: string;
+  }>;
 };
 
 function coversForehead(hairstyle: RawHairstyle): boolean {
@@ -114,6 +126,12 @@ export function projectHairstyleCatalog(
       verificationStatus,
       rendering: { status: renderingStatus(hairstyle, input.renderProvider, input.renderModel) },
     })),
-    excluded: constrained.excluded.map(({ item, reason }) => ({ hairstyleId: item.id, reason })),
+    excluded: constrained.excluded.map(({ item, reason }) => ({
+      hairstyleId: item.id,
+      nameZh: item.nameZh,
+      requiresHairVolume: item.requiresHairVolume,
+      coversForehead: item.coversForehead,
+      reason,
+    })),
   };
 }

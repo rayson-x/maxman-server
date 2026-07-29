@@ -82,3 +82,24 @@ test("special-opt-in hairstyles never enter default or exploration recall", () =
 
   assert.equal(result.candidates.some((candidate) => candidate.hairstyleId === "hair-special"), false);
 });
+
+test("excluded styles carry the name and the attributes the filter actually used", () => {
+  /*
+   * 排除集此前只有 id 与原因文本，下游因此无法判断「这一款靠假发能不能拿回来、需要哪一档
+   * 工艺」——那需要发量需求与是否遮额。这两项投影内部本来就算过，带出来即可，
+   * 不能让下游另找一处重新查：那会产生第二个真相来源，而过滤实际用的是这一份。
+   */
+  const result = projectHairstyleCatalog(catalog, {
+    selectedStyleId: "underfed-style",
+    hairSignals: { hairline: "receding", volume: "thin" },
+    renderProvider: "ark",
+    renderModel: "seedream",
+  });
+
+  const excluded = result.excluded.find((row) => row.hairstyleId === "hair-exposed-high-volume");
+  assert.ok(excluded, "露额高发量款在强约束下应被排除");
+  assert.equal(excluded.nameZh, "露额高发量测试发型");
+  assert.equal(excluded.requiresHairVolume, "high");
+  assert.equal(excluded.coversForehead, false);
+  assert.ok(excluded.reason.length > 0);
+});
