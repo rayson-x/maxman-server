@@ -7,10 +7,14 @@
 
 ## 问题
 
-WIG-004 的接线放在了 `initial_analysis` 里 `recommendStep` 那一支，而**这一支在生产中走不到**：
+WIG-004 的接线曾放在 `initial_analysis` 里 `recommendStep` 那一支，而**这一支在生产中走不到**。
 
-- `createDualSourceWorkflowApplication` 无条件返回对象，所以 `jobOrchestrator.ts` 里
-  `if (dualSourceWorkflow)` 恒真，该分支在 `recommendStep` 之前就 `return` 了。
+**该分支现已被 `c4d8ff2 fix: remove legacy recommendation fallback` 整体删除**（连同
+`src/steps/recommend.ts`），接线因此也不复存在。删除是对的 —— 它本来就是死代码。所以本票
+不是「迁移」而是「在正确的位置重做接线」。原因如下：
+
+- `createDualSourceWorkflowApplication` 无条件返回对象，所以过去 `jobOrchestrator.ts` 里
+  `if (dualSourceWorkflow)` 恒真，legacy 分支在 `recommendStep` 之前就 `return` 了。
 - 生产链路是分段式的：`initial_analysis` 只产**风格方向**；发型候选在用户选定风格后的
   `hairstyle_recommendation` job 里产出。
 - 而且那条链路上的发型可行集**不是**「LLM 先产候选、规则再事后剔除」，而是
@@ -38,7 +42,11 @@ B 通道是目录，两者会被比较合并），确认后再决定：
   同一 job 内跑两个前提会撞键）。
 
 `deriveWigOptions`、`computeHairConstraint` 的前提入参、属性表的假发维度、变更清单的
-达成路径**都不需要改** —— 它们与链路无关。要改的只是「候选从哪来」。
+达成路径**都还在且不需要改** —— 它们与链路无关。要写的只是「候选从哪来」这一段接线。
+
+注意 `recommendationApplication.recommendHairstyles` 上的 `premise` 入参与指纹项也还在。
+如果最终走「确定性双投影」路线、不再需要那次额外的模型调用，请顺手判断它是否变成了
+无调用方的多余表面 —— 若是就一并删掉，别留着。
 
 ## 注意别人正在动的地方
 

@@ -191,8 +191,9 @@
 
 ### 已知未闭合（如实记录，不当成已完成）
 
-- **接线落在了走不到的那条分支上（WIG-006，最严重的一条）。** 推导逻辑接在
-  `initial_analysis` 的 `recommendStep` 一支，而生产走的是分段式链路：那一支恒被跳过，
+- **接线已不存在，需在分段式链路上重做（WIG-006）。** 它曾落在 `initial_analysis` 的 `recommendStep` 一支，
+  而该分支已随 `c4d8ff2 fix: remove legacy recommendation fallback` 一并删除。删除是对的：
+  生产走的是分段式链路，那一支恒被跳过，
   发型候选实际产生于用户选定风格后的 `hairstyle_recommendation`，且其可行集来自
   **确定性目录投影**（内部已调用 `applyHairConstraint` 并已返回带原因的 `excluded`），
   不是本文假设的「LLM 先产候选、规则再事后剔除」。

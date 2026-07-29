@@ -2,7 +2,16 @@
 
 **Spec**: `docs/specs/wig-assisted-hairstyle-options.md`
 **Blocked by**: WIG-003
-**Triage**: ready-for-agent
+**Triage**: superseded-by-wig-006
+
+> **状态更正（2026-07-29）**：本票的编排器接线已随另一处改动
+> （`c4d8ff2 fix: remove legacy recommendation fallback`）一同移除 —— 它删掉了
+> `src/steps/recommend.ts` 与 `initial_analysis` 里那条 legacy 分支，而本票的接线正落在
+> 那条分支上。**这是正确的结果**：那条分支在生产中走不到（见 WIG-006 的分析），
+> 接线本身是死代码。
+>
+> 本票的其余产物都还在且与链路无关：`AvailableVolumePremise` 入参、属性表假发维度、
+> `deriveWigOptions` 纯函数、变更清单的达成路径。**接线请按 WIG-006 在分段式链路上重做。**
 
 ## 交付
 
