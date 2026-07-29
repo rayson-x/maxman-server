@@ -1,4 +1,4 @@
-import type { HairSignals, HairVolumeRequirement } from "../../rules/hairConstraints.js";
+import type { AvailableVolumePremise, HairSignals, HairVolumeRequirement } from "../../rules/hairConstraints.js";
 
 /**
  * 方案推荐能力的统一接口。**这是一条刻意设计的接缝**：
@@ -128,6 +128,14 @@ export interface StyleRecommendationInput {
   };
   /** 发际线/发量信号，供可行性约束使用 */
   hairSignals: HairSignals;
+  /**
+   * 可用发量前提。缺省 `own_hair`。
+   *
+   * provider **不知道「假发」这个概念**——它只知道前提。传 `ample` 时它看到的是
+   * 「可用发量充足」，于是给出的适配理由在其所处前提下是真话；如果让它同时看到
+   * 「发量偏少」和一批高发量需求候选，它只能自相矛盾或编造。
+   */
+  premise?: AvailableVolumePremise;
 
   /** 问卷画像。决策 11：身体数据是推荐输入，不是图像生成输入 */
   profile: {
@@ -166,6 +174,8 @@ export interface StyleRecommendationResult {
   latencyMs: number;
   /** 供应商调用 id，用于成本追溯 */
   callId?: string;
+  /** 供应商实际返回的 token/图像用量，供 provider-operation meter 归一化。 */
+  usage?: unknown;
 }
 
 export interface StyleRecommendationProvider {

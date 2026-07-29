@@ -5,10 +5,9 @@
 ⚠ 推荐环节（§2 的 B5-B7）以 `specs/pluggable-style-recommendation.md` 为准。
 回答一个问题：用户进来之后，系统按什么顺序做判断、每一步调用哪个 tool。
 
-## 双源推荐分阶段 rollout（当前实现）
+## 双源推荐分阶段流程（当前实现）
 
-当 `DUAL_SOURCE_RECOMMENDATION_ENABLED=1` 时，推荐路径由本文件较早的“风格—发型原子选择”
-描述切换为下面的三个等待点；旧图仅描述关闭开关时的兼容路径。
+推荐只保留下面的三个等待点；不存在环境开关或旧原子选择兼容路径。
 
 ```text
 initial_analysis：输入审核 → 客户端测量规范化 → recommend-style-directions

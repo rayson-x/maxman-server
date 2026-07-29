@@ -64,6 +64,7 @@ import { createOpenMeteoWeatherProvider } from "./weather/openMeteoWeatherProvid
 import { createHistoricalTemperatureStore } from "./weather/historicalTemperatureStore.js";
 import { createWeatherContextService } from "./weather/weatherContextService.js";
 import { createWeatherAwareAgentRunner } from "./weather/weatherAwareAgentRunner.js";
+import { meterProviderMethod } from "../../services/providerOperationMeter.js";
 import type {
   HistoricalTemperatureStore,
   WeatherContextService,
@@ -84,9 +85,9 @@ export function getVisionAnalysisProvider(): VisionAnalysisProvider {
   return (visionProvider ??= pick(
     "ACTIVE_VISION_PROVIDER",
     {
-      zhipu: createZhipuVisionProvider,
-      qwen: createQwenVisionProvider,
-      hunyuan: createHunyuanVisionProvider,
+      zhipu: () => meterProviderMethod(createZhipuVisionProvider(), { provider: "zhipu", operation: "vision_analysis", model: "glm-4v-flash", method: "analyze" }),
+      qwen: () => meterProviderMethod(createQwenVisionProvider(), { provider: "qwen", operation: "vision_analysis", model: "qwen-vl-plus", method: "analyze" }),
+      hunyuan: () => meterProviderMethod(createHunyuanVisionProvider(), { provider: "hunyuan", operation: "vision_analysis", model: "hunyuan-vision", method: "analyze" }),
     },
     "zhipu",
   ));
@@ -97,13 +98,14 @@ export function getImageEditProvider(): ImageEditProvider {
   return (imageEditProvider ??= pick(
     "ACTIVE_IMAGE_EDIT_PROVIDER",
     {
+      // Volcengine async adapters emit their charge as soon as submission is accepted in taskLedger.
       volcengine: createVolcengineImageEditProvider,
-      qwen: createQwenImageEditProvider,
+      qwen: () => meterProviderMethod(createQwenImageEditProvider(), { provider: "qwen", operation: "image_edit", model: process.env.ALIYUN_QWEN_IMAGE_EDIT_MODEL ?? "qwen-image-edit-plus", method: "edit" }),
       // 缺 ARK_API_KEY（方舟凭证与视觉智能的 AK/SK 是两套）。
       // 它是目前唯一 size 可控的一家，能突破 SeedEdit 短边 864 的天花板
-      ark: createArkSeedreamImageEditProvider,
+      ark: () => meterProviderMethod(createArkSeedreamImageEditProvider(), { provider: "ark", operation: "image_edit", model: process.env.ARK_IMAGE_EDIT_MODEL ?? "doubao-seedream-4-5-251128", method: "edit" }),
       // tasks 12.1：代码就绪，缺凭证。接入动因是火山并发=1 的吞吐天花板
-      stepfun: createStepFunImageEditProvider,
+      stepfun: () => meterProviderMethod(createStepFunImageEditProvider(), { provider: "stepfun", operation: "image_edit", model: process.env.STEPFUN_IMAGE_EDIT_MODEL ?? "step-image-edit-2", method: "edit" }),
     },
     // 默认几经调整：volcengine(SeedEdit) → qwen → ark(Seedream 4.5)。
     // 真人照对照台（src/scripts/bench-image-edit.ts）依次测出：
@@ -137,7 +139,7 @@ export function getTextToImageProvider(): TextToImageProvider {
   return (textToImageProvider ??= pick(
     "ACTIVE_TEXT_TO_IMAGE_PROVIDER",
     {
-      zhipu: createZhipuTextToImageProvider,
+      zhipu: () => meterProviderMethod(createZhipuTextToImageProvider(), { provider: "zhipu", operation: "text_to_image", model: "cogview-3-flash", method: "generate" }),
     },
     "zhipu",
   ));
@@ -148,7 +150,7 @@ export function getTextPlanningProvider(): TextPlanningProvider {
   return (textPlanningProvider ??= pick(
     "ACTIVE_TEXT_PLANNING_PROVIDER",
     {
-      deepseek: createDeepSeekTextPlanningProvider,
+      deepseek: () => meterProviderMethod(createDeepSeekTextPlanningProvider(), { provider: "deepseek", operation: "text_planning", model: "deepseek-v4-flash", method: "scoreCandidates" }),
     },
     "deepseek",
   ));
@@ -159,7 +161,7 @@ export function getFreeRecommendationProvider(): FreeRecommendationProvider {
   return (freeRecommendationProvider ??= pick(
     "ACTIVE_FREE_RECOMMENDATION_PROVIDER",
     {
-      deepseek: createDeepSeekFreeRecommendationProvider,
+      deepseek: () => meterProviderMethod(createDeepSeekFreeRecommendationProvider(), { provider: "deepseek", operation: "free_recommendation", model: "deepseek-v4-flash", method: "suggest" }),
     },
     "deepseek",
   ));
@@ -170,7 +172,7 @@ export function getAdversarialReviewProvider(): AdversarialReviewProvider {
   return (adversarialReviewProvider ??= pick(
     "ACTIVE_ADVERSARIAL_REVIEW_PROVIDER",
     {
-      deepseek: createDeepSeekAdversarialReviewProvider,
+      deepseek: () => meterProviderMethod(createDeepSeekAdversarialReviewProvider(), { provider: "deepseek", operation: "adversarial_review", model: "deepseek-v4-flash", method: "review" }),
     },
     "deepseek",
   ));
@@ -182,7 +184,7 @@ export function getInputReviewProvider(): InputReviewProvider {
   return (inputReviewProvider ??= pick(
     "ACTIVE_INPUT_REVIEW_PROVIDER",
     {
-      deepseek: createDeepSeekInputReviewProvider,
+      deepseek: () => meterProviderMethod(createDeepSeekInputReviewProvider(), { provider: "deepseek", operation: "input_review", model: "deepseek-v4-flash", method: "review" }),
     },
     "deepseek",
   ));
@@ -199,8 +201,13 @@ export function getStyleRecommendationProvider(): StyleRecommendationProvider {
     "ACTIVE_STYLE_RECOMMENDATION_PROVIDER",
     {
       "vision-llm": () =>
-        createVisionLlmStyleRecommendationProvider({
+        meterProviderMethod(createVisionLlmStyleRecommendationProvider({
           modelId: process.env.STYLE_RECOMMENDATION_MODEL,
+        }), {
+          provider: "zhipu",
+          operation: "style_recommendation",
+          model: process.env.STYLE_RECOMMENDATION_MODEL ?? "glm-4v-flash",
+          method: "recommend",
         }),
       // "catalog-matching": 待审美匹配数据到位后实现（tasks 8.5）
     },
@@ -213,7 +220,7 @@ let hairstyleRecProvider: ReturnType<typeof createHairstyleMultimodalAgentProvid
 export function getHairstyleRecommendationProvider() {
   return (hairstyleRecProvider ??= pick(
     "ACTIVE_HAIRSTYLE_RECOMMENDATION_PROVIDER",
-    { "multimodal-agent": createHairstyleMultimodalAgentProvider },
+    { "multimodal-agent": () => meterProviderMethod(createHairstyleMultimodalAgentProvider(), { provider: "zhipu", operation: "hairstyle_recommendation", model: process.env.RECOMMENDATION_MODEL ?? "glm-4.6v", method: "recommend" }) },
     "multimodal-agent",
   ));
 }
@@ -222,7 +229,7 @@ let outfitRecProvider: ReturnType<typeof createOutfitMultimodalAgentProvider> | 
 export function getOutfitRecommendationProvider() {
   return (outfitRecProvider ??= pick(
     "ACTIVE_OUTFIT_RECOMMENDATION_PROVIDER",
-    { "multimodal-agent": createOutfitMultimodalAgentProvider },
+    { "multimodal-agent": () => meterProviderMethod(createOutfitMultimodalAgentProvider(), { provider: "zhipu", operation: "outfit_recommendation", model: process.env.RECOMMENDATION_MODEL ?? "glm-4.6v", method: "recommend" }) },
     "multimodal-agent",
   ));
 }

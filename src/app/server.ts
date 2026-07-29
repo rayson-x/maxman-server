@@ -10,6 +10,7 @@ import { registerAnalysisJobRoutes } from "../routes/analysisJobs.js";
 import { registerPlanRoutes } from "../routes/plans.js";
 import { registerPrivacyRoutes } from "../routes/privacy.js";
 import { registerConversationRoutes } from "../routes/conversation.js";
+import { registerProviderCostRoutes } from "../routes/providerCosts.js";
 import { sessionPlugin } from "../plugins/session.js";
 
 /**
@@ -57,7 +58,7 @@ export async function buildApp({ container, logger = true }: BuildAppOptions): P
     // Idempotency-Key 是建 job 的必需头（analysisJobs.ts 缺了就 400）。
     // 不列进来的话浏览器预检直接拒绝，整条生成链路在 Web 端不可用 ——
     // Node 侧的 E2E 不走预检，测不出这个。
-    allowedHeaders: ["Content-Type", "X-Device-Session", "Idempotency-Key"],
+    allowedHeaders: ["Content-Type", "X-Device-Session", "Idempotency-Key", "X-Admin-Cost-Token"],
   });
 
   app.decorate("container", container);
@@ -85,6 +86,7 @@ export async function buildApp({ container, logger = true }: BuildAppOptions): P
   await registerPlanRoutes(app);
   await registerPrivacyRoutes(app);
   await registerConversationRoutes(app);
+  await registerProviderCostRoutes(app);
 
   app.addHook("onClose", async () => {
     await container.shutdown();

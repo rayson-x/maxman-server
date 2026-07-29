@@ -18,6 +18,14 @@ export type SelectedStyleRow = {
   kind: string;
   nameZh: string;
   description: string;
+  /**
+   * 达成路径。仅当这个款式是**靠补充发量才能达成**时才有值（见 rules/wigOptions）。
+   *
+   * 它进 `changeDescription` 与 `rationale`，**绝不进 `renderDescription`**：
+   * 图该画的是「戴上之后长什么样」，而渲染文案是按图像供应商逐款校准的，混入
+   * 未校准语义会产出网底、发根断层这类伪影。达成路径是元信息，不是图像内容。
+   */
+  achievement?: { label: string };
 };
 
 export type SelectedStylesInput = {
@@ -40,12 +48,16 @@ export function buildSelectedStyleTaskSpecs(input: SelectedStylesInput): Materia
       applicableStageRange: ["stage1"],
       // 用户自己选的方向，证据基础是自报而非视觉实测
       evidenceBasis: "self_reported",
-      changeDescription: `已按选定方向调整发型：${input.hairstyle.nameZh}`,
+      changeDescription: input.hairstyle.achievement
+        ? `已按选定方向调整发型：${input.hairstyle.nameZh}（${input.hairstyle.achievement.label}）`
+        : `已按选定方向调整发型：${input.hairstyle.nameZh}`,
       // 只有逐款校准过的发型才能进入图生图。表外候选仍可被用户选中并落为任务，
       // 但不能把未校验的名称拼成 prompt 后冒充「未来的你」效果。
       renderDescription:
         findObjectiveHairstyleAttributes(input.hairstyle.nameZh)?.renderDescription,
-      rationale: input.hairstyle.description,
+      rationale: input.hairstyle.achievement
+        ? `${input.hairstyle.description.replace(/[。.]$/, "")}。${input.hairstyle.achievement.label}`
+        : input.hairstyle.description,
     },
     {
       domain: "outfit",

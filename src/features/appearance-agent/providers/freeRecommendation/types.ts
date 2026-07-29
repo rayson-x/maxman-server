@@ -17,6 +17,7 @@ export interface FreeRecommendationResult {
   suggestions: FreeSuggestion[];
   latencyMs: number;
   raw?: unknown;
+  usage?: unknown;
 }
 
 export interface FreeRecommendationProvider {

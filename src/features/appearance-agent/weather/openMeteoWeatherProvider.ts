@@ -8,6 +8,7 @@ import type {
   ResolvedWeatherLocation,
   WeatherProvider,
 } from "./types.js";
+import { recordActiveProviderOperation } from "../../../services/providerOperationMeter.js";
 
 const DEFAULT_GEOCODING_ORIGIN = "https://geocoding-api.open-meteo.com";
 const DEFAULT_ARCHIVE_ORIGIN = "https://archive-api.open-meteo.com";
@@ -203,28 +204,59 @@ export function createOpenMeteoWeatherProvider(
       url.searchParams.set("apikey", options.apiKey);
     }
 
-    const response = await fetchImpl(url, {
-      headers: { accept: "application/json" },
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-    if (!response.ok) {
-      throw new Error(`Weather API returned HTTP ${response.status}`);
-    }
-    const declaredLength = Number(response.headers.get("content-length"));
-    if (
-      Number.isFinite(declaredLength) &&
-      declaredLength > maxResponseBytes
-    ) {
-      throw new Error("Weather API response exceeded the size limit");
-    }
-    const body = await response.text();
-    if (Buffer.byteLength(body, "utf8") > maxResponseBytes) {
-      throw new Error("Weather API response exceeded the size limit");
-    }
+    const controller = new AbortController();
+    // Unlike AbortSignal.timeout(), this timer remains observable to Node's
+    // test runner when a fetch implementation is waiting solely on abort.
+    const timeout = setTimeout(() => {
+      controller.abort(new DOMException("Weather API request timed out", "TimeoutError"));
+    }, timeoutMs);
     try {
-      return JSON.parse(body) as unknown;
-    } catch {
-      throw new Error("Weather API returned invalid JSON");
+      const response = await fetchImpl(url, {
+        headers: { accept: "application/json" },
+        signal: controller.signal,
+      });
+      if (!response.ok) {
+        throw new Error(`Weather API returned HTTP ${response.status}`);
+      }
+      const declaredLength = Number(response.headers.get("content-length"));
+      if (
+        Number.isFinite(declaredLength) &&
+        declaredLength > maxResponseBytes
+      ) {
+        throw new Error("Weather API response exceeded the size limit");
+      }
+      const body = await response.text();
+      if (Buffer.byteLength(body, "utf8") > maxResponseBytes) {
+        throw new Error("Weather API response exceeded the size limit");
+      }
+      try {
+        return JSON.parse(body) as unknown;
+      } catch {
+        throw new Error("Weather API returned invalid JSON");
+      }
+    } finally {
+      clearTimeout(timeout);
+    }
+  };
+
+  const fetchAndRecord = async <T>(operation: string, url: URL, parse: (value: unknown) => T): Promise<T> => {
+    try {
+      const parsed = parse(await fetchJson(url));
+      await recordActiveProviderOperation({
+        provider: "open-meteo",
+        operation,
+        status: "completed",
+        usage: { apiRequestCount: 1 },
+      });
+      return parsed;
+    } catch (error) {
+      await recordActiveProviderOperation({
+        provider: "open-meteo",
+        operation,
+        status: "failed",
+        usage: { apiRequestCount: 1 },
+      });
+      throw error;
     }
   };
 
@@ -245,7 +277,7 @@ export function createOpenMeteoWeatherProvider(
       url.searchParams.set("format", "json");
       url.searchParams.set("countryCode", "CN");
 
-      const parsed = geocodingResponseSchema.parse(await fetchJson(url));
+      const parsed = await fetchAndRecord("geocoding", url, (value) => geocodingResponseSchema.parse(value));
       const matches = (parsed.results ?? []).filter((candidate) => {
         if (candidate.country_code && candidate.country_code !== "CN") {
           return false;
@@ -301,7 +333,7 @@ export function createOpenMeteoWeatherProvider(
       url.searchParams.set("timezone", location.timeZone);
       url.searchParams.set("temperature_unit", "celsius");
 
-      const parsed = historicalResponseSchema.parse(await fetchJson(url));
+      const parsed = await fetchAndRecord("historical_weather", url, (value) => historicalResponseSchema.parse(value));
       const { daily } = parsed;
       assertParallelArrays("Historical weather response", [
         daily.time,
@@ -345,7 +377,7 @@ export function createOpenMeteoWeatherProvider(
       url.searchParams.set("forecast_days", String(forecastDays));
       url.searchParams.set("temperature_unit", "celsius");
 
-      const parsed = liveResponseSchema.parse(await fetchJson(url));
+      const parsed = await fetchAndRecord("forecast_weather", url, (value) => liveResponseSchema.parse(value));
       const { daily } = parsed;
       assertParallelArrays("Forecast weather response", [
         daily.time,

@@ -11,6 +11,7 @@ export interface VisionAnalysisResult {
   /** Raw text response from the model (expected to be JSON per the prompt's instruction). */
   rawText: string;
   latencyMs: number;
+  usage?: unknown;
 }
 
 export interface VisionAnalysisProvider {

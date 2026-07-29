@@ -97,12 +97,8 @@ export const env = {
     allowPendingModeration:
       process.env.ALLOW_PENDING_MODERATION === "1" && process.env.NODE_ENV !== "production",
     isProduction: (optional("NODE_ENV") ?? "development") === "production",
-    /**
-     * Starts false so the old workflow remains the rollback path until all
-     * three staged tools have been exercised in an internal environment.
-     */
-    dualSourceRecommendationEnabled:
-      process.env.DUAL_SOURCE_RECOMMENDATION_ENABLED === "1",
+    /** Internal cost aggregation is deliberately not exposed to anonymous product sessions. */
+    adminCostApiToken: optional("ADMIN_COST_API_TOKEN"),
   },
 };
 

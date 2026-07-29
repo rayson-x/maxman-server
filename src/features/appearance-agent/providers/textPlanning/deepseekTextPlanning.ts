@@ -35,7 +35,7 @@ export function createDeepSeekTextPlanningProvider(): TextPlanningProvider {
       const start = Date.now();
       const allowedIds = new Set(input.candidates.map((c) => c.id));
 
-      const { object } = await generateObject({
+      const { object, usage } = await generateObject({
         model,
         schema: SCORE_SCHEMA,
         prompt:
@@ -61,6 +61,7 @@ export function createDeepSeekTextPlanningProvider(): TextPlanningProvider {
         scores,
         latencyMs: Date.now() - start,
         raw: object,
+        usage,
       };
     },
   };

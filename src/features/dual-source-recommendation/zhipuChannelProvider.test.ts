@@ -1,10 +1,19 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { buildDualSourceProviderPrompt, createZhipuDualSourceChannelProvider } from "./zhipuChannelProvider.js";
+import { setActiveProviderOperationRecorder, type ProviderOperationRecorder } from "../../services/providerOperationMeter.js";
 
 const commonInput = {
   profileSnapshotRef: "profile", originalAssetRefs: ["front-original"], selectedUpstream: { styleId: "clean-fit" },
-  userContext: { heightCm: 175, hasFullBodyPhoto: false },
+  userContext: {
+    heightCm: 175,
+    hasFullBodyPhoto: false,
+    portraitProfile: {
+      version: 1,
+      capture: { frameCount: 8, stability: "high" },
+      signals: { lengthWidthRatio: { value: 1.42, stability: "high", evidence: { frameCount: 8 } } },
+    },
+  },
   model: { provider: "zhipu", model: "glm", temperature: 0.2, tokenLimit: 600 },
 };
 
@@ -23,6 +32,7 @@ test("real channel adapter keeps A catalog-blind and gives both channels the sam
   await invoke(b);
   assert.deepEqual(requests.map((row) => row.photoReadUrls), [["https://short-lived.example/original-front"], ["https://short-lived.example/original-front"]]);
   assert.deepEqual(requests.map((row) => [row.temperature, row.tokenLimit]), [[0.2, 600], [0.2, 600]]);
+  assert.equal(requests.every((row) => row.prompt.includes('"lengthWidthRatio"')), true);
   assert.doesNotMatch(requests[0]!.prompt, /系统候选投影|Clean Fit|目录理由/);
   assert.match(requests[1]!.prompt, /系统候选投影/);
   assert.doesNotMatch(buildDualSourceProviderPrompt(a), /目录理由/);
@@ -62,4 +72,31 @@ test("B receives compact wardrobe slots and asset readiness, never local asset p
   assert.match(prompt, /eligibleItemCount/);
   assert.match(prompt, /tryOnReadyCount/);
   assert.doesNotMatch(prompt, /localPath|wardrobe-items\/v1/);
+});
+
+test("dual-source channel records provider-reported token usage for each business operation", async (t) => {
+  const records: unknown[] = [];
+  const recorder: ProviderOperationRecorder = { record: async (record) => { records.push(record); } };
+  setActiveProviderOperationRecorder(recorder);
+  t.after(() => setActiveProviderOperationRecorder({ record: async () => {} }));
+
+  const invoke = createZhipuDualSourceChannelProvider({
+    originalPhotoReadUrls: [],
+    modelId: "glm-4.6v",
+    invoke: async () => ({
+      candidates: [{ nameZh: "Clean Fit", rationale: "适合日常" }],
+      callId: "dual-source-call",
+      usage: { inputTokens: 320, outputTokens: 48 },
+    }),
+  });
+  await invoke({ channel: "A", domain: "style", commonInput });
+
+  assert.deepEqual(records, [{
+    provider: "zhipu",
+    operation: "dual_source_recommendation",
+    model: "glm-4.6v",
+    status: "completed",
+    providerCallId: "dual-source-call",
+    usage: { apiRequestCount: 1, inputTokens: 320, outputTokens: 48, cacheMissInputTokens: 320 },
+  }]);
 });

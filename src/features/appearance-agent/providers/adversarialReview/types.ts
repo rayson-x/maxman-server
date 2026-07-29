@@ -27,6 +27,7 @@ export interface AdversarialReviewResult {
   summary: string;
   latencyMs: number;
   raw?: unknown;
+  usage?: unknown;
 }
 
 export interface AdversarialReviewProvider {

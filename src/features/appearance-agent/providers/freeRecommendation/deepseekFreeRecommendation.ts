@@ -29,7 +29,7 @@ export function createDeepSeekFreeRecommendationProvider(): FreeRecommendationPr
     name: "deepseek-free-recommendation",
     async suggest(input: FreeRecommendationInput): Promise<FreeRecommendationResult> {
       const start = Date.now();
-      const { object } = await generateObject({
+      const { object, usage } = await generateObject({
         model,
         schema: SUGGESTION_SCHEMA,
         prompt:
@@ -46,6 +46,7 @@ export function createDeepSeekFreeRecommendationProvider(): FreeRecommendationPr
         suggestions: object.suggestions,
         latencyMs: Date.now() - start,
         raw: object,
+        usage,
       };
     },
   };

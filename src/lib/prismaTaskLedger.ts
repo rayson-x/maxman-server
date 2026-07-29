@@ -1,5 +1,12 @@
 import type { PrismaClient } from "../generated/prisma/client.js";
 import { redactRequestBody, type TaskLedger, type TaskLedgerEntry, type TaskStatus } from "./taskLedgerTypes.js";
+import { recordProviderOperation } from "../services/providerCostAccounting.js";
+
+function accountingOperation(purpose: string | undefined): "clothing_swap" | "image_edit" | undefined {
+  if (purpose === "clothing-swap") return "clothing_swap";
+  if (purpose === "image-edit") return "image_edit";
+  return undefined;
+}
 
 /**
  * Postgres 版 task ledger（tasks 10.4）。
@@ -60,6 +67,10 @@ export function createPrismaTaskLedger(prisma: PrismaClient): TaskLedger {
         where: { status: { in: ["prepared", "submitted", "polling"] }, updatedAt: { lt: cutoff } },
         data: { status: "unknown", error: "状态不可知：超过期限未收到结果，需人工对账" },
       });
+      await prisma.providerOperationUsage.updateMany({
+        where: { providerCallId: { in: (await prisma.providerCallLog.findMany({ where: { status: "unknown", updatedAt: { gte: cutoff } }, select: { callId: true } })).flatMap((row) => row.callId ? [row.callId] : []) } },
+        data: { status: "unknown" },
+      });
       return r.count;
     },
 
@@ -72,7 +83,18 @@ export function createPrismaTaskLedger(prisma: PrismaClient): TaskLedger {
           where: { providerRequestKey: params.providerRequestKey },
           data: { callId: params.callId, status: "submitted", purpose: params.purpose },
         });
-        if (linked.count > 0) return;
+        if (linked.count > 0) {
+          const operation = accountingOperation(params.purpose);
+          if (operation) await recordProviderOperation(prisma, {
+            provider: params.provider,
+            operation,
+            model: params.reqKey,
+            status: "completed",
+            providerCallId: params.callId,
+            usage: { acceptedTaskCount: 1 },
+          });
+          return;
+        }
       }
       await prisma.providerCallLog.upsert({
         where: { callId: params.callId },
@@ -87,10 +109,20 @@ export function createPrismaTaskLedger(prisma: PrismaClient): TaskLedger {
         },
         update: { status: "submitted", purpose: params.purpose },
       });
+      const operation = accountingOperation(params.purpose);
+      if (operation) await recordProviderOperation(prisma, {
+        provider: params.provider,
+        operation,
+        model: params.reqKey,
+        status: "completed",
+        providerCallId: params.callId,
+        usage: { acceptedTaskCount: 1 },
+      });
     },
 
     async recordProgress(callId, status) {
       await prisma.providerCallLog.updateMany({ where: { callId }, data: { status } });
+      await prisma.providerOperationUsage.updateMany({ where: { providerCallId: callId }, data: { status } });
     },
 
     async recordResult(callId, result) {
@@ -98,6 +130,7 @@ export function createPrismaTaskLedger(prisma: PrismaClient): TaskLedger {
         where: { callId },
         data: { status: result.status, resultUrls: result.resultUrls ?? [], error: result.error },
       });
+      await prisma.providerOperationUsage.updateMany({ where: { providerCallId: callId }, data: { status: result.status } });
     },
 
     async getEntry(key) {

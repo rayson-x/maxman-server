@@ -140,8 +140,7 @@ test("hairstyle selection follows style selection and invalidates downstream war
     headers,
     payload: { styleId: "clean-fit", candidateId: softHair.id },
   });
-  assert.equal(atomic.statusCode, 410);
-  assert.equal(atomic.json().error, "deprecated_atomic_selection");
+  assert.equal(atomic.statusCode, 404);
   const unchanged = await container.prisma.appearancePlan.findUniqueOrThrow({ where: { id: plan.id } });
   assert.equal(unchanged.selectedStyle, null);
   assert.equal(unchanged.selectedHairstyleId, null);

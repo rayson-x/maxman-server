@@ -25,6 +25,7 @@ export interface TextPlanningResult {
   scores: TextPlanningScore[];
   latencyMs: number;
   raw?: unknown;
+  usage?: unknown;
 }
 
 export interface TextPlanningProvider {

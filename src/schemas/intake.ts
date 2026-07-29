@@ -128,6 +128,51 @@ export const photoConsentSchema = z.object({
  * 字段一律可选（人脸检测可能部分失败，比如刘海遮挡时 hairline 判不出），
  * 但**取值用枚举约束**，让拼写错误立刻暴露而不是退化成默认值。
  */
+const portraitSignalSchema = z.object({
+  value: z.union([z.number(), z.string(), z.null()]),
+  source: z.enum(["client_measurement", "user_confirmed", "unavailable"]),
+  confidence: z.enum(["low", "medium", "high"]),
+  stability: z.enum(["high", "medium", "low", "unknown"]),
+  evidence: z.record(z.string(), z.number()),
+}).strict();
+
+const portraitSignalNames = [
+  "lengthWidthRatio",
+  "jawToCheekbone",
+  "templeToCheekbone",
+  "upperThird",
+  "midThird",
+  "lowerThird",
+  "featureSpread",
+  "cheekboneCoverageNeed",
+  "faceShape",
+  "hairline",
+  "hairVolume",
+] as const;
+
+/**
+ * 供推荐使用的最小人像画像。关键点、embedding、视频帧都不是此契约的一部分；
+ * 每个信号必须自行携带来源、置信度、稳定度和数值证据，便于 Agent 解释或指出局限。
+ */
+export const portraitProfileSchema = z.object({
+  version: z.literal(1),
+  measuredAt: z.string().datetime(),
+  capture: z.object({
+    qualityPassed: z.boolean(),
+    frameCount: z.number().int().min(0).max(10),
+    stability: z.enum(["high", "medium", "low", "unknown"]),
+    evidence: z.record(z.string(), z.number()),
+  }).strict(),
+  // 关闭 record 的任意 key：否则 landmark / embedding 等本不该离开浏览器的
+  // 数据可伪装成一个合法 signal 随请求进入服务端。
+  signals: z.object(
+    Object.fromEntries(portraitSignalNames.map((name) => [name, portraitSignalSchema])) as Record<
+      (typeof portraitSignalNames)[number],
+      typeof portraitSignalSchema
+    >,
+  ).partial().strict(),
+}).strict();
+
 export const faceMetricsSchema = z.object({
   classification: z.object({
     faceShape: z
@@ -163,8 +208,8 @@ export const faceMetricsSchema = z.object({
       })
       .optional(),
   }),
-  /** 允许客户端附带原始 landmark、IPD 归一化参数等，服务端不解释 */
-  raw: z.unknown().optional(),
+  /** 允许进入推荐的、无 landmark 的可解释测量摘要。 */
+  portraitProfile: portraitProfileSchema.optional(),
 });
 
 export const photoRegistrationSchema = z.object({

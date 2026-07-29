@@ -37,7 +37,39 @@ export type ObjectiveHairstyleAttributes = {
    *      否则模型倾向保留原图长度 —— 中分短发出成了齐肩波波头。
    */
   renderDescription: string;
+  /**
+   * 该款式在**补充发量前提**（戴假发）下的可行性。
+   *
+   * **留空 = 未判定 = 不可行（fail closed）。** 这不是待办遗留，是刻意的默认值：
+   * 标错的代价是让用户花钱买一顶做不出目标效果的假发，比少推荐一款严重得多。
+   * 所以结构可以先于数据落地——全表留空时假发方案自动为空，系统行为与从前一致。
+   *
+   * 回填依据来自男士**日常自然向**假发工艺调研，范围明确排除 cosplay / 彩色 /
+   * 舞台 / 女式假发。
+   */
+  wigFeasibility?: WigFeasibilityAnnotation;
 };
+
+/**
+ * 假发工艺档位。档位是「做出该款式所需的**最低**工艺」，不是推荐买什么。
+ *
+ * `volume_patch`  —— 只需补量感（发片 / 局部补发）。适用于只被发量挡住、本身遮额的款式。
+ * `full_wig`      —— 需要整顶更换。适用于被「遮额」挡住的款式：自身发际线做不到，假发的
+ *                    发际线才做得到。
+ * `full_wig_front_lace` —— 需要整顶且前额工艺过关。适用于把发际线完全暴露在正面的款式，
+ *                    自然度强依赖前额网底工艺，不是所有价位都做得到。
+ */
+export type WigCraftTier = "volume_patch" | "full_wig" | "full_wig_front_lace";
+
+/**
+ * 依据强度。**这里没有 `measured`**——标注「实测」需要真实购买样本做实拍对照，
+ * 本仓库目前没有。类型层面挡住它，比靠注释提醒可靠。有了实拍再扩这个联合类型。
+ */
+export type WigEvidenceStrength = "reasoned" | "product_decision";
+
+export type WigFeasibilityAnnotation =
+  | { feasible: true; minimumTier: WigCraftTier; evidenceStrength: WigEvidenceStrength }
+  | { feasible: false; reason: string; evidenceStrength: WigEvidenceStrength };
 
 /**
  * 发型渲染文案是按 Seedream 4.5 的指令结构逐款校准的。
@@ -104,4 +136,12 @@ export function findObjectiveHairstyleAttributes(
       ),
     ) ?? null
   );
+}
+
+/**
+ * 该款式的假发可行性标注。**未标注、未收录都返回 null**——调用方必须把 null 当
+ * 「不可行」，见 `wigFeasibility` 的 fail closed 说明。
+ */
+export function wigFeasibilityFor(name: string): WigFeasibilityAnnotation | null {
+  return findObjectiveHairstyleAttributes(name)?.wigFeasibility ?? null;
 }

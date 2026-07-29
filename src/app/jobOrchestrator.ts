@@ -1,7 +1,6 @@
 import type { AppContainer } from "./container.js";
 import type { AgentWeatherContext } from "../features/appearance-agent/weather/types.js";
 import { photoModerationWhere } from "../lib/photoModerationGate.js";
-import { env } from "../config/env.js";
 import { QUEUE_NAMES } from "../lib/queues.js";
 import type { PrismaClient } from "../generated/prisma/client.js";
 import { createAnalysisJobRepository } from "../repositories/analysisJobRepository.js";
@@ -9,8 +8,6 @@ import { createTargetImageService } from "../services/targetImageService.js";
 import { createPlanRevisionService } from "../services/planRevisionService.js";
 import { moderateInputStep } from "../steps/moderateInput.js";
 import { analyzeVisionStep } from "../steps/analyzeVision.js";
-import { recommendStep } from "../steps/recommend.js";
-import { createRecommendationApplication } from "../services/recommendationApplication.js";
 import { renderOutfitPreviewsStep, renderPreviewsStep } from "../steps/renderPreviews.js";
 import { materializePlanStep, type MaterializeTaskSpec } from "../steps/materializePlan.js";
 import { runWithSingleRetry, type StepContext, type StepDeps } from "../steps/types.js";
@@ -18,15 +15,9 @@ import { isCatalogDomain, isStyleDomain } from "../features/appearance-agent/dat
 import { deriveTaskDimensions } from "../features/appearance-agent/data/taskDimensions.js";
 import { buildSelectedStyleTaskSpecs } from "../services/selectedStyleTaskService.js";
 import { verifyProgressStep } from "../steps/verifyProgress.js";
-import { DEFAULT_COMPATIBILITY_THRESHOLD } from "../features/appearance-agent/data/styleProfile.js";
 import { createPhotoAccessService } from "../services/photoAccessService.js";
 import { selectRenderablePreviewCandidates } from "../services/previewCandidateSelector.js";
 import { createDualSourceWorkflowApplication } from "../features/dual-source-recommendation/workflowApplication.js";
-import {
-  checkCompatibility,
-  resolveStyleEntryByName,
-  toStyleVector,
-} from "../features/appearance-agent/data/styleProfile.js";
 
 /**
  * jobType → step 管道的编排层。
@@ -60,6 +51,23 @@ export type JobPayload = {
 };
 
 export type OrchestratorResult = { status: string; detail?: Record<string, unknown> };
+
+type SavedVision = {
+  geometry?: unknown;
+  hairSignals?: unknown;
+  clientSignals?: unknown;
+  portraitProfile?: unknown;
+};
+
+/** Keep the measured portrait available to every dual-source recommendation stage. */
+export function buildWardrobeRecommendationContext(vision: SavedVision | undefined): Record<string, unknown> {
+  return {
+    geometry: vision?.geometry ?? null,
+    hairSignals: vision?.hairSignals ?? null,
+    clientSignals: vision?.clientSignals ?? {},
+    portraitProfile: vision?.portraitProfile ?? null,
+  };
+}
 
 type Season = "春" | "夏" | "秋" | "冬";
 
@@ -208,17 +216,15 @@ export function createJobOrchestrator(container: AppContainer) {
   const targetImages = createTargetImageService(prisma, container.providers);
   const planRevision = createPlanRevisionService(prisma);
   const photoAccess = createPhotoAccessService(prisma);
-  const dualSourceWorkflow = env.server.dualSourceRecommendationEnabled
-    ? createDualSourceWorkflowApplication(prisma, {
-        enqueueReviewer: async (comparisonId) => {
-          const queue = container.queues.queues[QUEUE_NAMES.textAnalysis];
-          if (!queue) throw new Error("reviewer_queue_unavailable");
-          await queue.add("dual_source_reviewer", { comparisonId }, {
-            jobId: `dual-source-reviewer:${comparisonId}`,
-          });
-        },
-      })
-    : null;
+  const dualSourceWorkflow = createDualSourceWorkflowApplication(prisma, {
+    enqueueReviewer: async (comparisonId) => {
+      const queue = container.queues.queues[QUEUE_NAMES.textAnalysis];
+      if (!queue) throw new Error("reviewer_queue_unavailable");
+      await queue.add("dual_source_reviewer", { comparisonId }, {
+        jobId: `dual-source-reviewer:${comparisonId}`,
+      });
+    },
+  });
   const deps: StepDeps = { prisma, providers: container.providers };
 
   /**
@@ -384,7 +390,6 @@ export function createJobOrchestrator(container: AppContainer) {
 
       // ── S3 推荐 ──
       await step(p.jobId, "recommending");
-      if (dualSourceWorkflow) {
         const styleResult = await dualSourceWorkflow.recommendStyleDirections({
           userId: p.userId,
           planId: plan.id,
@@ -399,6 +404,7 @@ export function createJobOrchestrator(container: AppContainer) {
             geometry: s2.data.geometry,
             hairSignals: s2.data.hairSignals,
             clientSignals: s2.data.clientSignals,
+            portraitProfile: s2.data.portraitProfile,
             body: profile ? {
               heightCm: profile.heightCm,
               weightKg: profile.weightKg,
@@ -424,6 +430,7 @@ export function createJobOrchestrator(container: AppContainer) {
           geometry: s2.data.geometry,
           hairSignals: s2.data.hairSignals,
           clientSignals: s2.data.clientSignals,
+          portraitProfile: s2.data.portraitProfile,
           structuredSemantic: {},
           hasFullBody: s2.data.hasFullBody,
         };
@@ -443,80 +450,12 @@ export function createJobOrchestrator(container: AppContainer) {
         }
         await jobs.complete(p.jobId);
         return { status: "completed", detail: { candidates: styleRecommendations.length } };
-      }
-      const s3 = await runWithSingleRetry(
-        recommendStep,
-        {
-          vision: s2.data,
-          // 照片授权交给应用模块：签发与访问记录在那里统一处理
-          frontPhotoStorageKey: front.storageKey,
-          userPreferenceText: profile?.stylePreferenceText ?? undefined,
-          userPreferenceStyleTag: profile?.stylePreferenceStyleTag ?? null,
-          changeWillingness: profile?.changeWillingness ?? null,
-        },
-        planCtx,
-        deps,
-      );
-      if (s3.status === "failed") {
-        await jobs.fail(p.jobId, `S3 失败: ${s3.error}`);
-        return { status: "failed" };
-      }
-      const recommendation = {
-        setId: s3.data.setId,
-        candidates: s3.data.candidates,
-        capabilityStatus: s3.data.capabilityStatus,
-        reused: s3.data.reused,
-      };
-      const firstRound = s3.data.firstRound;
-      const vision = {
-        geometry: s2.data.geometry,
-        hairSignals: s2.data.hairSignals,
-        clientSignals: s2.data.clientSignals,
-        structuredSemantic: firstRound?.faceAnalysis.structuredSemantic ?? {},
-        hasFullBody: s2.data.hasFullBody,
-      };
-
-      if (s3.data.candidates.length === 0) {
-        await jobs.mergePartialResult(p.jobId, {
-          planId: plan.id,
-          vision,
-          faceAnalysis: firstRound?.faceAnalysis ?? null,
-          styleRecommendations: firstRound?.styleRecommendations ?? [],
-          recommendation,
-        });
-        await jobs.complete(p.jobId, {
-          missing: [{
-            item: "发型候选",
-            reason: s3.data.inProgress
-              ? "另一个请求正在生成候选，请稍后重试"
-              : "provider 未产出通过校验的候选，未放宽约束",
-          }],
-        });
-        return { status: "completed_partial", detail: { candidates: 0 } };
-      }
-
-      // 首轮只落地可选择的风格—发型组合。未选前不为全部候选出图，避免把用户
-      // 尚未决定的方向变成图像生成成本，也避免 UI 看起来“先出发型图再选风格”。
-      await jobs.mergePartialResult(p.jobId, {
-        planId: plan.id,
-        vision,
-        faceAnalysis: firstRound?.faceAnalysis ?? null,
-        styleRecommendations: firstRound?.styleRecommendations ?? [],
-        recommendation,
-      });
-
-      const missing = s3.status === "completed_partial" ? s3.missing : [];
-      await jobs.complete(p.jobId, { missing: missing.length > 0 ? missing : undefined });
-      return {
-        status: missing.length > 0 ? "completed_partial" : "completed",
-        detail: { candidates: s3.data.candidates.length },
-      };
     },
 
     /** Second waiting point: only an explicit style may start hairstyle recall. */
     async hairstyle_recommendation(p: JobPayload): Promise<OrchestratorResult> {
-      if (!dualSourceWorkflow || !p.planId) {
-        await jobs.fail(p.jobId, "双源发型推荐当前未启用或缺少 planId");
+      if (!p.planId) {
+        await jobs.fail(p.jobId, "缺少 planId");
         return { status: "failed" };
       }
       const ctx: StepContext = { jobId: p.jobId, userId: p.userId, planId: p.planId };
@@ -539,7 +478,7 @@ export function createJobOrchestrator(container: AppContainer) {
         await jobs.fail(p.jobId, "缺少正面照");
         return { status: "failed" };
       }
-      const vision = (prior?.partialResult as { vision?: { geometry?: unknown; hairSignals?: unknown; clientSignals?: unknown } } | null)?.vision;
+      const vision = (prior?.partialResult as { vision?: { geometry?: unknown; hairSignals?: unknown; clientSignals?: unknown; portraitProfile?: unknown } } | null)?.vision;
       const hairSignals = vision?.hairSignals as import("../features/appearance-agent/rules/hairConstraints.js").HairSignals | undefined;
       if (!hairSignals) {
         await jobs.fail(p.jobId, "缺少已保存的发际线与发量信号");
@@ -564,6 +503,7 @@ export function createJobOrchestrator(container: AppContainer) {
           geometry: vision?.geometry ?? null,
           hairSignals,
           clientSignals: vision?.clientSignals ?? {},
+          portraitProfile: vision?.portraitProfile ?? null,
           selectedStyle: plan.selectedStyle,
           visualBodyEvidence: "not_used_for_hairstyle",
         },
@@ -601,15 +541,20 @@ export function createJobOrchestrator(container: AppContainer) {
 
     /** Third waiting point: wardrobe follows both persisted style and hairstyle choices. */
     async wardrobe_recommendation(p: JobPayload): Promise<OrchestratorResult> {
-      if (!dualSourceWorkflow || !p.planId) {
-        await jobs.fail(p.jobId, "双源穿搭推荐当前未启用或缺少 planId");
+      if (!p.planId) {
+        await jobs.fail(p.jobId, "缺少 planId");
         return { status: "failed" };
       }
       const ctx: StepContext = { jobId: p.jobId, userId: p.userId, planId: p.planId };
-      const [plan, profile, photos] = await Promise.all([
+      const [plan, profile, photos, prior] = await Promise.all([
         prisma.appearancePlan.findFirst({ where: { id: p.planId, userId: p.userId } }),
         prisma.appearanceProfile.findUnique({ where: { userId: p.userId } }),
         loadPhotos(p.userId),
+        prisma.analysisJob.findFirst({
+          where: { userId: p.userId, planId: p.planId, jobType: "initial_analysis", status: { in: ["completed", "completed_partial"] } },
+          orderBy: { createdAt: "desc" },
+          select: { id: true, partialResult: true },
+        }),
       ]);
       const styleId = (plan?.selectedStyle as { id?: unknown } | null)?.id;
       if (!plan || typeof styleId !== "string") {
@@ -624,6 +569,7 @@ export function createJobOrchestrator(container: AppContainer) {
         await jobs.fail(p.jobId, "缺少正面照");
         return { status: "failed" };
       }
+      const vision = (prior?.partialResult as { vision?: SavedVision } | null)?.vision;
       await step(p.jobId, "recommending");
       const result = await dualSourceWorkflow.recommendWardrobe({
         userId: p.userId,
@@ -632,11 +578,13 @@ export function createJobOrchestrator(container: AppContainer) {
         generation: await dualSourceGeneration(p.planId, "wardrobe", `wardrobe:${p.jobId}`),
         originalPhotos: [photos.front, ...(photos.fullBody ? [photos.fullBody] : [])],
         profileSnapshotRef: `appearance-profile:${p.userId}:${profile?.updatedAt.toISOString() ?? "missing"}`,
+        appearanceAnalysisRef: prior ? `analysis-job:${prior.id}:vision-v1` : undefined,
         questionnaireSnapshotRef: profile ? `appearance-profile:${profile.id}:${profile.updatedAt.toISOString()}` : undefined,
         selectedUpstream: { styleId, hairstyleCandidateId: plan.selectedHairstyleId },
         selectedStyleId: styleId,
         selectedHairstyleId: plan.selectedHairstyleId,
         userContext: {
+          ...buildWardrobeRecommendationContext(vision),
           selectedStyle: plan.selectedStyle,
           selectedHairstyleCandidateId: plan.selectedHairstyleId,
           body: profile ? {
@@ -681,8 +629,8 @@ export function createJobOrchestrator(container: AppContainer) {
 
     /** Optional comparison images after style selection; candidate text remains the source of truth. */
     async hairstyle_preview_generation(p: JobPayload): Promise<OrchestratorResult> {
-      if (!dualSourceWorkflow || !p.planId) {
-        await jobs.fail(p.jobId, "双源发型预览当前未启用或缺少 planId");
+      if (!p.planId) {
+        await jobs.fail(p.jobId, "缺少 planId");
         return { status: "failed" };
       }
       const ctx: StepContext = { jobId: p.jobId, userId: p.userId, planId: p.planId };
@@ -750,7 +698,6 @@ export function createJobOrchestrator(container: AppContainer) {
         return { status: "failed" };
       }
 
-      if (dualSourceWorkflow) {
         if (plan.selectedOutfitId) {
           await jobs.complete(p.jobId, { missing: [{ item: "本人穿搭预览图", reason: "穿搭已选定，不再生成比较预览" }] });
           return { status: "completed_partial", detail: { candidates: 0 } };
@@ -805,195 +752,6 @@ export function createJobOrchestrator(container: AppContainer) {
         });
         await jobs.complete(p.jobId, { missing: rendered.status === "completed_partial" ? rendered.missing : undefined });
         return { status: rendered.status, detail: { candidates: rendered.data.previews.length } };
-      }
-
-      /*
-       * 风格协调：**当前不做确定性过滤，全部交给 LLM 判断**。
-       *
-       * 决策 2 原本要求「协调性编码在数据里，不靠 LLM 判断审美」，方向是对的，
-       * 但前提是有足够的风格数据。实际库里只有 12 个发型 + 5 套穿搭——
-       * 用四轴阈值过滤只能从一个本就很小的池子里再减（实测「微碎盖」筛完剩 4/5，
-       * 换个正式度靠边的发型就可能剩 0-1 个），等于用没校准的阈值把候选饿死。
-       *
-       * 所以这一版：把**人脸信息 + 全量可选集合**交给 LLM，由它输出推荐，
-       * 四轴只作为参考信息随集合一起给出、不参与计算。
-       * 接缝保留不变——后续引入内部向量数据库时，替换的只是"集合怎么来"，
-       * provider 的调用方式不动。
-       *
-       * ⚠ 这是对决策 2 的**有意放宽**，不是漏做。数据量上来后应回到确定性过滤。
-       */
-      const selectedCandidate = await prisma.recommendationCandidate.findUnique({
-        where: { id: plan.selectedHairstyleId },
-      });
-      const hairstyleEntries = await prisma.styleProfileEntry.findMany({
-        where: { kind: "hairstyle" },
-      });
-      // 按名称解析回风格表（候选表没有指向风格表的外键）。取不到就是模型自创的造型。
-      const hairstyle = selectedCandidate
-        ? resolveStyleEntryByName(hairstyleEntries, selectedCandidate.nameZh)
-        : null;
-      const hairVector = hairstyle ? toStyleVector(hairstyle) : null;
-
-      /*
-       * 人脸信息复用 initial_analysis 的 S2 结果，不重跑视觉分析：
-       * 那一步要真调云端 vision（有成本），而穿搭这一步用的脸型/肤色/发量信号
-       * 与当时完全相同。partialResult.vision 里存着 geometry / hairSignals /
-       * structuredSemantic 三份。
-       */
-      const priorAnalysis = await prisma.analysisJob.findFirst({
-        where: {
-          userId: p.userId,
-          planId: p.planId,
-          jobType: "initial_analysis",
-          status: { in: ["completed", "completed_partial"] },
-        },
-        orderBy: { createdAt: "desc" },
-      });
-      const visionForOutfit = (priorAnalysis?.partialResult as
-        | { vision?: { geometry?: unknown; hairSignals?: unknown; structuredSemantic?: unknown } }
-        | null
-        | undefined)?.vision ?? null;
-
-      const outfits = await prisma.styleProfileEntry.findMany({
-        where: { kind: "outfit_combo", isRecommended: true },
-      });
-      // 全量给出，四轴附带作参考，不做筛选
-      const outfitCatalog = outfits.map((o) => ({
-        nameZh: o.nameZh,
-        description: o.description ?? "",
-        styleVector: toStyleVector(o),
-      }));
-      // 穿搭候选改由应用模块产出：不再从 StyleProfileEntry 按双审美评分筛选
-      // （那份数据为空，会导致零候选并卡住 /materialize）
-      const profileForOutfit = await prisma.appearanceProfile.findUnique({ where: { userId: p.userId } });
-      const eventForOutfit = await prisma.event.findUnique({ where: { userId: p.userId } });
-      // 天气按用户自报的省/市解析。失败/未填一律得到 undefined，不影响后续。
-      const weatherForOutfit = await resolveWeatherContext(
-        container.weatherContext,
-        profileForOutfit,
-        (msg, detail) => console.warn(`[job ${p.jobId}] ${msg}`, detail ?? ""),
-      );
-      // 季节按真实气温定，拿不到天气才回落日历。basis 记进日志便于核对
-      // 「为什么给我推的是夏装」这类问题。
-      const seasonForOutfit = seasonFromWeather(weatherForOutfit, eventForOutfit?.eventDate);
-      console.info(
-        `[job ${p.jobId}] 季节判定 ${seasonForOutfit.season}（依据 ${seasonForOutfit.basis}）`,
-        weatherForOutfit ? { city: `${weatherForOutfit.province}${weatherForOutfit.city}` } : {},
-      );
-      const outfitApp = createRecommendationApplication({
-        prisma,
-        hairstyleProvider: container.providers.hairstyleRecommendation,
-        outfitProvider: container.providers.outfitRecommendation,
-      });
-      const selectedStyleId = (plan.selectedStyle as { id?: unknown } | null)?.id;
-      let systemWardrobe = null;
-      if (typeof selectedStyleId === "string") {
-        try {
-          systemWardrobe = outfitApp.recommendWardrobe({
-            heightCm: profileForOutfit?.heightCm ?? null,
-            weightKg: profileForOutfit?.weightKg ?? null,
-            faceShape: profileForOutfit?.confirmedFaceShape ?? null,
-            hairVolume: (visionForOutfit?.hairSignals as { volume?: string } | null)?.volume ?? null,
-            hairlineSignal: (visionForOutfit?.hairSignals as { hairline?: string } | null)?.hairline ?? null,
-            budgetTier: profileForOutfit?.budgetTier ?? null,
-            scene: eventForOutfit?.eventType ?? (plan.track === "long_term" ? "日常" : null),
-            season: seasonForOutfit.season,
-          }, { selectedStyleIds: [selectedStyleId], requestedLookCount: 3, includeSupply: true });
-        } catch {
-          // 旧首轮的自由风格 id 尚未映射到系统风格时，不让它阻断既有预览流程。
-          systemWardrobe = null;
-        }
-      }
-      const outfitView = await outfitApp.recommendOutfits({
-        userId: p.userId,
-        planId: p.planId,
-        requestedCount: 3,
-        selectedHairstyleCandidateId: plan.selectedHairstyleId!,
-        body: {
-          heightCm: profileForOutfit?.heightCm ?? null,
-          weightKg: profileForOutfit?.weightKg ?? null,
-          bodyFatPercent: profileForOutfit?.bodyFatPercent ?? null,
-          shoulderWidthCm: profileForOutfit?.shoulderWidthCm ?? null,
-          chestCm: profileForOutfit?.chestCm ?? null,
-          waistCm: profileForOutfit?.waistCm ?? null,
-          thighCm: profileForOutfit?.thighCm ?? null,
-          exercisesRegularly: profileForOutfit?.exercisesRegularly ?? null,
-        },
-        scene: {
-          track: plan.track,
-          eventType: eventForOutfit?.eventType ?? (plan.track === "long_term" ? "日常" : null),
-          eventDate: eventForOutfit?.eventDate ?? null,
-        },
-        /*
-         * 天气：12 条月度均温摘要 + 实时/预报。此前 provider prompt 里
-         * `【天气】` 恒为 `{}`——整套天气模块（Open-Meteo 接入、36 个月历史缓存、
-         * 上下文装配）都实现了，但没有任何生产调用方传值，而用户已经在填省市。
-         * 未填省市或解析失败时仍是 undefined，行为与接线前一致。
-        */
-        weather: weatherForOutfit,
-        budgetTier: profileForOutfit?.budgetTier ?? null,
-        // 有全身照才传，纯文字路径不签发照片地址
-        fullBodyPhotoStorageKey: fullBody?.storageKey,
-        // 全量可选集合（带四轴作参考，不作过滤条件）
-        catalogVariants: outfitCatalog,
-        // 人脸信息：穿搭此前完全拿不到，而版型/颜色本就该看脸型与肤色
-        face: {
-          geometry: visionForOutfit?.geometry ?? null,
-          semantics: visionForOutfit?.structuredSemantic ?? null,
-          hairSignals: visionForOutfit?.hairSignals ?? null,
-          selectedHairstyleVector: hairVector,
-          selectedStyle: plan.selectedStyle,
-        },
-        selectedStyle: plan.selectedStyle,
-        workflow: { jobId: p.jobId, stepName: "S4_outfit_recommendation_provider" },
-      });
-
-      if (outfitView.candidates.length === 0) {
-        await jobs.complete(p.jobId, {
-          missing: [{ item: "穿搭候选", reason: "provider 未产出通过校验的候选" }],
-        });
-        return { status: "completed_partial", detail: { candidates: 0 } };
-      }
-
-      await step(p.jobId, "rendering");
-      const s4b = await runWithSingleRetry(
-        renderOutfitPreviewsStep,
-        {
-          fullBodyPhotoStorageKey: fullBody?.storageKey,
-          candidates: outfitView.candidates.map((c) => ({
-            candidateId: c.candidateId,
-            nameZh: c.nameZh,
-            renderInstruction: c.renderInstruction,
-            modelRationale: c.modelRationale,
-          })),
-        },
-        ctx,
-        deps,
-      );
-      if (s4b.status === "failed") {
-        await jobs.fail(p.jobId, `S4′ 失败: ${s4b.error}`);
-        return { status: "failed" };
-      }
-      await jobs.mergePartialResult(p.jobId, {
-        outfit: {
-          // 用户可先看系统衣柜主搭/备选与槽位替换，再决定是否进入现有的真人预览候选。
-          systemWardrobe,
-          mode: s4b.data.mode,
-          previews: s4b.data.previews,
-          supplementaryPrompt: s4b.data.supplementaryPrompt,
-          coordination: {
-            available: false,
-            method: "agent_judgement",
-            reason:
-              "风格数据量不足（12 发型 / 5 穿搭），本版不做确定性过滤，"
-              + "由 LLM 基于人脸信息与全量可选集合判断；数据量上来后回到向量过滤",
-            catalogSize: outfitCatalog.length,
-            selectedHairstyleInCatalog: hairVector !== null,
-          },
-        },
-      });
-      await jobs.complete(p.jobId, { missing: s4b.status === "completed_partial" ? s4b.missing : undefined });
-      return { status: s4b.status, detail: { mode: s4b.data.mode } };
     },
 
     /**
@@ -1034,7 +792,11 @@ export function createJobOrchestrator(container: AppContainer) {
       try {
         selectedStyleSpecs = buildSelectedStyleTaskSpecs({
           hairstyle: selectedHairstyle
-            ? { kind: selectedHairstyle.set.kind, nameZh: selectedHairstyle.nameZh, description: selectedHairstyle.description }
+            ? {
+                kind: selectedHairstyle.set.kind,
+                nameZh: selectedHairstyle.nameZh,
+                description: selectedHairstyle.description,
+              }
             : null,
           outfit: selectedOutfit
             ? { kind: selectedOutfit.set.kind, nameZh: selectedOutfit.nameZh, description: selectedOutfit.description }

@@ -1,0 +1,78 @@
+# WIG-006 — 把假发方案推导迁到分段式（dual-source）链路上
+
+**Spec**: `docs/specs/wig-options-in-hairstyle-step.md`（本票的权威依据；旧 spec 已被取代）
+**Blocked by**: 无（但见下方「注意别人正在动的地方」）
+**Triage**: ready-for-agent
+**优先级**: 高 —— 在 WIG-005 回填标注**之前**必须解决，否则功能上线即无输出
+
+## 问题
+
+WIG-004 的接线曾放在 `initial_analysis` 里 `recommendStep` 那一支，而**这一支在生产中走不到**。
+
+**该分支现已被 `c4d8ff2 fix: remove legacy recommendation fallback` 整体删除**（连同
+`src/steps/recommend.ts`），接线因此也不复存在。删除是对的 —— 它本来就是死代码。所以本票
+不是「迁移」而是「在正确的位置重做接线」。原因如下：
+
+- `createDualSourceWorkflowApplication` 无条件返回对象，所以过去 `jobOrchestrator.ts` 里
+  `if (dualSourceWorkflow)` 恒真，legacy 分支在 `recommendStep` 之前就 `return` 了。
+- 生产链路是分段式的：`initial_analysis` 只产**风格方向**；发型候选在用户选定风格后的
+  `hairstyle_recommendation` job 里产出。
+- 而且那条链路上的发型可行集**不是**「LLM 先产候选、规则再事后剔除」，而是
+  `projectHairstyleCatalog`（`features/recommendation-catalog/hairstyleReadiness.ts`）的
+  **确定性目录投影** —— 它已经在内部调用 `applyHairConstraint`，并且**已经返回
+  `excluded`（含逐条原因）**。
+
+附带一个次生问题：`plans.ts` 在用户选定风格方向时会把该方案下**所有** `hairstyle` 集合
+置为 `superseded`。即便第二轮的集合存在，其候选也无法再被选中。
+
+## 要做什么（按 spec 更新后的口径）
+
+产品形态已定：**发型这一步默认给「他现在就能剪」的列表（不变）；存在可达成的假发款时
+多一个额外入口，标明还能多几款，点进去才加载。**
+
+假发款的来源：发型可行集计算时**因发量/发际线被剔除**的那批（数据已存在、带原因，只是
+没往下传），与这一步**已经在跑的模型通道**的候选相交 —— 相交部分天然带排序、带针对
+该用户的理由、也过了脸型那一层。**不新增模型调用。**
+
+需要补的两个已算好但没导出的字段：款式名、可行性属性（发量需求档位 / 是否遮额）。
+
+## 原始分析（保留）
+
+把假发方案的推导从 `initial_analysis` 移到 `hairstyle_recommendation`。那里已经拿到
+`hairSignals`（`jobOrchestrator.ts` 内该 handler 明确校验其存在），是正确的落点。
+
+**大概率能顺手简化掉一次付费调用**：既然这条链路的可行集来自确定性目录投影，那么
+「两个前提各投影一次、取差集」是纯计算 —— 不需要第二次模型调用。请先验证
+`projectHairstyleCatalog` 是否就是喂给最终候选的那个池子（dual-source 的 A 通道是 LLM、
+B 通道是目录，两者会被比较合并），确认后再决定：
+
+- 若是：`deriveWigOptions` 的输入改为两次投影的结果，**删掉** WIG-004 里那次
+  `premise: "ample"` 的额外 `recommendStep` 调用，以及 spec 中「多一次付费调用」的代价说明。
+- 若否：仍在这条链路上补一轮 ample 前提的调用，但要重新确认它的抢占键
+  （`computationKey` 形如 `dual-source:hairstyle:hairstyle:${jobId}`，**按 jobId 唯一**，
+  同一 job 内跑两个前提会撞键）。
+
+`deriveWigOptions`、`computeHairConstraint` 的前提入参、属性表的假发维度、变更清单的
+达成路径**都还在且不需要改** —— 它们与链路无关。要写的只是「候选从哪来」这一段接线。
+
+注意 `recommendationApplication.recommendHairstyles` 上的 `premise` 入参与指纹项也还在。
+如果最终走「确定性双投影」路线、不再需要那次额外的模型调用，请顺手判断它是否变成了
+无调用方的多余表面 —— 若是就一并删掉，别留着。
+
+## 注意别人正在动的地方
+
+根仓库当前有未提交的改动落在 `client/data/style-annotation/style-hairstyle-relations-cn.json`
+与 `client/scripts/build-style-hairstyle-relations.mjs` —— 正是这个目录投影的数据来源。
+动 `hairstyleReadiness.ts` / `runtimeHairstyleCatalog.ts` 前先确认那边已落定，避免撞车。
+
+另外 `src/routes/styleDirectionSelection.test.ts` 有一个**既有失败**（期望 410、实到 422），
+就在风格选定 / 集合失效这块逻辑上。它在 `e372e46` 基线上同样失败，不是本能力引入的，
+但改这块之前值得先弄清它。
+
+## 验收
+
+- 生产链路（分段式）下，满足开放条件的用户能真正拿到假发方案。
+- 属性表假发维度仍全空时，输出仍为空且行为无变化（fail closed 不变）。
+- 风格方向选定导致的集合失效不会让假发候选变成不可选。
+- 若走「确定性双投影」路线：不新增任何模型调用，并同步更新 spec 里的代价说明。
+- `npm test` 不新增失败。

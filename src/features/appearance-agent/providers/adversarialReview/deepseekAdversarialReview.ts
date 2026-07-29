@@ -33,7 +33,7 @@ export function createDeepSeekAdversarialReviewProvider(): AdversarialReviewProv
     name: "deepseek-adversarial-review",
     async review(input: AdversarialReviewInput): Promise<AdversarialReviewResult> {
       const start = Date.now();
-      const { object } = await generateObject({
+      const { object, usage } = await generateObject({
         model,
         schema: REVIEW_SCHEMA,
         prompt:
@@ -62,6 +62,7 @@ export function createDeepSeekAdversarialReviewProvider(): AdversarialReviewProv
         summary: object.summary,
         latencyMs: Date.now() - start,
         raw: object,
+        usage,
       };
     },
   };

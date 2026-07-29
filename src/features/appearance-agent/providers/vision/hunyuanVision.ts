@@ -18,7 +18,7 @@ export function createHunyuanVisionProvider(): VisionAnalysisProvider {
     name: "hunyuan-vision",
     async analyze(input: VisionAnalysisInput): Promise<VisionAnalysisResult> {
       const start = Date.now();
-      const { text } = await generateText({
+      const { text, usage } = await generateText({
         model,
         messages: [
           {
@@ -35,6 +35,7 @@ export function createHunyuanVisionProvider(): VisionAnalysisProvider {
         model: MODEL_ID,
         rawText: text,
         latencyMs: Date.now() - start,
+        usage,
       };
     },
   };
