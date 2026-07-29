@@ -1,7 +1,6 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { acceptedPhotoModerationStatuses, photoModerationWhere } from "../lib/photoModerationGate.js";
 import { requireUser } from "../plugins/session.js";
-import { env } from "../config/env.js";
 import { createAnalysisJobRepository } from "../repositories/analysisJobRepository.js";
 import { QUEUE_NAMES } from "../lib/queues.js";
 import { isAdultEligible } from "../lib/ageEligibility.js";
@@ -287,15 +286,9 @@ export async function registerAnalysisJobRoutes(app: FastifyInstance): Promise<v
     });
   });
 
-  /**
-   * Feature-flagged second waiting point. This stays a worker job so the
-   * multi-modal calls are never performed in the API process.
-   */
+  /** Second waiting point. Multi-modal calls always remain in the worker. */
   app.post("/plans/:planId/hairstyle-recommendations", async (req, reply) => {
     const user = requireUser(req);
-    if (!env.server.dualSourceRecommendationEnabled) {
-      return reply.code(409).send({ error: "dual_source_recommendation_disabled" });
-    }
     const idempotencyKey = idempotencyKeyFrom(req);
     if (!idempotencyKey) return reply.code(400).send({ error: "valid Idempotency-Key header is required" });
     const { planId } = req.params as { planId: string };
@@ -319,9 +312,6 @@ export async function registerAnalysisJobRoutes(app: FastifyInstance): Promise<v
   /** Optional visual comparison after the user has chosen a style. Text candidates stay usable without it. */
   app.post("/plans/:planId/hairstyle-previews", async (req, reply) => {
     const user = requireUser(req);
-    if (!env.server.dualSourceRecommendationEnabled) {
-      return reply.code(409).send({ error: "dual_source_recommendation_disabled" });
-    }
     const idempotencyKey = idempotencyKeyFrom(req);
     if (!idempotencyKey) return reply.code(400).send({ error: "valid Idempotency-Key header is required" });
     const { planId } = req.params as { planId: string };
@@ -347,9 +337,6 @@ export async function registerAnalysisJobRoutes(app: FastifyInstance): Promise<v
   /** Third waiting point: system wardrobe recommendation needs both selections. */
   app.post("/plans/:planId/wardrobe-recommendations", async (req, reply) => {
     const user = requireUser(req);
-    if (!env.server.dualSourceRecommendationEnabled) {
-      return reply.code(409).send({ error: "dual_source_recommendation_disabled" });
-    }
     const idempotencyKey = idempotencyKeyFrom(req);
     if (!idempotencyKey) return reply.code(400).send({ error: "valid Idempotency-Key header is required" });
     const { planId } = req.params as { planId: string };
@@ -387,13 +374,11 @@ export async function registerAnalysisJobRoutes(app: FastifyInstance): Promise<v
       // 决策 3：两步约束选择——穿搭候选集由已选发型过滤，没选发型就无从生成
       return reply.code(422).send({ error: "hairstyle_not_selected", message: "请先选定发型方向，穿搭候选会依据它筛选" });
     }
-    if (env.server.dualSourceRecommendationEnabled) {
-      if (plan.selectedOutfitId) {
-        return reply.code(422).send({ error: "outfit_already_selected", message: "已选定穿搭，请直接生成方案或使用重新生成" });
-      }
-      const set = await prisma.recommendationSet.findFirst({ where: { planId, kind: "outfit", status: "ready" } });
-      if (!set) return reply.code(422).send({ error: "outfit_recommendation_not_ready" });
+    if (plan.selectedOutfitId) {
+      return reply.code(422).send({ error: "outfit_already_selected", message: "已选定穿搭，请直接生成方案或使用重新生成" });
     }
+    const set = await prisma.recommendationSet.findFirst({ where: { planId, kind: "outfit", status: "ready" } });
+    if (!set) return reply.code(422).send({ error: "outfit_recommendation_not_ready" });
 
     const capacity = await checkGenerationCapacity(user.id);
     if (!capacity.ok) {

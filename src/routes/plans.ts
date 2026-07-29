@@ -1,6 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
-import { env } from "../config/env.js";
 import { requireUser } from "../plugins/session.js";
 import { createRecommendationApplication } from "../services/recommendationApplication.js";
 import { createStageProgressionService } from "../services/stageProgressionService.js";
@@ -15,10 +14,6 @@ const statusUpdateSchema = z.object({
 
 const selectSchema = z.object({ styleTag: z.string().min(1) });
 const styleDirectionSelectionSchema = z.object({ styleId: z.string().regex(/^[a-z0-9][a-z0-9_-]{1,39}$/) });
-const legacyStyleHairstyleSelectionSchema = z.object({
-  styleId: z.string().regex(/^[a-z0-9][a-z0-9_-]{1,39}$/),
-  candidateId: z.string().min(1),
-});
 const customStyleDirectionSchema = z.object({ text: z.string().trim().min(2).max(200) });
 const recommendationOutcomeSchema = z.object({
   outcomeType: z.enum(["saved", "slot_replaced", "explicitly_disliked", "try_on_saved", "finally_adopted"]),
@@ -312,14 +307,6 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
   /** Wardrobe selection is the final selection stage. */
   app.post("/plans/:planId/select-outfit", (req, reply) => selectRecommendationCandidate(req, reply, "outfit"));
 
-  /** Compatibility alias for the pre-rollout client. New clients use explicit domain endpoints above. */
-  app.post("/plans/:planId/select-style", (req, reply) => {
-    if (env.server.dualSourceRecommendationEnabled) {
-      return reply.code(410).send({ error: "deprecated_candidate_selection", message: "请使用 select-hairstyle 或 select-outfit" });
-    }
-    return selectRecommendationCandidate(req, reply);
-  });
-
   /** 首轮 3–4 个风格方向的选择落点；选择后才能选发型或请求穿搭。 */
   app.post("/plans/:planId/select-style-direction", async (req, reply) => {
     const user = requireUser(req);
@@ -416,62 +403,6 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
       });
     }
     return reply.send({ ok: true, style });
-  });
-
-  /** Compatibility endpoint retained only while the rollout flag is disabled. */
-  app.post("/plans/:planId/select-style-hairstyle", async (req, reply) => {
-    const user = requireUser(req);
-    if (env.server.dualSourceRecommendationEnabled) {
-      return reply.code(410).send({
-        error: "deprecated_atomic_selection",
-        message: "请先选择风格方向，再从该风格的发型候选中选择，最后选择穿搭",
-      });
-    }
-    const { planId } = req.params as { planId: string };
-    const { styleId, candidateId } = legacyStyleHairstyleSelectionSchema.parse(req.body);
-    const result = await prisma.$transaction(async (tx) => {
-      const plan = await tx.appearancePlan.findFirst({
-        where: { id: planId, userId: user.id },
-        select: { id: true },
-      });
-      if (!plan) return { ok: false as const, reason: "not_owned" as const };
-      const job = await tx.analysisJob.findFirst({
-        where: {
-          userId: user.id,
-          planId,
-          jobType: "initial_analysis",
-          status: { in: ["completed", "completed_partial"] },
-        },
-        orderBy: { createdAt: "desc" },
-        select: { partialResult: true },
-      });
-      const style = findSelectableStyleDirection(job?.partialResult, styleId);
-      if (!style) return { ok: false as const, reason: "style_not_offered" as const };
-      const candidate = await tx.recommendationCandidate.findUnique({ where: { id: candidateId }, include: { set: true } });
-      if (!candidate) return { ok: false as const, reason: "not_found" as const };
-      if (candidate.set.planId !== planId) return { ok: false as const, reason: "not_owned" as const };
-      if (candidate.set.kind !== "hairstyle" || candidate.set.status !== "ready") {
-        return { ok: false as const, reason: "set_not_ready" as const };
-      }
-      if (candidate.styleDirectionId !== style.id) {
-        return { ok: false as const, reason: "candidate_not_in_selected_style" as const };
-      }
-      await tx.appearancePlan.update({
-        where: { id: planId },
-        data: { selectedStyle: style as never, selectedHairstyleId: candidate.id },
-      });
-      await tx.conversationDecision.createMany({
-        data: [
-          { planId, decisionKind: "style_direction_selected", payload: style as never },
-          { planId, decisionKind: "hairstyle_selected", payload: { kind: "hairstyle", candidateId: candidate.id, nameZh: candidate.nameZh } },
-        ],
-      });
-      return { ok: true as const, candidateId: candidate.id, nameZh: candidate.nameZh };
-    });
-    if (!result.ok) {
-      return reply.code(result.reason === "not_found" ? 404 : 422).send({ error: result.reason });
-    }
-    return reply.send({ ok: true, styleId, candidateId: result.candidateId, nameZh: result.nameZh });
   });
 
   /**

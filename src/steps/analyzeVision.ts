@@ -92,6 +92,32 @@ function extractPortraitProfile(faceMetrics: unknown): Record<string, unknown> |
   return profile as Record<string, unknown>;
 }
 
+function withConfirmedFaceShape(
+  portraitProfile: Record<string, unknown> | null,
+  faceShape: string,
+): Record<string, unknown> | null {
+  if (!portraitProfile) return null;
+  const signals = portraitProfile.signals;
+  if (!signals || typeof signals !== "object" || Array.isArray(signals)) return portraitProfile;
+  const measured = (signals as Record<string, unknown>).faceShape;
+  const evidence = measured && typeof measured === "object" && !Array.isArray(measured)
+    ? ((measured as Record<string, unknown>).evidence ?? {})
+    : {};
+  return {
+    ...portraitProfile,
+    signals: {
+      ...signals,
+      faceShape: {
+        value: faceShape,
+        source: "user_confirmed",
+        confidence: "high",
+        stability: "high",
+        evidence,
+      },
+    },
+  };
+}
+
 export const analyzeVisionStep: Step<AnalyzeVisionInput, AnalyzeVisionOutput> = {
   name: "S2_analyze_vision",
   async run(input, ctx, deps) {
@@ -112,7 +138,7 @@ export const analyzeVisionStep: Step<AnalyzeVisionInput, AnalyzeVisionOutput> = 
 
     const { geometry, hairline, volume } = extractFromFaceMetrics(photo.faceMetrics);
     const clientSignals = extractClientSignals(photo.faceMetrics);
-    const portraitProfile = extractPortraitProfile(photo.faceMetrics);
+    let portraitProfile = extractPortraitProfile(photo.faceMetrics);
 
     const profile = await deps.prisma.appearanceProfile.findUnique({ where: { userId: ctx.userId } });
 
@@ -137,6 +163,7 @@ export const analyzeVisionStep: Step<AnalyzeVisionInput, AnalyzeVisionOutput> = 
     if (confirmationMatchesPhoto) {
       geometry.faceShape = profile!.confirmedFaceShape;
       geometry.confidence = "user_confirmed";
+      portraitProfile = withConfirmedFaceShape(portraitProfile, profile!.confirmedFaceShape!);
     } else if (profile?.confirmedFaceShape) {
       // 如实标注：有确认值但不是针对这张照片，用的是实测值
       geometry.confirmationStale = true;
