@@ -67,7 +67,7 @@ test("a wig-achieved hairstyle carries its achievement path into the change list
       kind: "hairstyle",
       nameZh: "大背头",
       description: "往后梳的光滑造型",
-      achievement: { tier: "full_wig", label: "这个款式会露出发际线，需要整顶假发才能做到" },
+      achievement: { label: "这个款式会露出发际线，需要整顶假发才能做到" },
     },
     outfit: { kind: "outfit", nameZh: "素色T恤+直筒裤", description: "纯色上装配直筒下装" },
   });
@@ -85,7 +85,7 @@ test("the achievement path never leaks into the image instruction", () => {
       kind: "hairstyle",
       nameZh: "大背头",
       description: "往后梳的光滑造型",
-      achievement: { tier: "full_wig", label: "这个款式会露出发际线，需要整顶假发才能做到" },
+      achievement: { label: "这个款式会露出发际线，需要整顶假发才能做到" },
     },
     outfit: { kind: "outfit", nameZh: "素色T恤+直筒裤", description: "纯色上装配直筒下装" },
   });

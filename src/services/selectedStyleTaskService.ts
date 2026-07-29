@@ -1,6 +1,5 @@
 import type { MaterializeTaskSpec } from "../steps/materializePlan.js";
 import { findObjectiveHairstyleAttributes } from "../features/appearance-agent/data/objectiveHairstyleAttributes.js";
-import type { WigCraftTier } from "../features/appearance-agent/data/objectiveHairstyleAttributes.js";
 
 /**
  * 把用户选定的发型与穿搭变成两条阶段任务。
@@ -26,7 +25,7 @@ export type SelectedStyleRow = {
    * 图该画的是「戴上之后长什么样」，而渲染文案是按图像供应商逐款校准的，混入
    * 未校准语义会产出网底、发根断层这类伪影。达成路径是元信息，不是图像内容。
    */
-  achievement?: { tier: WigCraftTier; label: string };
+  achievement?: { label: string };
 };
 
 export type SelectedStylesInput = {
@@ -57,7 +56,7 @@ export function buildSelectedStyleTaskSpecs(input: SelectedStylesInput): Materia
       renderDescription:
         findObjectiveHairstyleAttributes(input.hairstyle.nameZh)?.renderDescription,
       rationale: input.hairstyle.achievement
-        ? `${input.hairstyle.description}。${input.hairstyle.achievement.label}`
+        ? `${input.hairstyle.description.replace(/[。.]$/, "")}。${input.hairstyle.achievement.label}`
         : input.hairstyle.description,
     },
     {
