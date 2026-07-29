@@ -1,4 +1,5 @@
 import {
+  OBJECTIVE_HAIRSTYLE_ATTRIBUTES,
   findObjectiveHairstyleAttributes,
   wigFeasibilityFor,
   type WigCraftTier,
@@ -94,8 +95,15 @@ function stricter(a: WigCraftTier, b: WigCraftTier): WigCraftTier {
   return TIER_ORDER.indexOf(a) >= TIER_ORDER.indexOf(b) ? a : b;
 }
 
-/** 同一款式在两轮里可能用了别名，统一到属性表的规范名再比对 */
+/**
+ * 统一到属性表的规范名再比对，因为不同来源可能用别名指同一款。
+ *
+ * **规范名优先于别名**：属性表里 `短寸` 的别名包含 `圆寸`，而 `圆寸` 本身是另一条记录的
+ * 规范名。按别名先匹配会把两个不同款式塌成一个，标注也就跟着串了。
+ */
 function identity(name: string): string {
+  const exact = OBJECTIVE_HAIRSTYLE_ATTRIBUTES.find((entry) => entry.canonicalName === name);
+  if (exact) return exact.canonicalName;
   return findObjectiveHairstyleAttributes(name)?.canonicalName ?? name;
 }
 
@@ -155,7 +163,12 @@ export function deriveWigOptions<T extends WigMatchableCandidate>(
       continue;
     }
     const tier = stricter(annotation.minimumTier, tierRequiredToWear(candidate));
-    options.push({ candidate, tier, achievementLabel: ACHIEVEMENT_LABEL[tier] });
+    // 注意事项直接拼进标签，而不是另开一个字段让下游自己决定要不要显示——
+    // 它的作用是防止用户买错，漏显示等于没有它。
+    const achievementLabel = annotation.caveat
+      ? `${ACHIEVEMENT_LABEL[tier]}（${annotation.caveat}）`
+      : ACHIEVEMENT_LABEL[tier];
+    options.push({ candidate, tier, achievementLabel });
   }
 
   // 门槛判定放在匹配之后：升级记录是关于**款式表**的，不是关于这个用户的，

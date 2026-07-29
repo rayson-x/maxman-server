@@ -110,3 +110,15 @@ test("every wig annotation is present and none overstates its evidence", () => {
     assert.equal(entry.wigFeasibility?.evidenceStrength, "reasoned");
   }
 });
+
+test("perm-dependent styles carry the real-hair caveat", () => {
+  // 蛋白丝不可烫染、不可近高温；这两款只靠普通化纤发片做不出来。
+  for (const name of ["蓬松纹理烫", "自然卷短发"]) {
+    const annotation = wigFeasibilityFor(name);
+    assert.equal(annotation?.feasible, true);
+    assert.ok(
+      annotation !== null && annotation.feasible && (annotation.caveat ?? "").length > 0,
+      `${name} 需要烫卷，必须写明材质限制`,
+    );
+  }
+});

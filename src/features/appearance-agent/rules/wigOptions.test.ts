@@ -212,3 +212,28 @@ test("an empty model ranking still yields the full blocked set", () => {
   assert.equal(outcome.open, true);
   assert.deepEqual(outcome.options.map((o) => o.candidate.nameZh), ["蓬松纹理烫"]);
 });
+
+test("a material caveat is spelled out in the label, not left to the caller", () => {
+  // 需要烫卷的款式不能用普通化纤补量（蛋白丝不可烫染）。漏说这一句，用户会买错。
+  const outcome = deriveWigOptions(
+    input({
+      feasibilityOf: () => ({
+        feasible: true,
+        minimumTier: "volume_patch",
+        caveat: "需要烫卷纹理，发片必须是真人发或已烫好的成品",
+        evidenceStrength: "reasoned",
+      }),
+    }),
+  );
+  assert.match(outcome.options[0]?.achievementLabel ?? "", /真人发/);
+});
+
+test("styles whose canonical name is another style's alias are not collapsed", () => {
+  // 属性表里 短寸 的别名含 圆寸，而 圆寸 是另一条记录的规范名。
+  const buzzA: WigMatchableCandidate = { nameZh: "圆寸", requiresHairVolume: "low", coversForehead: false };
+  const buzzB: WigMatchableCandidate = { nameZh: "短寸", requiresHairVolume: "low", coversForehead: false };
+  const outcome = deriveWigOptions(
+    input({ blockedCandidates: [buzzA, buzzB], modelRankedNames: [] }),
+  );
+  assert.equal(outcome.unmatched.length, 2, "两个不同款式不能被塌成一条");
+});

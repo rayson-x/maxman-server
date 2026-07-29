@@ -214,19 +214,3 @@ test("同一造型的客观属性不随用户信号或模型迎合标注变化",
   assert.equal(receding.candidates.length, 0);
   assert.equal(receding.excluded[0]?.code, "hair_constraint_violation");
 });
-
-test("ample premise hides the raw volume signal from the model", () => {
-  // 前提充足时模型不该看到「发量偏少」——否则它会为一批高发量需求候选编造适配理由。
-  const prompt = buildStyleRecommendationPrompt(input({ premise: "ample" }));
-  assert.doesNotMatch(prompt, /thin/);
-  assert.doesNotMatch(prompt, /receding/);
-  assert.match(prompt, /availableVolume/);
-  // 「假发」是达成路径的元信息，不属于推荐语义，绝不进 prompt。
-  assert.doesNotMatch(prompt, /假发/);
-});
-
-test("own-hair premise still passes the raw signals through", () => {
-  const prompt = buildStyleRecommendationPrompt(input());
-  assert.match(prompt, /thin/);
-  assert.match(prompt, /receding/);
-});

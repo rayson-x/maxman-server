@@ -68,7 +68,18 @@ export type WigCraftTier = "volume_patch" | "full_wig" | "full_wig_front_lace";
 export type WigEvidenceStrength = "reasoned" | "product_decision";
 
 export type WigFeasibilityAnnotation =
-  | { feasible: true; minimumTier: WigCraftTier; evidenceStrength: WigEvidenceStrength }
+  | {
+      feasible: true;
+      minimumTier: WigCraftTier;
+      /**
+       * 达成这一款还需要用户知道的限制条件，会拼进面向用户的达成路径文案。
+       *
+       * 目前只有一类：需要烫卷纹理的款式不能用普通化纤补量 —— 蛋白丝不可烫染、
+       * 不可近高温。不写出来，用户会买一片做不出目标效果的发片。
+       */
+      caveat?: string;
+      evidenceStrength: WigEvidenceStrength;
+    }
   | { feasible: false; reason: string; evidenceStrength: WigEvidenceStrength };
 
 /**
@@ -133,8 +144,8 @@ export const OBJECTIVE_HAIRSTYLE_ATTRIBUTES: readonly ObjectiveHairstyleAttribut
   { canonicalName: "法式刘海短发", aliases: ["法式刘海"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留五到六公分，刘海平齐垂到眉毛上方，两侧推短", wigFeasibility: { feasible: true, minimumTier: "volume_patch", evidenceStrength: "reasoned" }},
   { canonicalName: "韩式逗号刘海", aliases: ["逗号刘海"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "刘海留到眉毛并在一侧弯出逗号形的弧度，额头露出一部分，两侧修到露出耳廓，后颈剪薄", wigFeasibility: { feasible: true, minimumTier: "volume_patch", evidenceStrength: "reasoned" }},
   { canonicalName: "中分短发", aliases: ["中分"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留到耳朵长度并保持蓬松，从正中分开，两边刘海各自垂到眉毛下方", wigFeasibility: { feasible: true, minimumTier: "full_wig_front_lace", evidenceStrength: "reasoned" }},
-  { canonicalName: "自然卷短发", aliases: ["短卷发"], requiresHairVolume: "high", coversForehead: true , renderDescription: "顶部留五到六公分的自然卷，卷发蓬松成团，额前散落几缕卷曲发丝，两侧推短", wigFeasibility: { feasible: true, minimumTier: "volume_patch", evidenceStrength: "reasoned" }},
-  { canonicalName: "蓬松纹理烫", aliases: ["纹理烫"], requiresHairVolume: "high", coversForehead: true , renderDescription: "顶部留六到七公分烫成大波浪的S形起伏，卷圈比自然卷宽松，用发泥抓出向上的空气感，两侧推短", wigFeasibility: { feasible: true, minimumTier: "volume_patch", evidenceStrength: "reasoned" }},
+  { canonicalName: "自然卷短发", aliases: ["短卷发"], requiresHairVolume: "high", coversForehead: true , renderDescription: "顶部留五到六公分的自然卷，卷发蓬松成团，额前散落几缕卷曲发丝，两侧推短", wigFeasibility: { feasible: true, minimumTier: "volume_patch", caveat: "需要烫卷纹理，发片必须是真人发或已烫好的成品", evidenceStrength: "reasoned" }},
+  { canonicalName: "蓬松纹理烫", aliases: ["纹理烫"], requiresHairVolume: "high", coversForehead: true , renderDescription: "顶部留六到七公分烫成大波浪的S形起伏，卷圈比自然卷宽松，用发泥抓出向上的空气感，两侧推短", wigFeasibility: { feasible: true, minimumTier: "volume_patch", caveat: "需要烫卷纹理，发片必须是真人发或已烫好的成品", evidenceStrength: "reasoned" }},
 ] as const;
 
 function normalized(value: string): string {
