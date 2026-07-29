@@ -13,6 +13,8 @@ import { materializePlanStep, type MaterializeTaskSpec } from "../steps/material
 import { runWithSingleRetry, type StepContext, type StepDeps } from "../steps/types.js";
 import { isCatalogDomain, isStyleDomain } from "../features/appearance-agent/data/domains.js";
 import { deriveTaskDimensions } from "../features/appearance-agent/data/taskDimensions.js";
+import { deriveWigOptions } from "../features/appearance-agent/rules/wigOptions.js";
+import { projectRuntimeHairstyleCatalog } from "../features/recommendation-catalog/runtimeHairstyleCatalog.js";
 import { buildSelectedStyleTaskSpecs } from "../services/selectedStyleTaskService.js";
 import { verifyProgressStep } from "../steps/verifyProgress.js";
 import { createPhotoAccessService } from "../services/photoAccessService.js";
@@ -530,6 +532,16 @@ export function createJobOrchestrator(container: AppContainer) {
           catalogCoverage: "unknown",
           degradation: result.audit.degradation,
         },
+        wigOptions: deriveWigOptionsView({
+          selectedStyleId: styleId,
+          hairSignals,
+          renderProvider: container.providers.imageEdit.name,
+          // 模型通道独有的候选 = 它想推、而确定性可行集没提供的款式。
+          // 其中被发量/发际线挡住的那部分正是假发能拿回来的，排序即取自这里。
+          modelRankedNames: result.exploration.map((candidate) => candidate.nameZh),
+          shortTerm: profile?.track === "short_term",
+          declaredHairConcern: profile?.hairLossConcern === true,
+        }),
       });
       if (!set || set.candidates.length === 0) {
         await jobs.complete(p.jobId, { missing: [{ item: "发型候选", reason: "未产出可选择候选" }] });
@@ -788,6 +800,31 @@ export function createJobOrchestrator(container: AppContainer) {
           include: { set: true },
         }),
       ]);
+      /*
+       * 达成路径：选定的发型可能是**靠补充发量才能达成**的那一批。这个事实产生于发型推荐
+       * 那一步，所以从那次 job 的结果里取回来，随任务落进变更清单 —— 否则用户会以为剪个
+       * 头发就能变成效果图里的样子。取不到就当普通发型处理（fail closed 的自然结果）。
+       *
+       * 按款式名匹配而不是候选 id：假发方案里的标识来自目录，选定项是推荐候选行，两者没有
+       * 共同主键；而两边的名字都出自同一张属性表。
+       */
+      const priorHairstyleJob = await prisma.analysisJob.findFirst({
+        where: {
+          userId: p.userId,
+          planId: p.planId,
+          jobType: "hairstyle_recommendation",
+          status: { in: ["completed", "completed_partial"] },
+        },
+        orderBy: { createdAt: "desc" },
+        select: { partialResult: true },
+      });
+      // partialResult 是库里的自由 JSON：历史行或写了一半的行都可能缺字段，逐层 optional。
+      const wigAchievement = (
+        priorHairstyleJob?.partialResult as
+          | { wigOptions?: { options?: { nameZh?: string; achievementLabel?: string }[] } | null }
+          | null
+      )?.wigOptions?.options?.find((option) => option.nameZh === selectedHairstyle?.nameZh);
+
       let selectedStyleSpecs: MaterializeTaskSpec[];
       try {
         selectedStyleSpecs = buildSelectedStyleTaskSpecs({
@@ -796,6 +833,9 @@ export function createJobOrchestrator(container: AppContainer) {
                 kind: selectedHairstyle.set.kind,
                 nameZh: selectedHairstyle.nameZh,
                 description: selectedHairstyle.description,
+                achievement: wigAchievement?.achievementLabel
+                  ? { label: wigAchievement.achievementLabel }
+                  : undefined,
               }
             : null,
           outfit: selectedOutfit
@@ -1046,3 +1086,57 @@ export function createJobOrchestrator(container: AppContainer) {
 }
 
 export type JobOrchestrator = ReturnType<typeof createJobOrchestrator>;
+
+/**
+ * 落到 job 结果里的假发方案视图。
+ *
+ * 数据来源全是这一步已有的东西：可行集计算时**被发量/发际线剔除**的款式（确定性补集，
+ * 带原因与属性），加上模型通道独有候选的名字（提供排序与个人化取舍）。**不新增模型调用。**
+ *
+ * 达成路径标签在这里就定下来，好让它随方案一路带到变更清单，而不是等用户点选那一刻才拼。
+ */
+function deriveWigOptionsView(input: {
+  selectedStyleId: string;
+  hairSignals: import("../features/appearance-agent/rules/hairConstraints.js").HairSignals;
+  renderProvider: string;
+  modelRankedNames: string[];
+  shortTerm: boolean;
+  declaredHairConcern: boolean;
+}): {
+  open: boolean;
+  closedReason: string | null;
+  options: { hairstyleId: string; nameZh: string; tier: string; achievementLabel: string }[];
+  /** 属性表未标注、需要人补依据的款式名。见 WIG-005 */
+  annotationGaps: string[];
+} {
+  const projection = projectRuntimeHairstyleCatalog({
+    selectedStyleId: input.selectedStyleId,
+    hairSignals: input.hairSignals,
+    renderProvider: input.renderProvider,
+    renderModel: input.renderProvider,
+  });
+  const outcome = deriveWigOptions({
+    blockedCandidates: projection.excluded.map((row) => ({
+      hairstyleId: row.hairstyleId,
+      nameZh: row.nameZh,
+      requiresHairVolume: row.requiresHairVolume,
+      coversForehead: row.coversForehead,
+    })),
+    modelRankedNames: input.modelRankedNames,
+    track: input.shortTerm ? "short_term" : "long_term",
+    userDeclaredHairConcern: input.declaredHairConcern,
+  });
+  return {
+    open: outcome.open,
+    closedReason: outcome.closedReason ?? null,
+    options: outcome.options.map((option) => ({
+      hairstyleId: option.candidate.hairstyleId,
+      nameZh: option.candidate.nameZh,
+      tier: option.tier,
+      achievementLabel: option.achievementLabel,
+    })),
+    annotationGaps: outcome.unmatched
+      .filter((row) => row.needsHumanReview)
+      .map((row) => row.candidate.nameZh),
+  };
+}
