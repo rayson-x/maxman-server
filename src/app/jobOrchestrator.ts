@@ -16,6 +16,7 @@ import { deriveTaskDimensions } from "../features/appearance-agent/data/taskDime
 import { deriveWigOptions } from "../features/appearance-agent/rules/wigOptions.js";
 import { projectRuntimeHairstyleCatalog } from "../features/recommendation-catalog/runtimeHairstyleCatalog.js";
 import { buildSelectedStyleTaskSpecs } from "../services/selectedStyleTaskService.js";
+import { createRecommendationApplication } from "../services/recommendationApplication.js";
 import { verifyProgressStep } from "../steps/verifyProgress.js";
 import { createPhotoAccessService } from "../services/photoAccessService.js";
 import { selectRenderablePreviewCandidates } from "../services/previewCandidateSelector.js";
@@ -218,6 +219,11 @@ export function createJobOrchestrator(container: AppContainer) {
   const targetImages = createTargetImageService(prisma, container.providers);
   const planRevision = createPlanRevisionService(prisma);
   const photoAccess = createPhotoAccessService(prisma);
+  const recommendations = createRecommendationApplication({
+    prisma,
+    hairstyleProvider: container.providers.hairstyleRecommendation,
+    outfitProvider: container.providers.outfitRecommendation,
+  });
   const dualSourceWorkflow = createDualSourceWorkflowApplication(prisma, {
     enqueueReviewer: async (comparisonId) => {
       const queue = container.queues.queues[QUEUE_NAMES.textAnalysis];
@@ -532,7 +538,9 @@ export function createJobOrchestrator(container: AppContainer) {
           catalogCoverage: "unknown",
           degradation: result.audit.degradation,
         },
-        wigOptions: deriveWigOptionsView({
+        wigOptions: await deriveWigOptionsView({
+          recommendations,
+          planId: p.planId,
           selectedStyleId: styleId,
           hairSignals,
           renderProvider: container.providers.imageEdit.name,
@@ -1095,20 +1103,24 @@ export type JobOrchestrator = ReturnType<typeof createJobOrchestrator>;
  *
  * 达成路径标签在这里就定下来，好让它随方案一路带到变更清单，而不是等用户点选那一刻才拼。
  */
-function deriveWigOptionsView(input: {
+async function deriveWigOptionsView(input: {
+  recommendations: ReturnType<typeof createRecommendationApplication>;
+  planId: string;
   selectedStyleId: string;
   hairSignals: import("../features/appearance-agent/rules/hairConstraints.js").HairSignals;
   renderProvider: string;
   modelRankedNames: string[];
   shortTerm: boolean;
   declaredHairConcern: boolean;
-}): {
+}): Promise<{
   open: boolean;
   closedReason: string | null;
-  options: { hairstyleId: string; nameZh: string; tier: string; achievementLabel: string }[];
+  /** 集合 id。假发款落在独立集合里，默认发型列表因此不可能被污染 */
+  setId: string | null;
+  options: { candidateId: string; nameZh: string; tier: string; achievementLabel: string }[];
   /** 属性表未标注、需要人补依据的款式名。见 WIG-005 */
   annotationGaps: string[];
-} {
+}> {
   const projection = projectRuntimeHairstyleCatalog({
     selectedStyleId: input.selectedStyleId,
     hairSignals: input.hairSignals,
@@ -1126,17 +1138,51 @@ function deriveWigOptionsView(input: {
     track: input.shortTerm ? "short_term" : "long_term",
     userDeclaredHairConcern: input.declaredHairConcern,
   });
-  return {
-    open: outcome.open,
-    closedReason: outcome.closedReason ?? null,
+  const annotationGaps = outcome.unmatched
+    .filter((row) => row.needsHumanReview)
+    .map((row) => row.candidate.nameZh);
+
+  // 入口不开放时不落库：没人会看到的候选行不该占着方案的数据。
+  if (!outcome.open) {
+    return {
+      open: false,
+      closedReason: outcome.closedReason ?? null,
+      setId: null,
+      options: [],
+      annotationGaps,
+    };
+  }
+
+  const persisted = await input.recommendations.persistWigOptionSet({
+    planId: input.planId,
+    styleDirectionId: input.selectedStyleId,
+    // 指纹里带上已选风格与款式列表：风格或可解锁集合一变就是另一个集合，不复用旧的
+    inputFingerprint: `${input.selectedStyleId}|${outcome.options
+      .map((option) => `${option.candidate.nameZh}:${option.tier}`)
+      .join(",")}`,
     options: outcome.options.map((option) => ({
-      hairstyleId: option.candidate.hairstyleId,
       nameZh: option.candidate.nameZh,
-      tier: option.tier,
+      description: option.achievementLabel,
       achievementLabel: option.achievementLabel,
     })),
-    annotationGaps: outcome.unmatched
-      .filter((row) => row.needsHumanReview)
-      .map((row) => row.candidate.nameZh),
+  });
+
+  return {
+    open: true,
+    closedReason: null,
+    setId: persisted.setId,
+    options: outcome.options.flatMap((option) => {
+      const candidateId = persisted.candidateIdByName[option.candidate.nameZh];
+      // 落库失败的项不返回：返回一个选不中的 id 比不返回更糟。
+      return candidateId
+        ? [{
+            candidateId,
+            nameZh: option.candidate.nameZh,
+            tier: option.tier,
+            achievementLabel: option.achievementLabel,
+          }]
+        : [];
+    }),
+    annotationGaps,
   };
 }

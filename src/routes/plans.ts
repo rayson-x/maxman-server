@@ -353,7 +353,8 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
           },
         });
         await tx.recommendationSet.updateMany({
-          where: { planId, kind: { in: ["hairstyle", "outfit"] }, status: { in: ["preparing", "ready", "failed"] } },
+          // 假发集合同样按已选风格算出来，风格一变它也过期
+          where: { planId, kind: { in: ["hairstyle", "hairstyle_wig", "outfit"] }, status: { in: ["preparing", "ready", "failed"] } },
           data: { status: "superseded" },
         });
         await tx.generatedAsset.updateMany({

@@ -670,6 +670,10 @@ model WorkflowRun {
 
 enum RecommendationKind {
   hairstyle
+  /// 靠补充发量（假发）才能达成的发型，独立成集合。
+  /// 不并入 hairstyle：默认列表必须与从前逐位一致，而多处按 kind 查询集合，
+  /// 复用同一枚举值时漏一处过滤就会把假发款推进默认列表。
+  hairstyle_wig
   outfit
 }
 

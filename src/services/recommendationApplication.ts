@@ -130,6 +130,17 @@ export type RecommendationSetView = {
   failureReason?: string | null;
 };
 
+/**
+ * 对用户而言「选了一个发型」的两种集合。
+ *
+ * 假发款落在独立集合里，是为了让默认发型列表在结构上不可能被污染（多处按 kind 查集合，
+ * 其中还有不带排序的 findFirst）。但选定行为必须一致：写 selectedHairstyleId、按风格方向
+ * 校验、失效下游穿搭 —— 否则那个集合就是只能看不能选。
+ */
+export function isHairstyleSelection(kind: RecommendationKind): boolean {
+  return kind === "hairstyle" || kind === "hairstyle_wig";
+}
+
 export type SelectionResult =
   | { ok: true; candidateId: string; nameZh: string }
   | {
@@ -944,6 +955,81 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
     },
 
     /** 只接受属于本用户、且所属集合为 ready 的候选 */
+    /**
+     * 把假发可选项落成一个**独立集合**及其候选行，让它们真的可以被选中。
+     *
+     * 为什么不并入默认发型集合：默认列表必须与从前逐位一致，而多处按 `kind` 查集合
+     * （其中有不带排序的 findFirst），复用同一枚举值时漏一处过滤就会把假发款推进默认列表。
+     * 独立 kind 让这件事在结构上不可能发生。
+     *
+     * 渲染指令仍由本模块用属性表构建、按 `hairstyle` 处理 —— 图该画的是「戴上之后长什么样」，
+     * 所以指令里不出现「假发」，也不需要为它另做一套校准。
+     *
+     * 幂等复用既有的抢占机制：同一输入指纹重复调用不会重复落库。
+     */
+    async persistWigOptionSet(command: {
+      planId: string;
+      styleDirectionId: string;
+      inputFingerprint: string;
+      generation?: number;
+      options: Array<{ nameZh: string; description: string; achievementLabel: string }>;
+    }): Promise<{ setId: string; candidateIdByName: Record<string, string> }> {
+      const capabilityStatus: CapabilityStatus = {
+        knowledgeSource: "catalog_matching",
+        // 可行性已由确定性过滤与属性表标注决定，不是模型估计
+        feasibility: "catalog_verified",
+        outfitCoordination: "not_checked",
+        previewQuality: "not_checked",
+      };
+      const { role, setId } = await acquireSet({
+        planId: command.planId,
+        kind: "hairstyle_wig",
+        generation: command.generation ?? 1,
+        inputFingerprint: command.inputFingerprint,
+        source: "catalog_matching",
+        capabilityStatus,
+      });
+
+      if (role === "creator") {
+        await prisma.$transaction(async (tx) => {
+          for (const [index, option] of command.options.entries()) {
+            await tx.recommendationCandidate.create({
+              data: {
+                setId,
+                providerCandidateKey: `wig:${option.nameZh}`,
+                nameZh: option.nameZh,
+                description: option.description,
+                // 达成路径就是这条候选的理由，且它来自模板而非模型措辞
+                modelRationale: option.achievementLabel,
+                rank: index,
+                visualDirection: option.description,
+                styleDirectionId: command.styleDirectionId,
+                renderInstruction: buildRenderInstruction("hairstyle", {
+                  providerCandidateKey: `wig:${option.nameZh}`,
+                  nameZh: option.nameZh,
+                  description: option.description,
+                  modelRationale: option.achievementLabel,
+                  rank: index,
+                  visualDirection: option.description,
+                }),
+                verificationStatus: "catalog_verified",
+              },
+            });
+          }
+          await tx.recommendationSet.update({ where: { id: setId }, data: { status: "ready" } });
+        });
+      }
+
+      const rows = await prisma.recommendationCandidate.findMany({
+        where: { setId },
+        select: { id: true, nameZh: true },
+      });
+      return {
+        setId,
+        candidateIdByName: Object.fromEntries(rows.map((row) => [row.nameZh, row.id])),
+      };
+    },
+
     async selectCandidate(command: {
       userId: string;
       planId: string;
@@ -969,7 +1055,7 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       if (command.expectedKind && candidate.set.kind !== command.expectedKind) {
         return { ok: false, reason: "not_found" };
       }
-      if (candidate.set.kind === "hairstyle") {
+      if (isHairstyleSelection(candidate.set.kind)) {
         const selectedStyleId = (candidate.set.plan.selectedStyle as { id?: unknown } | null)?.id;
         if (typeof selectedStyleId !== "string") return { ok: false, reason: "style_not_selected" };
         if (candidate.styleDirectionId !== selectedStyleId) {
@@ -981,7 +1067,7 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       }
 
       await prisma.$transaction(async (tx) => {
-        if (candidate.set.kind === "hairstyle") {
+        if (isHairstyleSelection(candidate.set.kind)) {
           const hairstyleChanged = candidate.set.plan.selectedHairstyleId !== candidate.id;
           await tx.appearancePlan.update({
             where: { id: command.planId },
