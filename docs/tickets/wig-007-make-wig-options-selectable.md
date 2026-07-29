@@ -2,8 +2,19 @@
 
 **Spec**: `docs/specs/wig-options-in-hairstyle-step.md`
 **Blocked by**: 无
-**Triage**: ready-for-agent
-**优先级**: 阻塞 —— 不做完，入口只能看不能选，spec「可以让用户通过假发的方式选择」未达成
+**Triage**: done（2026-07-29）
+**决策**：走 B —— 独立集合（新增 `RecommendationKind.hairstyle_wig`）
+
+> **已完成。** 选定接口（`select-hairstyle`）同时接受默认发型与假发款；选中假发款会照常写
+> `selectedHairstyleId`、按已选风格校验、失效下游穿搭；方案落地接受该集合类型并把达成路径
+> 写进变更清单。风格方向变更同样让假发集合失效。
+>
+> 默认列表不可能被污染：所有按 `kind` 读集合的地方（预览出图入口、编排器预览生成、
+> 候选存储、穿搭选定）都只认 `hairstyle`，新枚举值对它们不可见 —— 这正是选 B 而不是
+> 「同一集合加标记字段」的理由。
+>
+> **仍未闭合**：假发款不进入批量预览出图那一轮（该入口按 `kind: "hairstyle"` 取集合）。
+> 选定之后的目标图不受影响。
 
 ## 问题
 

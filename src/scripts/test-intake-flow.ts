@@ -41,7 +41,7 @@ try {
   const currentUser = await container.prisma.user.findUniqueOrThrow({ where: { deviceSessionId: sessionId } });
 
   // --- 问卷 ---
-  const basic = await app.inject({ method: "POST", url: "/questionnaire/basic", headers: { cookie }, payload: { track: "short_term", ageConfirmed18Plus: true } });
+  const basic = await app.inject({ method: "POST", url: "/questionnaire/basic", headers: { cookie }, payload: { track: "short_term", birthDate: "2000-01-01", ageConfirmed18Plus: true } });
   check(basic.statusCode === 200, "基础问卷提交", `HTTP ${basic.statusCode}`);
 
   const badFull = await app.inject({ method: "POST", url: "/questionnaire/full", headers: { cookie }, payload: { domainSelections: ["hair"] } });
@@ -49,7 +49,7 @@ try {
 
   const contradictory = await app.inject({
     method: "POST", url: "/questionnaire/full", headers: { cookie },
-    payload: { heightCm: 175, weightKg: 68, bodyFatPercent: 5, exercisesRegularly: false, selfReportedHairVolume: "thick", hairLossConcern: true, domainSelections: ["hair", "outfit"], budgetTier: "low" },
+    payload: { heightCm: 175, weightKg: 68, bodyFatPercent: 5, exercisesRegularly: false, selfReportedHairVolume: "thick", hairLossConcern: true, domainSelections: ["hairstyle", "outfit"], budgetTier: "low" },
   });
   const issues = contradictory.json().contradictions as { field: string }[];
   check(contradictory.statusCode === 200 && issues.length >= 2, "结构性矛盾被检出但不阻断保存", `检出 ${issues.length} 项: ${issues.map((i) => i.field).join(", ")}`);

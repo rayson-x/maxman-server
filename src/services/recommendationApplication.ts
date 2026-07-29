@@ -991,33 +991,54 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       });
 
       if (role === "creator") {
-        await prisma.$transaction(async (tx) => {
-          for (const [index, option] of command.options.entries()) {
-            await tx.recommendationCandidate.create({
-              data: {
-                setId,
-                providerCandidateKey: `wig:${option.nameZh}`,
-                nameZh: option.nameZh,
-                description: option.description,
-                // 达成路径就是这条候选的理由，且它来自模板而非模型措辞
-                modelRationale: option.achievementLabel,
-                rank: index,
-                visualDirection: option.description,
-                styleDirectionId: command.styleDirectionId,
-                renderInstruction: buildRenderInstruction("hairstyle", {
-                  providerCandidateKey: `wig:${option.nameZh}`,
+        try {
+          await prisma.$transaction(async (tx) => {
+            // 回收路径（上次 failed 或陈旧 preparing）也会以创建者身份重跑，先清旧候选，
+            // 否则插出重复行，而 name→id 映射会随机取到其中一条。
+            await tx.recommendationCandidate.deleteMany({ where: { setId } });
+            for (const [index, option] of command.options.entries()) {
+              const providerCandidateKey = `wig:${option.nameZh}`;
+              await tx.recommendationCandidate.create({
+                data: {
+                  setId,
+                  providerCandidateKey,
                   nameZh: option.nameZh,
                   description: option.description,
+                  // 达成路径就是这条候选的理由，且它来自模板而非模型措辞
                   modelRationale: option.achievementLabel,
                   rank: index,
                   visualDirection: option.description,
-                }),
-                verificationStatus: "catalog_verified",
-              },
-            });
-          }
-          await tx.recommendationSet.update({ where: { id: setId }, data: { status: "ready" } });
-        });
+                  styleDirectionId: command.styleDirectionId,
+                  renderInstruction: buildRenderInstruction("hairstyle", {
+                    providerCandidateKey,
+                    nameZh: option.nameZh,
+                    description: option.description,
+                    modelRationale: option.achievementLabel,
+                    rank: index,
+                    visualDirection: option.description,
+                  }),
+                  verificationStatus: "catalog_verified",
+                },
+              });
+            }
+            await tx.recommendationSet.update({ where: { id: setId }, data: { status: "ready" } });
+          });
+        } catch (error) {
+          // 不把集合留在 preparing：那会让同一输入的后续请求全部当 follower 等一个永不到来
+          // 的结果，直到陈旧回收超时。标 failed 才能被立刻回收重试。
+          await prisma.recommendationSet.update({
+            where: { id: setId },
+            data: {
+              status: "failed",
+              failureReason: `假发可选项落库失败：${error instanceof Error ? error.message : String(error)}`.slice(0, 250),
+            },
+          });
+          throw error;
+        }
+      } else {
+        // 跟随者必须等创建者写完。直接读会读到零行，于是每一项都被丢掉，
+        // 用户看到的「还能多 N 款」凭空缩水。
+        await awaitCreator(setId);
       }
 
       const rows = await prisma.recommendationCandidate.findMany({
@@ -1034,7 +1055,8 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       userId: string;
       planId: string;
       candidateId: string;
-      expectedKind?: RecommendationKind;
+      /** 允许的集合类型。发型这条路会传 [hairstyle, hairstyle_wig] */
+      expectedKinds?: RecommendationKind[];
     }): Promise<SelectionResult> {
       const candidate = await prisma.recommendationCandidate.findUnique({
         where: { id: command.candidateId },
@@ -1052,7 +1074,7 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
         return { ok: false, reason: "not_owned" };
       }
       if (candidate.set.status !== "ready") return { ok: false, reason: "set_not_ready" };
-      if (command.expectedKind && candidate.set.kind !== command.expectedKind) {
+      if (command.expectedKinds && !command.expectedKinds.includes(candidate.set.kind)) {
         return { ok: false, reason: "not_found" };
       }
       if (isHairstyleSelection(candidate.set.kind)) {

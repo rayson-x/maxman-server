@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../plugins/session.js";
 import { createRecommendationApplication } from "../services/recommendationApplication.js";
+import type { RecommendationKind } from "../generated/prisma/client.js";
 import { createStageProgressionService } from "../services/stageProgressionService.js";
 import { createPhotoAccessService } from "../services/photoAccessService.js";
 import { QUEUE_NAMES } from "../lib/queues.js";
@@ -271,7 +272,11 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
   async function selectRecommendationCandidate(
     req: FastifyRequest,
     reply: FastifyReply,
-    expectedKind?: "hairstyle" | "outfit",
+    /**
+     * 允许的集合类型。发型这条路要同时接受默认发型与假发款 —— 后者落在独立集合里，
+     * 但对用户就是「选了一个发型」。写死单一 kind 会让假发款一律 404。
+     */
+    expectedKinds?: RecommendationKind[],
   ) {
     const user = requireUser(req);
     const { planId } = req.params as { planId: string };
@@ -283,7 +288,7 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
       hairstyleProvider: app.container.providers.hairstyleRecommendation,
       outfitProvider: app.container.providers.outfitRecommendation,
     });
-    const result = await app2.selectCandidate({ userId: user.id, planId, candidateId, expectedKind });
+    const result = await app2.selectCandidate({ userId: user.id, planId, candidateId, expectedKinds });
 
     if (!result.ok) {
       const code = result.reason === "not_found" ? 404 : 422;
@@ -302,10 +307,11 @@ export async function registerPlanRoutes(app: FastifyInstance): Promise<void> {
   }
 
   /** A hairstyle can only be selected after its style direction has been persisted. */
-  app.post("/plans/:planId/select-hairstyle", (req, reply) => selectRecommendationCandidate(req, reply, "hairstyle"));
+  app.post("/plans/:planId/select-hairstyle", (req, reply) =>
+    selectRecommendationCandidate(req, reply, ["hairstyle", "hairstyle_wig"]));
 
   /** Wardrobe selection is the final selection stage. */
-  app.post("/plans/:planId/select-outfit", (req, reply) => selectRecommendationCandidate(req, reply, "outfit"));
+  app.post("/plans/:planId/select-outfit", (req, reply) => selectRecommendationCandidate(req, reply, ["outfit"]));
 
   /** 首轮 3–4 个风格方向的选择落点；选择后才能选发型或请求穿搭。 */
   app.post("/plans/:planId/select-style-direction", async (req, reply) => {

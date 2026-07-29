@@ -35,7 +35,7 @@ test("selecting an exposed catalog-external candidate raises its gap and asset p
   const provider = { name: "test", version: "v1", source: "hybrid" as const, recommend: async () => ({ candidates: [] }) };
   const app = createRecommendationApplication({ prisma: prisma as never, hairstyleProvider: provider, outfitProvider: provider });
 
-  const result = await app.selectCandidate({ userId: "user-1", planId: "plan-1", candidateId: "candidate-1", expectedKind: "outfit" });
+  const result = await app.selectCandidate({ userId: "user-1", planId: "plan-1", candidateId: "candidate-1", expectedKinds: ["outfit"] });
   assert.deepEqual(result, { ok: true, candidateId: "candidate-1", nameZh: "目录外穿搭" });
   assert.deepEqual(calls, ["plan", "decision", "choice", "gap", "asset-priority"]);
 });
@@ -68,7 +68,7 @@ test("changing hairstyle invalidates dependent outfit sets and active preview as
   const provider = { name: "test", version: "v1", source: "hybrid" as const, recommend: async () => ({ candidates: [] }) };
   const app = createRecommendationApplication({ prisma: prisma as never, hairstyleProvider: provider, outfitProvider: provider });
 
-  const result = await app.selectCandidate({ userId: "user-1", planId: "plan-1", candidateId: "hair-2", expectedKind: "hairstyle" });
+  const result = await app.selectCandidate({ userId: "user-1", planId: "plan-1", candidateId: "hair-2", expectedKinds: ["hairstyle", "hairstyle_wig"] });
 
   assert.deepEqual(result, { ok: true, candidateId: "hair-2", nameZh: "短碎发" });
   assert.deepEqual(calls, ["plan", "sets", "assets", "decision"]);
@@ -111,7 +111,7 @@ test("a wig-set candidate is selectable and behaves like a hairstyle selection",
     userId: "user-1",
     planId: "plan-1",
     candidateId: "wig-1",
-    expectedKind: "hairstyle_wig",
+    expectedKinds: ["hairstyle", "hairstyle_wig"],
   });
 
   assert.deepEqual(result, { ok: true, candidateId: "wig-1", nameZh: "大背头" });

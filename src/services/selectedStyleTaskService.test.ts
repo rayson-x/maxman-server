@@ -103,3 +103,20 @@ test("a hairstyle with no wig involvement is described exactly as before", () =>
   assert.doesNotMatch(withoutWig[0]!.changeDescription, /假发|发片/);
   assert.doesNotMatch(withoutWig[0]!.rationale ?? "", /假发|发片/);
 });
+
+test("a wig-set hairstyle is accepted by materialisation, not rejected as a type mismatch", () => {
+  // 假发款落在独立集合（kind: hairstyle_wig）里。漏掉它会让选了假发款的用户在方案落地时抛错。
+  const specs = buildSelectedStyleTaskSpecs({
+    hairstyle: {
+      kind: "hairstyle_wig",
+      nameZh: "大背头",
+      description: "往后梳的光滑造型",
+      achievement: { label: "这个款式会露出发际线，需要整顶假发才能做到" },
+    },
+    outfit: { kind: "outfit", nameZh: "素色T恤+直筒裤", description: "纯色上装配直筒下装" },
+  });
+
+  assert.equal(specs.length, 2);
+  assert.equal(specs[0]!.domain, "hairstyle");
+  assert.match(specs[0]!.changeDescription, /整顶假发/);
+});

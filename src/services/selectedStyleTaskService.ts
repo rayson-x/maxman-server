@@ -37,7 +37,12 @@ export function buildSelectedStyleTaskSpecs(input: SelectedStylesInput): Materia
   if (!input.hairstyle || !input.outfit) {
     throw new Error("落地方案需要同时选定发型与穿搭");
   }
-  if (input.hairstyle.kind !== "hairstyle" || input.outfit.kind !== "outfit") {
+  // 假发款落在独立集合（kind: hairstyle_wig）里，但对方案而言它就是选定的发型。
+  // 漏掉它会让选了假发款的用户在方案落地时直接抛错。
+  if (
+    (input.hairstyle.kind !== "hairstyle" && input.hairstyle.kind !== "hairstyle_wig") ||
+    input.outfit.kind !== "outfit"
+  ) {
     throw new Error("选定项的类型与方案字段不匹配");
   }
 
