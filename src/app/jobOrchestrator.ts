@@ -401,6 +401,7 @@ export function createJobOrchestrator(container: AppContainer) {
             geometry: s2.data.geometry,
             hairSignals: s2.data.hairSignals,
             clientSignals: s2.data.clientSignals,
+            portraitProfile: s2.data.portraitProfile,
             body: profile ? {
               heightCm: profile.heightCm,
               weightKg: profile.weightKg,
@@ -426,6 +427,7 @@ export function createJobOrchestrator(container: AppContainer) {
           geometry: s2.data.geometry,
           hairSignals: s2.data.hairSignals,
           clientSignals: s2.data.clientSignals,
+          portraitProfile: s2.data.portraitProfile,
           structuredSemantic: {},
           hasFullBody: s2.data.hasFullBody,
         };
@@ -474,6 +476,7 @@ export function createJobOrchestrator(container: AppContainer) {
         geometry: s2.data.geometry,
         hairSignals: s2.data.hairSignals,
         clientSignals: s2.data.clientSignals,
+        portraitProfile: s2.data.portraitProfile,
         structuredSemantic: firstRound?.faceAnalysis.structuredSemantic ?? {},
         hasFullBody: s2.data.hasFullBody,
       };
@@ -587,7 +590,7 @@ export function createJobOrchestrator(container: AppContainer) {
         await jobs.fail(p.jobId, "缺少正面照");
         return { status: "failed" };
       }
-      const vision = (prior?.partialResult as { vision?: { geometry?: unknown; hairSignals?: unknown; clientSignals?: unknown } } | null)?.vision;
+      const vision = (prior?.partialResult as { vision?: { geometry?: unknown; hairSignals?: unknown; clientSignals?: unknown; portraitProfile?: unknown } } | null)?.vision;
       const hairSignals = vision?.hairSignals as import("../features/appearance-agent/rules/hairConstraints.js").HairSignals | undefined;
       if (!hairSignals) {
         await jobs.fail(p.jobId, "缺少已保存的发际线与发量信号");
@@ -612,6 +615,7 @@ export function createJobOrchestrator(container: AppContainer) {
           geometry: vision?.geometry ?? null,
           hairSignals,
           clientSignals: vision?.clientSignals ?? {},
+          portraitProfile: vision?.portraitProfile ?? null,
           selectedStyle: plan.selectedStyle,
           visualBodyEvidence: "not_used_for_hairstyle",
         },

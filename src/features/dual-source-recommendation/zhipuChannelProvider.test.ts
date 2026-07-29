@@ -4,7 +4,15 @@ import { buildDualSourceProviderPrompt, createZhipuDualSourceChannelProvider } f
 
 const commonInput = {
   profileSnapshotRef: "profile", originalAssetRefs: ["front-original"], selectedUpstream: { styleId: "clean-fit" },
-  userContext: { heightCm: 175, hasFullBodyPhoto: false },
+  userContext: {
+    heightCm: 175,
+    hasFullBodyPhoto: false,
+    portraitProfile: {
+      version: 1,
+      capture: { frameCount: 8, stability: "high" },
+      signals: { lengthWidthRatio: { value: 1.42, stability: "high", evidence: { frameCount: 8 } } },
+    },
+  },
   model: { provider: "zhipu", model: "glm", temperature: 0.2, tokenLimit: 600 },
 };
 
@@ -23,6 +31,7 @@ test("real channel adapter keeps A catalog-blind and gives both channels the sam
   await invoke(b);
   assert.deepEqual(requests.map((row) => row.photoReadUrls), [["https://short-lived.example/original-front"], ["https://short-lived.example/original-front"]]);
   assert.deepEqual(requests.map((row) => [row.temperature, row.tokenLimit]), [[0.2, 600], [0.2, 600]]);
+  assert.equal(requests.every((row) => row.prompt.includes('"lengthWidthRatio"')), true);
   assert.doesNotMatch(requests[0]!.prompt, /系统候选投影|Clean Fit|目录理由/);
   assert.match(requests[1]!.prompt, /系统候选投影/);
   assert.doesNotMatch(buildDualSourceProviderPrompt(a), /目录理由/);

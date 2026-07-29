@@ -33,6 +33,8 @@ export type AnalyzeVisionOutput = {
   hairSignals: HairSignals;
   /** 已经由入口 schema 校验过的、可进入首轮 Agent 的额外客户端测算信号。 */
   clientSignals: Record<string, unknown>;
+  /** 无原始 landmark 的画像；供双轨使用同一份带证据的测量输入。 */
+  portraitProfile: Record<string, unknown> | null;
   hasFullBody: boolean;
 };
 
@@ -83,6 +85,13 @@ function extractClientSignals(faceMetrics: unknown): Record<string, unknown> {
   );
 }
 
+function extractPortraitProfile(faceMetrics: unknown): Record<string, unknown> | null {
+  const profile = (faceMetrics as { portraitProfile?: unknown } | null | undefined)?.portraitProfile;
+  if (!profile || typeof profile !== "object" || Array.isArray(profile)) return null;
+  // API schema 已严格拒绝 landmark-shaped field；这里仅复制已校验的摘要。
+  return profile as Record<string, unknown>;
+}
+
 export const analyzeVisionStep: Step<AnalyzeVisionInput, AnalyzeVisionOutput> = {
   name: "S2_analyze_vision",
   async run(input, ctx, deps) {
@@ -103,6 +112,7 @@ export const analyzeVisionStep: Step<AnalyzeVisionInput, AnalyzeVisionOutput> = 
 
     const { geometry, hairline, volume } = extractFromFaceMetrics(photo.faceMetrics);
     const clientSignals = extractClientSignals(photo.faceMetrics);
+    const portraitProfile = extractPortraitProfile(photo.faceMetrics);
 
     const profile = await deps.prisma.appearanceProfile.findUnique({ where: { userId: ctx.userId } });
 
@@ -138,6 +148,7 @@ export const analyzeVisionStep: Step<AnalyzeVisionInput, AnalyzeVisionOutput> = 
         geometry,
         hairSignals,
         clientSignals,
+        portraitProfile,
         hasFullBody: Boolean(input.fullBodyPhotoStorageKey),
       },
     };

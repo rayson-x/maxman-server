@@ -66,6 +66,7 @@ test("首轮候选全被过滤时仍公开风格方向并记录付费调用", as
       geometry: { faceShape: "round", confidence: "high", evidence: {}, source: "client_mediapipe" },
       hairSignals: { hairline: "normal", volume: "medium", selfReportedHairLossConcern: false },
       clientSignals: {},
+      portraitProfile: null,
       hasFullBody: false,
     },
   }, { jobId: job.id, userId: user.id, planId: plan.id }, deps);

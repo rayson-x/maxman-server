@@ -58,3 +58,35 @@ test("face metrics reject unsupported values for new style signals", () => {
 
   assert.equal(result.success, false);
 });
+
+test("face metrics accept a bounded portrait profile but reject landmark-shaped input", () => {
+  const accepted = faceMetricsSchema.safeParse({
+    classification: { faceShape: { value: "oval" } },
+    portraitProfile: {
+      version: 1,
+      measuredAt: "2026-07-28T00:00:00.000Z",
+      capture: { qualityPassed: true, frameCount: 8, stability: "high", evidence: { maxPoseMagnitude: 2 } },
+      signals: {
+        lengthWidthRatio: {
+          value: 1.42,
+          source: "client_measurement",
+          confidence: "medium",
+          stability: "high",
+          evidence: { frameCount: 8 },
+        },
+      },
+    },
+  });
+  assert.equal(accepted.success, true);
+
+  const rejected = faceMetricsSchema.safeParse({
+    classification: {},
+    portraitProfile: {
+      version: 1,
+      measuredAt: "2026-07-28T00:00:00.000Z",
+      capture: { qualityPassed: true, frameCount: 8, stability: "high", evidence: {} },
+      signals: { lengthWidthRatio: { value: 1.42, landmark: [0.1, 0.2] } },
+    },
+  });
+  assert.equal(rejected.success, false);
+});
