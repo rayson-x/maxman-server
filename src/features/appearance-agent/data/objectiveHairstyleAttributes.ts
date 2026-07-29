@@ -95,27 +95,46 @@ export function isHairstyleRenderProviderCalibrated(providerName: string): boole
  * in it. Keeping them outside the LLM prevents feasibility labels from being
  * biased toward whichever answer would pass the current user's constraint.
  */
+/*
+ * 假发维度的回填依据：`docs/research-mens-daily-wig-craft-cn.md`（根仓库，2026-07-29）。
+ * 依据强度一律 `reasoned` —— 没有购买样本做实拍对照，行业资料不构成本仓库口径的「实测」。
+ *
+ * 判据刻意只有两条：
+ *   1. 是否遮额 —— 遮额款只缺量感，发片补足即可；露额款要整顶，因为发片补不了发际线。
+ *   2. 是否极短露头皮 —— 直接判不可行。
+ *
+ * 第 2 条比其余部分可信：假发从业者**一致不建议**用假发做寸头类长度（头发极短时头皮成为
+ * 视觉焦点，网底与不自然发际线立刻暴露）。这是对卖方不利却被普遍承认的说法，而这个领域
+ * 几乎所有可检索内容都由卖家或服务商发布，所以反向利益的证据格外值得采信。
+ *
+ * 露额款一律给 `full_wig_front_lace` 而非 `full_wig`：完全暴露发际线的造型需要蕾丝前额 +
+ * 漂结 + 渐变密度发际线，不是所有价位做得到。`full_wig` 因此当前无标注使用，但它仍是
+ * 「被遮额挡住」推出的档位下限（见 rules/wigOptions 取更严一方的逻辑），不是死枚举。
+ *
+ * 一条标注里表达不了的材质约束：需要烫卷纹理的款式（蓬松纹理烫、自然卷短发）不能用普通
+ * 化纤补量 —— 蛋白丝不可烫染、不可近高温，这一档的发片必须是真人发或已烫好的成品。
+ */
 export const OBJECTIVE_HAIRSTYLE_ATTRIBUTES: readonly ObjectiveHairstyleAttributes[] = [
   // These two entries use the exact deployed catalog names. They must be
   // calibrated independently from their colloquial near-neighbours before a
   // runtime candidate is allowed to request an image preview.
-  { canonicalName: "自然短碎盖", aliases: [], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留五到七公分并自然向前覆盖，发梢剪出轻碎层次，刘海落到眉毛附近，两侧和后颈修短但不推出渐变线，不留固定分缝"},
-  { canonicalName: "圆寸", aliases: [], requiresHairVolume: "low", coversForehead: false , renderDescription: "全头保持一公分左右的极短长度，顶部轮廓顺着头型形成自然圆弧，两侧和后颈柔和收短，不留刘海，额头完全露出"},
-  { canonicalName: "微碎盖", aliases: ["短碎盖", "碎盖"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留五到七公分，发梢斜着不齐剪出凌乱层次，刘海盖到眉毛，两侧和后颈剪到一两公分，鬓角自然不推出渐变线"},
-  { canonicalName: "法式碎盖", aliases: ["法式短碎发"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留六到八公分，细碎刘海垂到眉毛且边缘不齐，两侧和后颈推薄"},
-  { canonicalName: "纹理前刺", aliases: ["前刺"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留四到五公分，额前头发用发泥往上抓起蓬松，两侧推短，露出额头"},
-  { canonicalName: "短寸", aliases: ["寸头", "板寸", "圆寸"], requiresHairVolume: "low", coversForehead: false , renderDescription: "全头用推子均匀推到一公分左右，不留刘海，额头完全露出"},
-  { canonicalName: "美式渐变短发", aliases: ["渐变短发", "fade"], requiresHairVolume: "low", coversForehead: false , renderDescription: "两侧用推子从耳上极短往上推出明显渐变，顶部留三到四公分，额头露出"},
-  { canonicalName: "侧分短发", aliases: ["侧分"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留六到七公分并保持蓬松，在一侧分开，刘海稍微斜盖住额角，鬓角剪薄"},
-  { canonicalName: "三七侧分", aliases: ["三七分"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留六到七公分并保持蓬松，按三七分开，刘海斜向一侧稍微遮住额角，鬓角剪薄不推光"},
-  { canonicalName: "大背头", aliases: ["背头", "油头"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留七到八公分，全部头发往后梳理并梳得光滑整齐，额头完全露出，两侧贴头"},
-  { canonicalName: "飞机头", aliases: [], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留七到八公分，从额前往后上方梳起成饱满的圆弧隆起，发面顺滑不炸开，两侧和后面剪短"},
-  { canonicalName: "栗子头", aliases: [], requiresHairVolume: "low", coversForehead: true , renderDescription: "两侧和后面推短，顶部留长，刘海直接往前梳下来盖住额头，整体圆润像半个栗子"},
-  { canonicalName: "法式刘海短发", aliases: ["法式刘海"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留五到六公分，刘海平齐垂到眉毛上方，两侧推短"},
-  { canonicalName: "韩式逗号刘海", aliases: ["逗号刘海"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "刘海留到眉毛并在一侧弯出逗号形的弧度，额头露出一部分，两侧修到露出耳廓，后颈剪薄"},
-  { canonicalName: "中分短发", aliases: ["中分"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留到耳朵长度并保持蓬松，从正中分开，两边刘海各自垂到眉毛下方"},
-  { canonicalName: "自然卷短发", aliases: ["短卷发"], requiresHairVolume: "high", coversForehead: true , renderDescription: "顶部留五到六公分的自然卷，卷发蓬松成团，额前散落几缕卷曲发丝，两侧推短"},
-  { canonicalName: "蓬松纹理烫", aliases: ["纹理烫"], requiresHairVolume: "high", coversForehead: true , renderDescription: "顶部留六到七公分烫成大波浪的S形起伏，卷圈比自然卷宽松，用发泥抓出向上的空气感，两侧推短"},
+  { canonicalName: "自然短碎盖", aliases: [], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留五到七公分并自然向前覆盖，发梢剪出轻碎层次，刘海落到眉毛附近，两侧和后颈修短但不推出渐变线，不留固定分缝", wigFeasibility: { feasible: true, minimumTier: "volume_patch", evidenceStrength: "reasoned" }},
+  { canonicalName: "圆寸", aliases: [], requiresHairVolume: "low", coversForehead: false , renderDescription: "全头保持一公分左右的极短长度，顶部轮廓顺着头型形成自然圆弧，两侧和后颈柔和收短，不留刘海，额头完全露出", wigFeasibility: { feasible: false, reason: "极短款式头皮成为视觉焦点，网底与发际线藏不住，从业者一致不建议用假发做此类长度", evidenceStrength: "reasoned" }},
+  { canonicalName: "微碎盖", aliases: ["短碎盖", "碎盖"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留五到七公分，发梢斜着不齐剪出凌乱层次，刘海盖到眉毛，两侧和后颈剪到一两公分，鬓角自然不推出渐变线", wigFeasibility: { feasible: true, minimumTier: "volume_patch", evidenceStrength: "reasoned" }},
+  { canonicalName: "法式碎盖", aliases: ["法式短碎发"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留六到八公分，细碎刘海垂到眉毛且边缘不齐，两侧和后颈推薄", wigFeasibility: { feasible: true, minimumTier: "volume_patch", evidenceStrength: "reasoned" }},
+  { canonicalName: "纹理前刺", aliases: ["前刺"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留四到五公分，额前头发用发泥往上抓起蓬松，两侧推短，露出额头", wigFeasibility: { feasible: true, minimumTier: "full_wig_front_lace", evidenceStrength: "reasoned" }},
+  { canonicalName: "短寸", aliases: ["寸头", "板寸", "圆寸"], requiresHairVolume: "low", coversForehead: false , renderDescription: "全头用推子均匀推到一公分左右，不留刘海，额头完全露出", wigFeasibility: { feasible: false, reason: "极短款式头皮成为视觉焦点，网底与发际线藏不住，从业者一致不建议用假发做此类长度", evidenceStrength: "reasoned" }},
+  { canonicalName: "美式渐变短发", aliases: ["渐变短发", "fade"], requiresHairVolume: "low", coversForehead: false , renderDescription: "两侧用推子从耳上极短往上推出明显渐变，顶部留三到四公分，额头露出", wigFeasibility: { feasible: false, reason: "极短款式头皮成为视觉焦点，网底与发际线藏不住，从业者一致不建议用假发做此类长度", evidenceStrength: "reasoned" }},
+  { canonicalName: "侧分短发", aliases: ["侧分"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留六到七公分并保持蓬松，在一侧分开，刘海稍微斜盖住额角，鬓角剪薄", wigFeasibility: { feasible: true, minimumTier: "full_wig_front_lace", evidenceStrength: "reasoned" }},
+  { canonicalName: "三七侧分", aliases: ["三七分"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留六到七公分并保持蓬松，按三七分开，刘海斜向一侧稍微遮住额角，鬓角剪薄不推光", wigFeasibility: { feasible: true, minimumTier: "full_wig_front_lace", evidenceStrength: "reasoned" }},
+  { canonicalName: "大背头", aliases: ["背头", "油头"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留七到八公分，全部头发往后梳理并梳得光滑整齐，额头完全露出，两侧贴头", wigFeasibility: { feasible: true, minimumTier: "full_wig_front_lace", evidenceStrength: "reasoned" }},
+  { canonicalName: "飞机头", aliases: [], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留七到八公分，从额前往后上方梳起成饱满的圆弧隆起，发面顺滑不炸开，两侧和后面剪短", wigFeasibility: { feasible: true, minimumTier: "full_wig_front_lace", evidenceStrength: "reasoned" }},
+  { canonicalName: "栗子头", aliases: [], requiresHairVolume: "low", coversForehead: true , renderDescription: "两侧和后面推短，顶部留长，刘海直接往前梳下来盖住额头，整体圆润像半个栗子", wigFeasibility: { feasible: true, minimumTier: "volume_patch", evidenceStrength: "reasoned" }},
+  { canonicalName: "法式刘海短发", aliases: ["法式刘海"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "顶部留五到六公分，刘海平齐垂到眉毛上方，两侧推短", wigFeasibility: { feasible: true, minimumTier: "volume_patch", evidenceStrength: "reasoned" }},
+  { canonicalName: "韩式逗号刘海", aliases: ["逗号刘海"], requiresHairVolume: "medium", coversForehead: true , renderDescription: "刘海留到眉毛并在一侧弯出逗号形的弧度，额头露出一部分，两侧修到露出耳廓，后颈剪薄", wigFeasibility: { feasible: true, minimumTier: "volume_patch", evidenceStrength: "reasoned" }},
+  { canonicalName: "中分短发", aliases: ["中分"], requiresHairVolume: "medium", coversForehead: false , renderDescription: "顶部留到耳朵长度并保持蓬松，从正中分开，两边刘海各自垂到眉毛下方", wigFeasibility: { feasible: true, minimumTier: "full_wig_front_lace", evidenceStrength: "reasoned" }},
+  { canonicalName: "自然卷短发", aliases: ["短卷发"], requiresHairVolume: "high", coversForehead: true , renderDescription: "顶部留五到六公分的自然卷，卷发蓬松成团，额前散落几缕卷曲发丝，两侧推短", wigFeasibility: { feasible: true, minimumTier: "volume_patch", evidenceStrength: "reasoned" }},
+  { canonicalName: "蓬松纹理烫", aliases: ["纹理烫"], requiresHairVolume: "high", coversForehead: true , renderDescription: "顶部留六到七公分烫成大波浪的S形起伏，卷圈比自然卷宽松，用发泥抓出向上的空气感，两侧推短", wigFeasibility: { feasible: true, minimumTier: "volume_patch", evidenceStrength: "reasoned" }},
 ] as const;
 
 function normalized(value: string): string {

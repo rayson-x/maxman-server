@@ -68,3 +68,45 @@ test("wig feasibility annotations that exist are internally consistent", () => {
     }
   }
 });
+
+/*
+ * 回填后的标注要对得上它自己声明的判据（WIG-005）。这些断言不是重复实现，而是钉住
+ * 「标注是按什么规则给的」—— 以后有人凭直觉改一条，会在这里被拦下。
+ */
+
+test("a forehead-baring style is never dismissed as merely needing a volume patch", () => {
+  // 发片补不了发际线。露额款要么整顶（且前额工艺过关），要么直接判不可行。
+  for (const entry of OBJECTIVE_HAIRSTYLE_ATTRIBUTES) {
+    if (entry.coversForehead) continue;
+    const annotation = entry.wigFeasibility;
+    if (annotation === undefined || !annotation.feasible) continue;
+    assert.notEqual(
+      annotation.minimumTier,
+      "volume_patch",
+      `${entry.canonicalName} 是露额款，不能只靠补量感达成`,
+    );
+  }
+});
+
+test("buzz-cut-class styles are annotated as not wig-feasible", () => {
+  // 极短露头皮：从业者一致不建议。这三款是本维度唯一的不可行项。
+  for (const name of ["圆寸", "短寸", "美式渐变短发"]) {
+    const annotation = wigFeasibilityFor(name);
+    assert.equal(annotation?.feasible, false, `${name} 应标注为假发不可行`);
+    assert.ok(
+      annotation !== null && !annotation.feasible && annotation.reason.length > 0,
+      `${name} 的不可行原因不能为空`,
+    );
+  }
+});
+
+test("every wig annotation is present and none overstates its evidence", () => {
+  for (const entry of OBJECTIVE_HAIRSTYLE_ATTRIBUTES) {
+    assert.ok(
+      entry.wigFeasibility !== undefined,
+      `${entry.canonicalName} 缺少假发维度标注`,
+    );
+    // 没有购买样本做实拍对照，因此不得出现比 reasoned 更强的依据声明。
+    assert.equal(entry.wigFeasibility?.evidenceStrength, "reasoned");
+  }
+});
