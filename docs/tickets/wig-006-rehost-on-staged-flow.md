@@ -1,6 +1,6 @@
 # WIG-006 — 把假发方案推导迁到分段式（dual-source）链路上
 
-**Spec**: `docs/specs/wig-assisted-hairstyle-options.md`
+**Spec**: `docs/specs/wig-options-in-hairstyle-step.md`（本票的权威依据；旧 spec 已被取代）
 **Blocked by**: 无（但见下方「注意别人正在动的地方」）
 **Triage**: ready-for-agent
 **优先级**: 高 —— 在 WIG-005 回填标注**之前**必须解决，否则功能上线即无输出
