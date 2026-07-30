@@ -47,6 +47,11 @@ export type JobPayload = {
   /** progress_recheck 用：视觉分析认为实际未发生的变化描述 */
   unverifiedDescriptions?: string[];
   imageType?: "face_hair" | "full_body_outfit";
+  /**
+   * 发型预览出图的范围。缺省按默认发型集合处理，与从前逐位一致。
+   * `wig` 只为假发集合出图 —— 那批只在用户点开入口后才该花钱。
+   */
+  previewScope?: "default" | "wig";
   /** 内部编排用；HTTP/worker payload 不应由客户端直接指定。 */
   generationTrigger?: "stage_unlock" | "user_regeneration" | "progress_recheck";
   /** 只有独立“换一批”入口可设置，普通重复分析必须复用首次推荐。 */
@@ -658,7 +663,11 @@ export function createJobOrchestrator(container: AppContainer) {
         prisma.appearancePlan.findFirst({ where: { id: p.planId, userId: p.userId } }),
         loadPhotos(p.userId),
         prisma.recommendationSet.findFirst({
-          where: { planId: p.planId, kind: "hairstyle", status: "ready" },
+          where: {
+            planId: p.planId,
+            kind: p.previewScope === "wig" ? "hairstyle_wig" : "hairstyle",
+            status: "ready",
+          },
           include: { candidates: { orderBy: { rank: "asc" } } },
         }),
       ]);

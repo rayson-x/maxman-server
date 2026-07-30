@@ -318,7 +318,25 @@ export async function registerAnalysisJobRoutes(app: FastifyInstance): Promise<v
     const plan = await prisma.appearancePlan.findFirst({ where: { id: planId, userId: user.id, status: "active" } });
     if (!plan) return reply.code(404).send({ error: "方案不存在" });
     if (!plan.selectedStyle) return reply.code(422).send({ error: "style_not_selected", message: "请先选定风格方向" });
-    const set = await prisma.recommendationSet.findFirst({ where: { planId, kind: "hairstyle", status: "ready" } });
+    /*
+     * 出图范围。缺省 default，行为与从前逐位一致。
+     *
+     * 假发那批必须能被单独请求：出图是付费操作，而假发是一条用户可能根本不选的路径，
+     * 所以只在他点开入口之后才为这批出图。无法识别的范围一律 400 —— 静默当成 default
+     * 会让客户端以为自己请求了假发那批，实际却在为默认列表再花一次钱。
+     */
+    const { scope } = (req.body ?? {}) as { scope?: unknown };
+    if (scope !== undefined && scope !== "default" && scope !== "wig") {
+      return reply.code(400).send({ error: "invalid_scope", message: "scope 只能是 default 或 wig" });
+    }
+    const previewScope: "default" | "wig" = scope === "wig" ? "wig" : "default";
+    const set = await prisma.recommendationSet.findFirst({
+      where: {
+        planId,
+        kind: previewScope === "wig" ? "hairstyle_wig" : "hairstyle",
+        status: "ready",
+      },
+    });
     if (!set) return reply.code(422).send({ error: "hairstyle_recommendation_not_ready" });
     const capacity = await checkGenerationCapacity(user.id);
     if (!capacity.ok) return reply.code(429).send({ error: "rate_limited", retryAfterSeconds: capacity.retryAfterSeconds });
@@ -328,7 +346,7 @@ export async function registerAnalysisJobRoutes(app: FastifyInstance): Promise<v
       QUEUE_NAMES.imageGeneration,
       "hairstyle_preview_generation",
       job,
-      { userId: user.id, planId },
+      { userId: user.id, planId, previewScope },
     );
     if (!enqueued.ok) return reply.code(503).send({ error: "queue_unavailable", jobId: job.id, retryable: true });
     return reply.code(202).send({ jobId: job.id, status: job.status });
