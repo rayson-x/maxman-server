@@ -19,12 +19,16 @@ test("deployment snapshot builder records all validated client catalogs and the 
     assert.equal(result.status, 0, result.stderr || result.stdout);
 
     const manifest = JSON.parse(await readFile(resolve(output, "manifest.json"), "utf8"));
+    // 穿搭域接入后快照从 10 个源涨到 13 个；这里跟着数据走，不然构建器与加载器会各说一套。
     assert.deepEqual(Object.keys(manifest.sources).sort(), [
       "fitRules",
+      "fitRulesBodyOutfit",
       "hairstyleRenderSchema",
       "hairstyleRelations",
       "hairstylePreviewCalibrations",
       "hairstyles",
+      "outfitFitSchema",
+      "outfits",
       "styles",
       "wardrobeAssets",
       "wardrobeItems",
