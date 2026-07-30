@@ -5,6 +5,12 @@ import { createJobOrchestrator, type JobPayload } from "./app/jobOrchestrator.js
 import { createWorkerJobProcessor } from "./app/workerProcessor.js";
 import { createDataDeletionService } from "./services/dataDeletionService.js";
 import { createDualSourceReviewer } from "./features/dual-source-recommendation/reviewer.js";
+import { recordActiveProviderOperation } from "./services/providerOperationMeter.js";
+import { ensureDefaultModelEvaluationRun } from "./features/model-evaluation/service.js";
+import {
+  createLiveModelEvaluationExecutor,
+  enqueueRunnableModelEvaluationResponses,
+} from "./features/model-evaluation/worker.js";
 
 /**
  * Worker 进程入口（tasks 1.7）。与 API 进程分离，独立扩容。
@@ -44,9 +50,35 @@ for (const name of requested) {
 const orchestrator = createJobOrchestrator(container);
 const deletion = createDataDeletionService(container.prisma);
 const dualSourceReviewer = createDualSourceReviewer(container.prisma);
+const executeModelEvaluationResponse = createLiveModelEvaluationExecutor(
+  container.prisma,
+  recordActiveProviderOperation,
+);
+// This one-off benchmark intentionally trades throughput for readable progress
+// and predictable provider spend: one matrix cell is invoked at a time.
+let modelEvaluationTail: Promise<void> = Promise.resolve();
+
+async function runModelEvaluationSerially(responseId: string): Promise<unknown> {
+  const previous = modelEvaluationTail;
+  let release!: () => void;
+  modelEvaluationTail = new Promise<void>((resolve) => { release = resolve; });
+  await previous;
+  try {
+    return await executeModelEvaluationResponse(responseId);
+  } finally {
+    release();
+  }
+}
 
 /** job.name 即 jobType（路由投递时以 jobType 命名，见 routes/analysisJobs.ts） */
 async function dispatch(job: Job): Promise<unknown> {
+  if (job.name === "model_evaluation_response") {
+    const responseId = (job.data as { responseId?: unknown } | null)?.responseId;
+    if (typeof responseId !== "string" || responseId.length === 0) {
+      throw new Error("invalid model_evaluation_response payload");
+    }
+    return runModelEvaluationSerially(responseId);
+  }
   if (job.name === "dual_source_reviewer") {
     const comparisonId = (job.data as { comparisonId?: unknown } | null)?.comparisonId;
     if (typeof comparisonId !== "string" || comparisonId.length === 0) {
@@ -85,6 +117,19 @@ const workers = requested.map((name) => {
   w.on("failed", (job, err) => console.error(`[${name}] job ${job?.id} 失败:`, err.message));
   return w;
 });
+
+// The fixed public evaluation matrix is safe to register on every worker
+// startup: default-run creation and BullMQ ids are both idempotent. Only a
+// text-analysis worker registers it, so a dedicated image worker never fills
+// Redis with work it cannot consume.
+if (requested.includes(QUEUE_NAMES.textAnalysis)) {
+  await ensureDefaultModelEvaluationRun(container.prisma);
+  const count = await enqueueRunnableModelEvaluationResponses({
+    prisma: container.prisma,
+    queue: container.queues.queues[QUEUE_NAMES.textAnalysis],
+  });
+  console.log(`已注册 ${count} 个视觉模型评测任务`);
+}
 
 const shutdown = async (signal: string) => {
   console.log(`收到 ${signal}，等待在途任务结束后关闭`);

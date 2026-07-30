@@ -10,6 +10,7 @@
     "start:worker": "node dist/worker.js",
     "test": "npm run build && node scripts/run-tests.mjs",
     "test:providers": "tsx src/scripts/test-providers.ts",
+    "model-evaluation:run": "tsx src/scripts/run-model-evaluation.ts",
     "test:weather": "npm run build && node --test dist/features/appearance-agent/weather/*.test.js dist/schemas/intake.test.js",
     "dev:worker": "tsx watch src/worker.ts",
     "typecheck": "tsc --noEmit",

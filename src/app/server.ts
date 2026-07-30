@@ -11,6 +11,7 @@ import { registerPlanRoutes } from "../routes/plans.js";
 import { registerPrivacyRoutes } from "../routes/privacy.js";
 import { registerConversationRoutes } from "../routes/conversation.js";
 import { registerProviderCostRoutes } from "../routes/providerCosts.js";
+import { registerModelEvaluationRoutes } from "../routes/modelEvaluation.js";
 import { sessionPlugin } from "../plugins/session.js";
 
 /**
@@ -87,6 +88,7 @@ export async function buildApp({ container, logger = true }: BuildAppOptions): P
   await registerPrivacyRoutes(app);
   await registerConversationRoutes(app);
   await registerProviderCostRoutes(app);
+  await registerModelEvaluationRoutes(app);
 
   app.addHook("onClose", async () => {
     await container.shutdown();

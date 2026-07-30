@@ -39,6 +39,7 @@ model User {
   analysisJobs    AnalysisJob[]
   generatedAssets GeneratedAsset[]
   recommendationComparisons RecommendationComparisonLog[]
+  modelEvaluationRatings ModelEvaluationRating[]
 
   @@index([deviceSessionId])
 }
@@ -1106,6 +1107,84 @@ model ProviderOperationUsage {
   @@index([occurredAt, provider, operation])
   @@index([provider, model, occurredAt])
   @@unique([provider, providerCallId])
+}
+
+// ---------------------------------------------------------------------------
+// Public vision-model evaluation (repository-owned benchmark assets only)
+// ---------------------------------------------------------------------------
+
+/// One fixed, server-created comparison cohort. `runKey=default` is the only
+/// public run; its sample/model snapshots prevent a later catalog edit from
+/// changing an in-progress questionnaire.
+model ModelEvaluationRun {
+  id               String   @id @default(cuid())
+  runKey           String   @unique
+  manifestVersion  String
+  sampleManifest   Json
+  modelDescriptors Json
+  status           String   @default("pending")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  startedAt        DateTime?
+  completedAt      DateTime?
+
+  responses ModelEvaluationResponse[]
+
+  @@index([status])
+}
+
+/// Exactly one provider result for each run/sample/model matrix cell. The
+/// response retains the source output for evaluation, while public endpoints
+/// present it only in blinded order.
+model ModelEvaluationResponse {
+  id                 String   @id @default(cuid())
+  runId              String
+  sampleId           String
+  samplePath         String
+  modelId            String
+  provider           String
+  model              String
+  status             String   @default("pending")
+  /// Atomically incremented immediately before an available provider call.
+  /// This is the durable retry ceiling even when BullMQ replays old jobs.
+  attemptCount       Int      @default(0)
+  claimToken         String?
+  claimedAt          DateTime?
+  rawResponse        String?
+  structuredResponse Json?
+  latencyMs          Int?
+  providerUsage      Json?
+  providerCallId     String?
+  failureDetail      String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  run     ModelEvaluationRun      @relation(fields: [runId], references: [id], onDelete: Cascade)
+  ratings ModelEvaluationRating[]
+
+  @@unique([runId, sampleId, modelId])
+  @@index([runId, status])
+  @@index([status, attemptCount])
+}
+
+/// Anonymous per-device assessment. The composite key makes a revisit update
+/// one score rather than manufacture another vote; deleting the User erases it.
+model ModelEvaluationRating {
+  id                           String   @id @default(cuid())
+  responseId                   String
+  userId                       String
+  hairstyleRecognitionScore    Int
+  foreheadCoverageScore        Int
+  recommendationUsefulnessScore Int
+  hasUnsafeConclusion          Boolean
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+
+  response ModelEvaluationResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  user     User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([responseId, userId])
+  @@index([userId])
 }
 
 // ---------------------------------------------------------------------------
