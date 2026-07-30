@@ -1143,6 +1143,7 @@ async function deriveWigOptionsView(input: {
       requiresHairVolume: row.requiresHairVolume,
       coversForehead: row.coversForehead,
       lengthBand: row.lengthBand,
+      description: row.description,
     })),
     modelRankedNames: input.modelRankedNames,
     track: input.shortTerm ? "short_term" : "long_term",
@@ -1172,7 +1173,8 @@ async function deriveWigOptionsView(input: {
       .join(",")}`,
     options: outcome.options.map((option) => ({
       nameZh: option.candidate.nameZh,
-      description: option.achievementLabel,
+      // 造型描述用目录自己的，不用达成路径文案 —— 后者会经自由文本字段流进图生图指令
+      description: option.candidate.description ?? option.candidate.nameZh,
       achievementLabel: option.achievementLabel,
     })),
   });

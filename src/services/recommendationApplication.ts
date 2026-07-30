@@ -137,6 +137,22 @@ export type RecommendationSetView = {
  * 其中还有不带排序的 findFirst）。但选定行为必须一致：写 selectedHairstyleId、按风格方向
  * 校验、失效下游穿搭 —— 否则那个集合就是只能看不能选。
  */
+/**
+ * 假发候选的渲染指令。**只有命中逐款校准表的款式才出图。**
+ *
+ * 未命中时返回空串而不是退回自由文本：假发候选的自由文本字段装的是**达成路径文案**
+ * （「需要整顶假发才能做到」），拼进图生图指令会同时犯两个错 —— 把未校准语义塞进按
+ * provider 逐款校准过的模板，以及让「假发」二字进入图像指令（图该画的是戴上之后的样子）。
+ *
+ * 空指令的后果是这一款不进批量出图，但**仍然可被选中** —— 文字候选本身就够用户决定。
+ */
+export function wigRenderInstruction(
+  nameZh: string,
+  build: (candidate: { nameZh: string }) => string,
+): string {
+  return findObjectiveHairstyleAttributes(nameZh) ? build({ nameZh }) : "";
+}
+
 export function isHairstyleSelection(kind: RecommendationKind): boolean {
   return kind === "hairstyle" || kind === "hairstyle_wig";
 }
@@ -1009,14 +1025,16 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
                   rank: index,
                   visualDirection: option.description,
                   styleDirectionId: command.styleDirectionId,
-                  renderInstruction: buildRenderInstruction("hairstyle", {
-                    providerCandidateKey,
-                    nameZh: option.nameZh,
-                    description: option.description,
-                    modelRationale: option.achievementLabel,
-                    rank: index,
-                    visualDirection: option.description,
-                  }),
+                  renderInstruction: wigRenderInstruction(option.nameZh, (candidate) =>
+                    buildRenderInstruction("hairstyle", {
+                      providerCandidateKey,
+                      nameZh: candidate.nameZh,
+                      description: option.description,
+                      modelRationale: option.achievementLabel,
+                      rank: index,
+                      visualDirection: option.description,
+                    }),
+                  ),
                   verificationStatus: "catalog_verified",
                 },
               });

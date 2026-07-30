@@ -31,6 +31,8 @@ export type WigMatchableCandidate = {
   coversForehead: boolean;
   /** 目录的长度档。用于判断「极短露头皮」那一类；缺失时按不可行处理 */
   lengthBand?: string;
+  /** 目录自己的造型描述。原样带出，供落库使用 */
+  description?: string;
 };
 
 /** 方案的时间取向。只有短期才开放假发 —— 它的主张是「短期内剪发达不到」。 */

@@ -10,6 +10,7 @@ type RawHairstyle = {
   nameZh: string;
   /** 长度档。假发可行性要用它判断「极短露头皮」那一类 */
   lengthBand?: string;
+  description?: string;
   recommendationEligibility?: "special_opt_in" | "default";
   personalizedRenderReadiness?: string;
   fitAttributes?: { foreheadCoverage?: { value?: string } };
@@ -59,6 +60,8 @@ export type HairstyleCatalogProjection = {
     requiresHairVolume: HairVolumeRequirement;
     coversForehead: boolean;
     lengthBand?: string;
+    /** 目录自己的造型描述。假发候选落库时用它，而不是达成路径文案 */
+    description?: string;
     reason: string;
   }>;
 };
@@ -135,6 +138,7 @@ export function projectHairstyleCatalog(
       requiresHairVolume: item.requiresHairVolume,
       coversForehead: item.coversForehead,
       lengthBand: item.lengthBand,
+      description: item.description,
       reason,
     })),
   };
