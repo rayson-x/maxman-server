@@ -292,3 +292,19 @@ test("a hand annotation wins over the derivation", () => {
   assert.deepEqual(outcome.options, []);
   assert.equal(outcome.unmatched[0]?.needsHumanReview, false);
 });
+
+test("long and medium-long styles are out of scope, not evidence gaps", () => {
+  // 披肩、丸子头、马尾要靠长发假发实现，属另一个品类；范围声明明确排除女式假发。
+  for (const band of ["long", "medium-long"]) {
+    const outcome = deriveWigOptions({
+      blockedCandidates: [{ nameZh: "披肩直发", requiresHairVolume: "medium", coversForehead: false, lengthBand: band }],
+      modelRankedNames: [],
+      track: "short_term",
+      userDeclaredHairConcern: true,
+    });
+    assert.deepEqual(outcome.options, []);
+    // 范围之外是确定结论，不该占用人工复核队列
+    assert.equal(outcome.unmatched[0]?.needsHumanReview, false);
+    assert.match(outcome.unmatched[0]?.reason ?? "", /范围/);
+  }
+});

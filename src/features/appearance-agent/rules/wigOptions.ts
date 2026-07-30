@@ -172,6 +172,18 @@ function deriveFeasibilityFromCatalog(
       evidenceStrength: "reasoned",
     };
   }
+  /*
+   * 长款与中长款不进假发选项。调研覆盖的是男士日常自然向的发片与整顶短款；披肩、丸子头、
+   * 马尾这类要靠长发假发实现，属于另一个品类，而本能力的范围声明明确排除女式假发。
+   * 这不是判据不足，是范围之外，所以给确定的理由而非升级到人工。
+   */
+  if (candidate.lengthBand === "long" || candidate.lengthBand === "medium-long") {
+    return {
+      feasible: false,
+      reason: "长发造型要靠长发假发实现，不在男士日常向假发的范围内",
+      evidenceStrength: "product_decision",
+    };
+  }
   return {
     feasible: true,
     minimumTier: candidate.coversForehead ? "volume_patch" : "full_wig_front_lace",

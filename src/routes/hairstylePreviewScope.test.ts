@@ -87,9 +87,10 @@ test("omitting the scope keeps today's behaviour and needs only the default set"
     headers: { ...headers, "idempotency-key": "wig-scope-default-0001" },
   });
 
-  // 这套测试容器不带队列，入队必然失败，所以断言的是**门禁已放行**而不是最终 202。
-  assert.notEqual(response.statusCode, 422);
-  assert.notEqual(response.json().error, "hairstyle_recommendation_not_ready");
+  // 这套测试容器不带队列，所以放行后必然停在入队失败（503）。断言 503 而不是「非 422」——
+  // 后者连一个 500 都能满足，证明不了范围解析到了正确的集合。
+  assert.equal(response.statusCode, 503);
+  assert.equal(response.json().error, "queue_unavailable");
 });
 
 test("a wig-scoped request is accepted once the wig set is ready", async () => {
@@ -104,9 +105,9 @@ test("a wig-scoped request is accepted once the wig set is ready", async () => {
     payload: { scope: "wig" },
   });
 
-  // 同上：只断言门禁放行了假发那批。
-  assert.notEqual(response.statusCode, 422);
-  assert.notEqual(response.json().error, "hairstyle_recommendation_not_ready");
+  // 同上：放行后停在入队失败，说明范围解析到了假发集合而不是默认集合。
+  assert.equal(response.statusCode, 503);
+  assert.equal(response.json().error, "queue_unavailable");
 });
 
 test("a default-scoped request is rejected when only the wig set exists", async () => {

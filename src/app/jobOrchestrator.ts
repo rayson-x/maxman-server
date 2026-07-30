@@ -1126,7 +1126,17 @@ async function deriveWigOptionsView(input: {
   closedReason: string | null;
   /** 集合 id。假发款落在独立集合里，默认发型列表因此不可能被污染 */
   setId: string | null;
-  options: { candidateId: string; nameZh: string; tier: string; achievementLabel: string }[];
+  options: {
+    candidateId: string;
+    nameZh: string;
+    tier: string;
+    achievementLabel: string;
+    /**
+     * 这一款是否有校准过的渲染规格。为 false 时出图会产出零张图 ——
+     * 客户端据此决定要不要请求预览，避免白烧一个出图配额。
+     */
+    renderReady: boolean;
+  }[];
   /** 属性表未标注、需要人补依据的款式名。见 WIG-005 */
   annotationGaps: string[];
 }> {
@@ -1185,6 +1195,7 @@ async function deriveWigOptionsView(input: {
     setId: persisted.setId,
     options: outcome.options.flatMap((option) => {
       const candidateId = persisted.candidateIdByName[option.candidate.nameZh];
+      const renderReady = persisted.renderReadyByName[option.candidate.nameZh] === true;
       // 落库失败的项不返回：返回一个选不中的 id 比不返回更糟。
       return candidateId
         ? [{
@@ -1192,6 +1203,7 @@ async function deriveWigOptionsView(input: {
             nameZh: option.candidate.nameZh,
             tier: option.tier,
             achievementLabel: option.achievementLabel,
+            renderReady,
           }]
         : [];
     }),

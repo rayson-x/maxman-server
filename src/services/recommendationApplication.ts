@@ -989,7 +989,12 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
       inputFingerprint: string;
       generation?: number;
       options: Array<{ nameZh: string; description: string; achievementLabel: string }>;
-    }): Promise<{ setId: string; candidateIdByName: Record<string, string> }> {
+    }): Promise<{
+      setId: string;
+      candidateIdByName: Record<string, string>;
+      /** 有校准渲染规格的款式。没有的出图会产出零张图，调用方据此避免白烧配额 */
+      renderReadyByName: Record<string, boolean>;
+    }> {
       const capabilityStatus: CapabilityStatus = {
         knowledgeSource: "catalog_matching",
         // 可行性已由确定性过滤与属性表标注决定，不是模型估计
@@ -1061,11 +1066,14 @@ export function createRecommendationApplication(deps: RecommendationApplicationD
 
       const rows = await prisma.recommendationCandidate.findMany({
         where: { setId },
-        select: { id: true, nameZh: true },
+        select: { id: true, nameZh: true, renderInstruction: true },
       });
       return {
         setId,
         candidateIdByName: Object.fromEntries(rows.map((row) => [row.nameZh, row.id])),
+        renderReadyByName: Object.fromEntries(
+          rows.map((row) => [row.nameZh, row.renderInstruction.trim().length > 0]),
+        ),
       };
     },
 
