@@ -230,3 +230,65 @@ test("styles whose canonical name is another style's alias are not collapsed", (
   );
   assert.equal(outcome.unmatched.length, 2, "两个不同款式不能被塌成一条");
 });
+
+/*
+ * 目录推导。运行时目录有 27 款，而逐款手工标注只覆盖其中 3 个名字 —— 只按名字查表的话
+ * 24 款会被 fail closed 判死，入口在生产里几乎永不开启。调研给的两条判据本来就能由
+ * 目录数据机械判定，所以由推导兜底。
+ */
+
+test("a forehead-covering style with a normal length band derives a volume patch", () => {
+  const outcome = deriveWigOptions({
+    blockedCandidates: [{ nameZh: "港风中长纹理", requiresHairVolume: "high", coversForehead: true, lengthBand: "medium" }],
+    modelRankedNames: [],
+    track: "short_term",
+    userDeclaredHairConcern: true,
+  });
+  assert.equal(outcome.open, true);
+  assert.equal(outcome.options[0]?.tier, "volume_patch");
+});
+
+test("a forehead-baring style derives the front-lace tier", () => {
+  const outcome = deriveWigOptions({
+    blockedCandidates: [{ nameZh: "纹理背头", requiresHairVolume: "medium", coversForehead: false, lengthBand: "short" }],
+    modelRankedNames: [],
+    track: "short_term",
+    userDeclaredHairConcern: true,
+  });
+  assert.equal(outcome.options[0]?.tier, "full_wig_front_lace");
+});
+
+test("a very-short length band derives infeasible whatever the name", () => {
+  const outcome = deriveWigOptions({
+    blockedCandidates: [{ nameZh: "四六纹理侧背", requiresHairVolume: "low", coversForehead: false, lengthBand: "very-short" }],
+    modelRankedNames: [],
+    track: "short_term",
+    userDeclaredHairConcern: true,
+  });
+  assert.deepEqual(outcome.options, []);
+  assert.match(outcome.unmatched[0]?.reason ?? "", /头皮/);
+  assert.equal(outcome.unmatched[0]?.needsHumanReview, false);
+});
+
+test("a missing length band stays fail closed rather than assuming the best", () => {
+  const outcome = deriveWigOptions({
+    blockedCandidates: [{ nameZh: "短狼尾", requiresHairVolume: "high", coversForehead: true }],
+    modelRankedNames: [],
+    track: "short_term",
+    userDeclaredHairConcern: true,
+  });
+  assert.deepEqual(outcome.options, []);
+  assert.equal(outcome.unmatched[0]?.needsHumanReview, true);
+});
+
+test("a hand annotation wins over the derivation", () => {
+  // 属性表里 圆寸 被标为不可行；即使长度档看起来正常，也不能被推导翻过来。
+  const outcome = deriveWigOptions({
+    blockedCandidates: [{ nameZh: "圆寸", requiresHairVolume: "low", coversForehead: true, lengthBand: "medium" }],
+    modelRankedNames: [],
+    track: "short_term",
+    userDeclaredHairConcern: true,
+  });
+  assert.deepEqual(outcome.options, []);
+  assert.equal(outcome.unmatched[0]?.needsHumanReview, false);
+});

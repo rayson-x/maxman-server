@@ -103,3 +103,22 @@ test("excluded styles carry the name and the attributes the filter actually used
   assert.equal(excluded.coversForehead, false);
   assert.ok(excluded.reason.length > 0);
 });
+
+test("excluded styles carry the length band the wig rules need", () => {
+  // 「极短露头皮款不可行」这条判据要靠长度档；不带出来，下游只能对着名字去猜。
+  const withBand: HairstyleCatalogInput = {
+    ...catalog,
+    hairstyles: catalog.hairstyles.map((h) =>
+      h.id === "hair-exposed-high-volume" ? { ...h, lengthBand: "very-short" } : h,
+    ),
+  };
+  const result = projectHairstyleCatalog(withBand, {
+    selectedStyleId: "underfed-style",
+    hairSignals: { hairline: "receding", volume: "thin" },
+    renderProvider: "ark",
+    renderModel: "seedream",
+  });
+
+  const excluded = result.excluded.find((row) => row.hairstyleId === "hair-exposed-high-volume");
+  assert.equal(excluded?.lengthBand, "very-short");
+});

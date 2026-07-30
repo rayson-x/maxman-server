@@ -29,6 +29,8 @@ export type WigMatchableCandidate = {
   nameZh: string;
   requiresHairVolume: HairVolumeRequirement;
   coversForehead: boolean;
+  /** 目录的长度档。用于判断「极短露头皮」那一类；缺失时按不可行处理 */
+  lengthBand?: string;
 };
 
 /** 方案的时间取向。只有短期才开放假发 —— 它的主张是「短期内剪发达不到」。 */
@@ -48,8 +50,11 @@ export type WigOptionInput<T extends WigMatchableCandidate> = {
    * 入口，也就无处确认。真要覆盖他们，得先有一个新的表达入口，那是另一个产品决定。
    */
   userDeclaredHairConcern: boolean;
-  /** 可注入的可行性查表，缺省用发型客观属性表 */
-  feasibilityOf?: (name: string) => WigFeasibilityAnnotation | null;
+  /** 可注入的可行性判定，缺省为「手工标注优先、目录推导兜底」 */
+  feasibilityOf?: (
+    name: string,
+    candidate?: WigMatchableCandidate,
+  ) => WigFeasibilityAnnotation | null;
 };
 
 export type WigOption<T> = {
@@ -139,10 +144,51 @@ function byModelPreference<T extends WigMatchableCandidate>(
   return [...ranked, ...rest];
 }
 
+/**
+ * 从目录属性推导假发可行性。这不是「猜」——调研给出的判据本来就只有两条，且两条都能由
+ * 目录数据机械判定：
+ *
+ *   1. 极短露头皮（`lengthBand: very-short`）→ 不可行。从业者一致不建议用假发做寸头类长度：
+ *      头发极短时头皮成为视觉焦点，网底与不自然发际线立刻暴露。
+ *   2. 遮额 → 只补量感就够；露额 → 需整顶且前额工艺过关（完全暴露发际线需要蕾丝前额 +
+ *      漂结 + 渐变密度，不是所有价位做得到）。
+ *
+ * 为什么需要它：运行时目录有 27 款，而逐款手工标注的属性表只覆盖其中 3 个名字 ——
+ * 只靠按名字查表，24 款会被 fail closed 判死，入口在生产里几乎永不开启。
+ *
+ * fail closed 仍然成立，且区分两种「不给」：长度档缺失时返回 null（判据不足，要有人去补），
+ * 而不是谎报「确定不可行」——后者会让缺口从升级队列里消失。
+ */
+function deriveFeasibilityFromCatalog(
+  candidate: WigMatchableCandidate,
+): WigFeasibilityAnnotation | null {
+  if (candidate.lengthBand === undefined) return null;
+  if (candidate.lengthBand === "very-short") {
+    return {
+      feasible: false,
+      reason: "极短款式头皮成为视觉焦点，网底与发际线藏不住",
+      evidenceStrength: "reasoned",
+    };
+  }
+  return {
+    feasible: true,
+    minimumTier: candidate.coversForehead ? "volume_patch" : "full_wig_front_lace",
+    evidenceStrength: "reasoned",
+  };
+}
+
 export function deriveWigOptions<T extends WigMatchableCandidate>(
   input: WigOptionInput<T>,
 ): WigOptionOutcome<T> {
-  const feasibilityOf = input.feasibilityOf ?? wigFeasibilityFor;
+  /*
+   * 手工标注优先于推导：属性表里的那 17 条带更具体的信息（例如需要烫卷的款式必须用真人发），
+   * 推导给不出这一层。目录里其余款式由推导兜住 —— 否则它们会被 fail closed 判死。
+   * 这是「具体压过一般」的分层，不是两个真相来源：优先级是明确的、单向的。
+   */
+  const feasibilityOf =
+    input.feasibilityOf ??
+    ((name: string, candidate?: WigMatchableCandidate) =>
+      wigFeasibilityFor(name) ?? (candidate ? deriveFeasibilityFromCatalog(candidate) : null));
   const gap = byModelPreference(input.blockedCandidates, input.modelRankedNames);
 
   if (gap.length === 0) return { open: false, closedReason: "no_gap", options: [], unmatched: [] };
@@ -151,7 +197,7 @@ export function deriveWigOptions<T extends WigMatchableCandidate>(
   const unmatched: WigUnmatched<T>[] = [];
 
   for (const candidate of gap) {
-    const annotation = feasibilityOf(identity(candidate.nameZh));
+    const annotation = feasibilityOf(identity(candidate.nameZh), candidate);
     // fail closed：未标注 = 未判定 = 不可行。标错的代价是让用户花钱买一顶做不出
     // 目标效果的假发，比少推荐一款严重得多。
     if (annotation === null) {

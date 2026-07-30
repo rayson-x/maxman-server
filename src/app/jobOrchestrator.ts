@@ -1142,6 +1142,7 @@ async function deriveWigOptionsView(input: {
       nameZh: row.nameZh,
       requiresHairVolume: row.requiresHairVolume,
       coversForehead: row.coversForehead,
+      lengthBand: row.lengthBand,
     })),
     modelRankedNames: input.modelRankedNames,
     track: input.shortTerm ? "short_term" : "long_term",
