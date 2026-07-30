@@ -43,6 +43,14 @@ export type WigOptionInput<T extends WigMatchableCandidate> = {
   blockedCandidates: readonly T[];
   /** 模型通道给出的候选名，按其排序。仅用于排序，不用于取舍 */
   modelRankedNames: readonly string[];
+  /**
+   * 默认列表已经提供给用户的款式名。这些一律不进假发入口。
+   *
+   * 为什么需要它：默认集合里除了确定性可行集，还落了模型独有候选，而那批**绕过了发量
+   * 可行性过滤**。不排掉的话，同一个款式会既在默认列表里可直接选、又在假发入口里被说成
+   * 需要买假发 —— 等于让用户为一个刚刚推荐给他的发型花钱。
+   */
+  alreadyOfferedNames?: readonly string[];
   track: PlanTrack;
   /**
    * 问卷自报「受脱发 / 发量变少困扰」为非「没有困扰」。
@@ -203,7 +211,11 @@ export function deriveWigOptions<T extends WigMatchableCandidate>(
     input.feasibilityOf ??
     ((name: string, candidate?: WigMatchableCandidate) =>
       wigFeasibilityFor(name) ?? (candidate ? deriveFeasibilityFromCatalog(candidate) : null));
-  const gap = byModelPreference(input.blockedCandidates, input.modelRankedNames);
+  const offered = new Set((input.alreadyOfferedNames ?? []).map(identity));
+  const gap = byModelPreference(
+    input.blockedCandidates.filter((c) => !offered.has(identity(c.nameZh))),
+    input.modelRankedNames,
+  );
 
   if (gap.length === 0) return { open: false, closedReason: "no_gap", options: [], unmatched: [] };
 

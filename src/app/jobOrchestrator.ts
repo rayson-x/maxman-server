@@ -552,6 +552,9 @@ export function createJobOrchestrator(container: AppContainer) {
           // 模型通道独有的候选 = 它想推、而确定性可行集没提供的款式。
           // 其中被发量/发际线挡住的那部分正是假发能拿回来的，排序即取自这里。
           modelRankedNames: result.exploration.map((candidate) => candidate.nameZh),
+          // 默认集合落的是 main + exploration，后者绕过了发量可行性过滤；
+          // 它们已经作为可直接选的款式给了用户，不能再出现在假发入口里。
+          alreadyOfferedNames: (set?.candidates ?? []).map((candidate) => candidate.nameZh),
           shortTerm: profile?.track === "short_term",
           declaredHairConcern: profile?.hairLossConcern === true,
         }),
@@ -1119,6 +1122,7 @@ async function deriveWigOptionsView(input: {
   hairSignals: import("../features/appearance-agent/rules/hairConstraints.js").HairSignals;
   renderProvider: string;
   modelRankedNames: string[];
+  alreadyOfferedNames: string[];
   shortTerm: boolean;
   declaredHairConcern: boolean;
 }): Promise<{
@@ -1156,6 +1160,7 @@ async function deriveWigOptionsView(input: {
       description: row.description,
     })),
     modelRankedNames: input.modelRankedNames,
+    alreadyOfferedNames: input.alreadyOfferedNames,
     track: input.shortTerm ? "short_term" : "long_term",
     userDeclaredHairConcern: input.declaredHairConcern,
   });

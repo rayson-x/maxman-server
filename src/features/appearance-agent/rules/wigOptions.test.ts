@@ -308,3 +308,37 @@ test("long and medium-long styles are out of scope, not evidence gaps", () => {
     assert.match(outcome.unmatched[0]?.reason ?? "", /范围/);
   }
 });
+
+test("a style the default list already offers never appears in the wig entry", () => {
+  /*
+   * 默认集合里除了确定性可行集，还落了模型独有候选，而那批绕过了发量可行性过滤。
+   * 不排掉的话，同一款会既在默认列表里可直接选、又在假发入口里说要买假发 ——
+   * 等于让用户为一个刚推荐给他的发型花钱。
+   */
+  const outcome = deriveWigOptions({
+    blockedCandidates: [
+      { nameZh: "纹理背头", requiresHairVolume: "medium", coversForehead: false, lengthBand: "short" },
+      { nameZh: "美式前刺", requiresHairVolume: "medium", coversForehead: false, lengthBand: "short" },
+    ],
+    modelRankedNames: [],
+    alreadyOfferedNames: ["纹理背头"],
+    track: "short_term",
+    userDeclaredHairConcern: true,
+  });
+
+  assert.deepEqual(outcome.options.map((o) => o.candidate.nameZh), ["美式前刺"]);
+  // 被默认列表提供的款式也不该进升级队列 —— 它不是判据问题
+  assert.equal(outcome.unmatched.length, 0);
+});
+
+test("everything blocked being already offered closes the entry", () => {
+  const outcome = deriveWigOptions({
+    blockedCandidates: [{ nameZh: "纹理背头", requiresHairVolume: "medium", coversForehead: false, lengthBand: "short" }],
+    modelRankedNames: [],
+    alreadyOfferedNames: ["纹理背头"],
+    track: "short_term",
+    userDeclaredHairConcern: true,
+  });
+  assert.equal(outcome.open, false);
+  assert.equal(outcome.closedReason, "no_gap");
+});
