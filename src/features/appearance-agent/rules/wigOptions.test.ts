@@ -87,13 +87,6 @@ test("without a user-side declaration the entry stays shut", () => {
   assert.equal(outcome.closedReason, "no_user_declaration");
 });
 
-test("an explicit in-flow confirmation substitutes for the questionnaire answer", () => {
-  const outcome = deriveWigOptions(
-    input({ userDeclaredHairConcern: false, explicitlyConfirmed: true }),
-  );
-  assert.equal(outcome.open, true);
-});
-
 test("a style blocked only by volume needs no more than a volume patch", () => {
   assert.equal(deriveWigOptions(input()).options[0]?.tier, "volume_patch");
 });

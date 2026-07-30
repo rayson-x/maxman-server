@@ -120,3 +120,23 @@ test("a wig-set hairstyle is accepted by materialisation, not rejected as a type
   assert.equal(specs[0]!.domain, "hairstyle");
   assert.match(specs[0]!.changeDescription, /整顶假发/);
 });
+
+test("a wig-achieved hairstyle lands in stage one, not the same-day stage", () => {
+  /*
+   * 调研结论：即便网购成品，通常仍需修剪才贴合头型（行业说法：网购是「隔空修剪」），
+   * 从下单到成型要几天。按「阶段落位由时间可行性决定、与收益评分无关」这条规则，
+   * 它落不到阶段 0（当天 10-30 分钟）。
+   */
+  const specs = buildSelectedStyleTaskSpecs({
+    hairstyle: {
+      kind: "hairstyle_wig",
+      nameZh: "大背头",
+      description: "往后梳的光滑造型",
+      achievement: { label: "这个款式会露出发际线，需要整顶假发才能做到" },
+    },
+    outfit: { kind: "outfit", nameZh: "素色T恤+直筒裤", description: "纯色上装配直筒下装" },
+  });
+
+  assert.deepEqual(specs[0]!.applicableStageRange, ["stage1"]);
+  assert.ok(!specs[0]!.applicableStageRange.includes("stage0"));
+});

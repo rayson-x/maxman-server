@@ -40,10 +40,14 @@ export type WigOptionInput<T extends WigMatchableCandidate> = {
   /** 模型通道给出的候选名，按其排序。仅用于排序，不用于取舍 */
   modelRankedNames: readonly string[];
   track: PlanTrack;
-  /** 问卷自报「受脱发 / 发量变少困扰」为非「没有困扰」 */
+  /**
+   * 问卷自报「受脱发 / 发量变少困扰」为非「没有困扰」。
+   *
+   * 这是**唯一**的用户侧依据。曾经还留过一个「用户在界面显式确认」的入参，但它按构造
+   * 不可能被触发：它服务的是「没自报困扰、却愿意用假发」的用户，而这类用户根本看不到
+   * 入口，也就无处确认。真要覆盖他们，得先有一个新的表达入口，那是另一个产品决定。
+   */
   userDeclaredHairConcern: boolean;
-  /** 用户在选择界面显式确认愿意用假发。与自报二者其一即可 */
-  explicitlyConfirmed?: boolean;
   /** 可注入的可行性查表，缺省用发型客观属性表 */
   feasibilityOf?: (name: string) => WigFeasibilityAnnotation | null;
 };
@@ -187,9 +191,7 @@ function closureReason<T extends WigMatchableCandidate>(
   // 其余场景无从主张「来不及」。
   if (input.track !== "short_term") return "not_short_term";
   // 用户侧依据是硬门槛：视觉信号可以影响「推荐哪些发型」，但不能替用户决定他该买假发。
-  if (!input.userDeclaredHairConcern && input.explicitlyConfirmed !== true) {
-    return "no_user_declaration";
-  }
+  if (!input.userDeclaredHairConcern) return "no_user_declaration";
   // 入口上的「能解锁 N 款」必须是真实数字，为 0 时不显示入口。
   if (options.length === 0) return "no_feasible_option";
   return null;
