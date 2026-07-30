@@ -17,6 +17,11 @@ const sourceFiles = [
   "wardrobe-image-assets-cn.json",
   "wardrobe-supply-map-cn.json",
   "hairstyle-preview-calibrations-v1.json",
+  "outfit-fit-schema-v1.json",
+  // 快照 manifest 声明 13 个源，这两个此前没登记进来，于是任何加载快照的模块都起不来
+  // （`Snapshot source missing: fitRulesBodyOutfit`）。文件本来就在快照目录里。
+  "fit-rules-bodyoutfit-cn.json",
+  "outfits-cn.json",
 ] as const;
 
 function loadJson(fileName: string): unknown {
